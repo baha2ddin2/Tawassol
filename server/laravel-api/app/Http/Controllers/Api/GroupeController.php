@@ -21,19 +21,52 @@ class GroupeController extends Controller
     {
         $authId = Auth::id();
 
-        $messages = DB::table('messages')
-            ->join('profiles', 'messages.sender_id', '=', 'profiles.user_id')
-            ->where('group_id', $groupId)
+        $messages = DB::table('messages as m')
+
+            ->join('profiles as p', 'm.sender_id', '=', 'p.user_id')
+            ->leftJoin('media as md', 'm.message_id', '=', 'md.message_id')
+
+            ->where('m.group_id', $groupId)
+
             ->select(
-                'messages.message_id',
-                'messages.sender_id',
-                'messages.content',
-                'messages.created_at',
-                'profiles.display_name',
-                'profiles.avatar_url',
-                DB::raw("CASE WHEN messages.sender_id = '$authId' THEN 1 ELSE 0 END as is_user")
+                'm.message_id',
+                'm.sender_id',
+                'm.content',
+                'm.created_at',
+                'p.display_name',
+                'p.avatar_url',
+
+                DB::raw("CASE 
+            WHEN m.sender_id = '$authId' 
+            THEN 1 ELSE 0 
+        END as is_user"),
+
+                DB::raw("
+            IF(COUNT(md.media_id) > 0,
+                JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                        'media_id', md.media_id,
+                        'url', md.url,
+                        'type', md.type,
+                        'size', md.size,
+                        'mime_type', md.mime_type
+                    )
+                ),
+                JSON_ARRAY()
+            ) as media
+        ")
             )
-            ->orderBy('messages.created_at', 'asc')
+
+            ->groupBy(
+                'm.message_id',
+                'm.sender_id',
+                'm.content',
+                'm.created_at',
+                'p.display_name',
+                'p.avatar_url'
+            )
+
+            ->orderBy('m.created_at', 'asc')
             ->get();
 
         return response()->json($messages);
@@ -247,8 +280,9 @@ class GroupeController extends Controller
         ]);
     }
 
-    public function getAvailableMembers(string $groupId){
-        
+    public function getAvailableMembers(string $groupId)
+    {
+
         $authId = Auth::id();
 
         $users = DB::table('users as u')
