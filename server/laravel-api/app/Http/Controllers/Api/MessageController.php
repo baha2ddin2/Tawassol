@@ -101,9 +101,10 @@ class MessageController extends Controller
         ]);
     }
 
-    public function conversation(string $userId){
+    public function conversation(string $userId)
+    {
         $authId = Auth::id();
-        //mark messages as is_read of this conversation
+
         DB::table('messages')
             ->where('sender_id', $userId)
             ->where('recipient_id', $authId)
@@ -114,29 +115,56 @@ class MessageController extends Controller
                 'updated_at' => now()
             ]);
 
-        $messages = DB::table('messages')
-            ->whereNull('group_id')
+        $messages = DB::table('messages as m')
+            ->leftJoin('media as md', 'm.message_id', '=', 'md.message_id')
+            ->whereNull('m.group_id')
             ->where(function ($q) use ($authId, $userId) {
                 $q->where(function ($query) use ($authId, $userId) {
-                    $query->where('sender_id', $authId)
-                        ->where('recipient_id', $userId);
+                    $query->where('m.sender_id', $authId)
+                        ->where('m.recipient_id', $userId);
                 })
-                ->orWhere(function ($query) use ($authId, $userId) {
-                    $query->where('sender_id', $userId)
-                        ->where('recipient_id', $authId);
-                });
+                    ->orWhere(function ($query) use ($authId, $userId) {
+                        $query->where('m.sender_id', $userId)
+                            ->where('m.recipient_id', $authId);
+                    });
             })
+
             ->select(
-                'message_id',
-                'content',
-                'created_at',
-                'is_read',
+                'm.message_id',
+                'm.content',
+                'm.created_at',
+                'm.is_read',
+
                 DB::raw("CASE 
-                    WHEN sender_id = '$authId' 
-                    THEN 1 ELSE 0 
-                END as is_user")
+            WHEN m.sender_id = '$authId' 
+            THEN 1 ELSE 0 
+        END as is_user"),
+
+                DB::raw("
+            IF(COUNT(md.media_id) > 0,
+                JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                        'media_id', md.media_id,
+                        'url', md.url,
+                        'type', md.type,
+                        'size', md.size,
+                        'mime_type', md.mime_type
+                    )
+                ),
+                JSON_ARRAY()
+            ) as media
+        ")
             )
-            ->orderBy('created_at', 'asc')
+
+            ->groupBy(
+                'm.message_id',
+                'm.content',
+                'm.created_at',
+                'm.is_read',
+                'm.sender_id'
+            )
+
+            ->orderBy('m.created_at', 'asc')
             ->get();
 
         return response()->json($messages);

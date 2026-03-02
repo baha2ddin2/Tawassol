@@ -50,7 +50,7 @@ class GroupeController extends Controller
             $file = $request->file('photo');
             $mediaId = Str::uuid();
             $manager = new ImageManager(new Driver());
-            $filename = 'posts/' . $mediaId . '.webp';
+            $filename = 'group/' . $mediaId . '.webp';
             $image = $manager->read($file)
                 ->scale(width: 1080)
                 ->toWebp(80);
