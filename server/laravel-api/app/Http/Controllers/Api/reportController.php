@@ -46,10 +46,6 @@ class reportController extends Controller
 
     public function reportComment(reportRequest $request, string $commentId)
     {
-        // Validate request
-        $request->validate([
-            'reason' => 'required|string|max:255',
-        ]);
 
         $comment = Comment::find($commentId);
         if (!$comment) {

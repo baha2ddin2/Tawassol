@@ -36,6 +36,7 @@ class MessageController extends Controller
                 'u.user_id',
                 'p.display_name',
                 'p.avatar_url',
+                'u.is_active',
                 DB::raw('(SELECT content 
                  FROM messages 
                  WHERE 
@@ -48,7 +49,7 @@ class MessageController extends Controller
                 DB::raw('NULL as name'),
                 DB::raw('NULL as photo_url')
             )
-            ->groupBy('u.user_id', 'p.display_name', 'p.avatar_url')
+            ->groupBy('u.user_id', 'p.display_name', 'p.avatar_url','u.is_active')
             ->get();
 
         $groups = DB::table('groups as g')
@@ -67,7 +68,7 @@ class MessageController extends Controller
                 'g.name',
                 'g.photo_url'
             )
-            ->groupBy('g.group_id', 'g.name', 'g.photo_url')
+            ->groupBy('g.group_id')
             ->get();
 
         $contacts = $privateContacts
@@ -104,16 +105,6 @@ class MessageController extends Controller
     public function conversation(string $userId)
     {
         $authId = Auth::id();
-
-        DB::table('messages')
-            ->where('sender_id', $userId)
-            ->where('recipient_id', $authId)
-            ->whereNull('group_id')
-            ->where('is_read', 0)
-            ->update([
-                'is_read' => 1,
-                'updated_at' => now()
-            ]);
 
         $messages = DB::table('messages as m')
             ->leftJoin('media as md', 'm.message_id', '=', 'md.message_id')
@@ -166,32 +157,17 @@ class MessageController extends Controller
 
             ->orderBy('m.created_at', 'asc')
             ->get();
-
+            
+        DB::table('messages')
+            ->where('sender_id', $userId)
+            ->where('recipient_id', $authId)
+            ->whereNull('group_id')
+            ->where('is_read', 0)
+            ->update([
+                'is_read' => 1,
+                'updated_at' => now()
+            ]);
         return response()->json($messages);
     }
 
-    // public function deleteMessage(string $messageId){
-    //     $message=message::find($messageId);
-    //     if(!$message){
-    //         response()->json(['message'=>'message not found'],404);
-    //     }
-    //     isAdmineOrTheSameUser($message->sender_id);
-    //     $message->delete();
-    //     return response()->json(['message'=>'message deleted successfuly']);
-    // }
-
-    // public function sendPrivateMessage(string $userId, Request $request){
-    //     $authId= Auth::id();
-    //     $user = User::find($userId);
-    //     if(!$user){
-    //         return response()->json(['message'=>'user not found']);
-    //     }
-
-    //     message::create([
-    //         'message_id'=>Str::uuid(),
-    //         'content'=>$request->content,
-    //         'sender_id'=>$authId,
-    //         'recipient_id'=>$userId
-    //     ]);
-    // }
 }

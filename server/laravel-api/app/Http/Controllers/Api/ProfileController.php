@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\changeAvatarRequest;
 use App\Http\Requests\changePrivacyRequest;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Models\Profile;
@@ -32,6 +33,7 @@ class ProfileController extends Controller
             ->join('profiles', 'users.user_id', '=', 'profiles.user_id')
             ->leftJoin('follows as f1', 'users.user_id', '=', 'f1.followed_id')
             ->leftJoin('follows as f2', 'users.user_id', '=', 'f2.follower_id')
+            ->leftJoin('posts as p', 'p.author_id', 'users.user_id')
             ->where('users.user_id', '=', Auth::user()->user_id)
             ->select(
                 'profiles.avatar_url',
@@ -39,6 +41,7 @@ class ProfileController extends Controller
                 'profiles.bio',
                 DB::raw('COUNT(DISTINCT f1.follow_id) as followers_count'),
                 DB::raw('COUNT(DISTINCT f2.follow_id) as following_count'),
+                DB::raw('COUNT(DISTINCT p.post_id) as posts_count'),
             )->groupBy(
                 'profiles.avatar_url',
                 'profiles.display_name',
@@ -55,13 +58,15 @@ class ProfileController extends Controller
             ->join('profiles', 'users.user_id', '=', 'profiles.user_id')
             ->leftJoin('follows as f1', 'users.user_id', '=', 'f1.followed_id')
             ->leftJoin('follows as f2', 'users.user_id', '=', 'f2.follower_id')
+            ->leftJoin('posts as p', 'p.author_id', 'users.user_id')
             ->where('users.user_id', '=', $id)
             ->select(
-                'profiles.avatar_url as avatar_url ',
-                'profiles.display_name as display_name ',
+                'profiles.avatar_url as avatar_url',
+                'profiles.display_name as display_name',
                 'profiles.bio as bio',
                 DB::raw('COUNT(DISTINCT f1.follow_id) as followers_count'),
                 DB::raw('COUNT(DISTINCT f2.follow_id) as following_count'),
+                DB::raw('COUNT(DISTINCT p.post_id) as posts_count'),
             )->groupBy(
                 'profiles.avatar_url',
                 'profiles.display_name',
@@ -79,11 +84,12 @@ class ProfileController extends Controller
     {
         try {
             $profile = Profile::where('user_id', '=', Auth::id())->first();
-
+            
             if (!$profile) {
                 return response()->json(['message' => 'profile not found'], 404);
             }
-            $profile->update($request->validate());
+
+            $profile->update($request->validated());
 
             return response()->json([
                 'message' => 'Profile updated successfuly',
@@ -94,10 +100,13 @@ class ProfileController extends Controller
         }
     }
 
-    public function updateAvatar(Request $request)
+    public function updateAvatar(changeAvatarRequest $request)
     {
+    
         try {
-
+            if (!$request->hasFile('avatar')) {
+                return response()->json(['message' => 'No file provided'], 400);
+            }
             $file = $request->file('avatar');
             if ($file) {
                 $mediaId = Str::uuid();
@@ -105,7 +114,6 @@ class ProfileController extends Controller
                 $image = $manager->read($file)
                     ->scale(width: 1080)
                     ->toWebp(80);
-
                 $filename = 'posts/' . $mediaId . '.webp';
                 Storage::disk('public')->put($filename, $image);
             }
@@ -116,14 +124,16 @@ class ProfileController extends Controller
             if (!$profile) {
                 return response()->json(['message' => 'profile not found'], 404);
             }
-            $profile->update($request);
+
+            $profile->update(['avatar_url' => $filename]);
+            return response()->json(['message' => 'avatar updated successfuly']);
         } catch (JWTException $e) {
             return response()->json(['error' => 'Failed to update avatar'], 500);
         }
     }
     public function changePrivacy(changePrivacyRequest $request)
     {
-        
+
         $profile = DB::table('profiles')
             ->where('user_id', Auth::id())
             ->update([

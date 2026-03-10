@@ -15,11 +15,11 @@ return [
     |
     */
 
-    'paths' => ['api/*','broadcasting/auth'],
+    'paths' => ['api/*',],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => ['http://127.0.0.1:3000'],
 
     'allowed_origins_patterns' => [],
 

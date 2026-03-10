@@ -2,9 +2,9 @@
 use Illuminate\Support\Facades\Auth;
 
 
-function isAdmine(){
+function isAdmin(){
     $user = Auth::user();
-    if(!$user->is_admin){
+    if($user->is_admin===0){
         return response()->json(['message'=>'forbidden'],403);
     }
 }

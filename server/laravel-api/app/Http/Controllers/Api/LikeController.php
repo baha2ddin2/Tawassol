@@ -26,8 +26,6 @@ class LikeController extends Controller
         if($LikePost){
             return response()->json(['message'=>'you already like this post'],401);
         }
-
-
         like::create([
             'like_id'=>Str::uuid(),
             'post_id'=>$postId,
@@ -102,6 +100,6 @@ class LikeController extends Controller
             return response()->json(['message'=>'like not found'],404);
         }
         $like->delete();
-        return response()->json(['message'=>'the message deleted successfuly']);
+        return response()->json(['message'=>'the like deleted successfuly']);
     }
 }

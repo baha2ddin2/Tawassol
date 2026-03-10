@@ -34,11 +34,11 @@ class CommentController extends Controller
         ]);
 
         notification::create([
-            'notification_id'=>Str::uuid(),
-            'user_id'=>$post->author_id,
-            'comment_id'=>$comment->comment_id,
-            'source_user_id'=>$userId,
-            'type'=>'comment',
+            'notification_id' => Str::uuid(),
+            'user_id' => $post->author_id,
+            'comment_id' => $comment->comment_id,
+            'source_user_id' => $userId,
+            'type' => 'comment',
         ]);
 
         return response()->json([
@@ -53,13 +53,13 @@ class CommentController extends Controller
         $comments = DB::table('comments')
             ->join('users', 'users.user_id', 'comments.author_id')
             ->join('profiles', 'profiles.user_id', 'users.user_id')
-            ->join('posts','posts.post_id','comments.comment_id')
+            ->join('posts', 'posts.post_id', 'comments.post_id')
             ->leftJoin('likes', 'comments.comment_id', '=', 'likes.comment_id')
             ->leftJoin('likes as user_like', function ($join) use ($authId) {
                 $join->on('comments.comment_id', '=', 'user_like.comment_id')
                     ->where('user_like.user_id', '=', $authId);
             })
-            ->where('posts.post_id',$postId)
+            ->where('posts.post_id', $postId)
             ->select(
                 'comments.comment_id',
                 'comments.content',
@@ -85,14 +85,18 @@ class CommentController extends Controller
         return response()->json($comments);
     }
 
-    public function deleteComment($commentId){
+    public function deleteComment($commentId)
+    {
         $comment = Comment::find($commentId);
-        if(!$comment){
-            return response()->json(['message'=>'comment not found'],404);
+        if (!$comment) {
+            return response()->json(['message' => 'comment not found'], 404);
         }
-        isAdmineOrTheSameUser($comment->author_id);
+        $user = Auth::user();
+        if (!$user->is_admin && $comment->author_id!= $user->id) {
+            return response()->json(['message' => 'forbidden'], 403);
+        }
 
         $comment->delete();
-        return response()->json(['message'=>'the comment deleted successfuly']) ;
+        return response()->json(['message' => 'the comment deleted successfuly']);
     }
 }

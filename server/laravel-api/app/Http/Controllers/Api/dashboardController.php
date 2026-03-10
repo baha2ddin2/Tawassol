@@ -11,13 +11,16 @@ use Illuminate\Http\Request;
 use App\Models\Report;
 use App\Models\Post;
 use App\Models\Comment;
-
+use Illuminate\Support\Facades\Auth;
 
 class dashboardController extends Controller
 {
     public function getAllReports()
     {
-        isAdmine();
+        $user=Auth::user();
+        if ($user->is_admin === 0) {
+            return response()->json(['message' => 'forbidden'], 403);
+        }
         $report = DB::table('reports as r')
 
             // Reporter info
@@ -112,7 +115,10 @@ class dashboardController extends Controller
     }
     public function getReport(string $reportId)
     {
-        isAdmine();
+        $user=Auth::user();
+        if ($user->is_admin === 0) {
+            return response()->json(['message' => 'forbidden'], 403);
+        }
         $report = DB::table('reports as r')
 
             // Reporter info
@@ -207,7 +213,10 @@ class dashboardController extends Controller
 
     public function count()
     {
-        // isAdmine();
+        $user=Auth::user();
+        if ($user->is_admin === 0) {
+            return response()->json(['message' => 'forbidden'], 403);
+        }
         $now = Carbon::now();
 
         $stats = [
@@ -257,24 +266,33 @@ class dashboardController extends Controller
 
     public function users(Request $request)
     {
+        $user=Auth::user();
+        if ($user->is_admin === 0) {
+            return response()->json(['message' => 'forbidden'], 403);
+        }
         $q = $request->query('q');
         if (empty($q)) {
             $users = DB::table('users')
                 ->join('profiles', 'users.user_id', '=', 'profiles.user_id')
                 ->paginate(10);
-        }else{
+        } else {
             $users = DB::table('users')
-            ->join('profiles', 'users.user_id', '=', 'profiles.user_id')
-            ->where('profiles.display_name', 'like', "%{$q}%")
-            ->orWhere('users.user_id','like', "%{$q}%")
-            ->paginate(10);
+                ->join('profiles', 'users.user_id', '=', 'profiles.user_id')
+                ->where('profiles.display_name', 'like', "%{$q}%")
+                ->orWhere('users.user_id', 'like', "%{$q}%")
+                ->paginate(10);
         }
-        
+
         return response()->json($users);
     }
 
     public function deleteUser(string $userId)
     {
+        $user=Auth::user();
+        if ($user->is_admin === 0) {
+            return response()->json(['message' => 'forbidden'], 403);
+        }
+
         $user = User::find($userId);
         if (!$user) {
             return response()->json(['message' => 'user not found'], 404);
@@ -287,6 +305,11 @@ class dashboardController extends Controller
 
     public function handleReport(string $reportId, handelReportRequest $request)
     {
+
+        $user=Auth::user();
+        if ($user->is_admin === 0) {
+            return response()->json(['message' => 'forbidden'], 403);
+        }
         $action = $request->validated()['action'];
         $report = Report::find($reportId);
 
@@ -294,9 +317,9 @@ class dashboardController extends Controller
             return response()->json(['message' => 'Report not found'], 404);
         }
 
-        $action = $request->input('action', 'ignore'); 
+        $action = $request->input('action', 'ignore');
 
-        DB::transaction(function() use ($report, $action) {
+        DB::transaction(function () use ($report, $action) {
             // Handle post
             if ($report->target_post_id && $action === 'delete') {
                 Post::where('post_id', $report->target_post_id)->delete();
@@ -328,5 +351,4 @@ class dashboardController extends Controller
             'status' => $report->status,
         ]);
     }
-
 }

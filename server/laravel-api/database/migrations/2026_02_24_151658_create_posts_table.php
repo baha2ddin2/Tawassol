@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('posts', function (Blueprint $table) {
             $table->uuid('post_id')->primary();
             $table->string('content')->nullable();
-            $table->string('external_link',200);
+            $table->string('external_link',200)->nullable() ;
             $table->boolean('visibilty')->default(true);
             $table->uuid('author_id');
             $table->foreign('author_id')->references('user_id')->on('users')->onDelete('cascade');

@@ -1,15 +1,13 @@
-import joi  from 'joi';
+import Joi  from 'joi';
 
+const   messageSchema = {
+  send: Joi.object({
+    content: Joi.string().allow("").max(1000),
+    media : Joi.optional()
+  }),
+  update: Joi.object({
+    content: Joi.string().allow("").max(1000),
+  })
+};
 
-export function validateMessage(orderitem) {
-    const schema = joi.object({
-        message: joi.string().required(),
-
-    });
-    const { error } = schema.validate(orderitem);
-    if (error) {
-        return  error.details[0].message;
-    }
-}
-
-
+export default messageSchema

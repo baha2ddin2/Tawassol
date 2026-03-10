@@ -24,7 +24,7 @@ class changeAvatarRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'avatar' => 'image|mimes:jpg,jpeg,png,webp|max:2048'
+            'avatar' => 'file|mimes:jpg,jpeg,png,webp|max:2048',
         ];
     }
 

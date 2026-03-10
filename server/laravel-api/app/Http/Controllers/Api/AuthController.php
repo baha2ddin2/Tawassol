@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -21,6 +22,7 @@ class AuthController extends Controller
 {
     public function register(RegisterRequest $request)
     {
+    
         $user = User::create([
             'user_id' => Str::uuid(),
             'email' => $request->email,
@@ -32,7 +34,7 @@ class AuthController extends Controller
             $file = $request->file('avatar');
             $mediaId = Str::uuid();
             $manager = new ImageManager(new Driver());
-            $filename = 'posts/' . $mediaId . '.webp';
+            $filename = 'avatar/' . $mediaId . '.webp';
             $image = $manager->read($file)
                 ->scale(width: 1080)
                 ->toWebp(80);
@@ -82,9 +84,11 @@ class AuthController extends Controller
 
     public function checkAuth()
     {
+        $profile = DB::table('profiles')->where('user_id',Auth::id())->first();
         return response()->json([
             'message' => 'user authenticated successfully',
-            'user' => Auth::user()
+            'user' => Auth::user(),
+            'profile'=> $profile
         ], 200);
     }
 
@@ -98,12 +102,12 @@ class AuthController extends Controller
             'access_token',
             $token,
             240000,
+            '/',
             null,
-            null,
-            true,
+            false,
             true,
             false,
-            'none'
+            'lax'
         );
     }
 }

@@ -31,17 +31,16 @@ Route::controller(PasswordController::class)->group(function(){
     Route::post('/password/change-password','changePassword');
 });
 
-// for this routes you required to auth first for use it
 Route::middleware('jwt.cookie')->group(function () {
 
     Route::controller(AuthController::class)->group(function(){
         Route::post('/logout' ,'logout');
-        Route::get('/checkAuth', 'checkAuth');
+        Route::post('/check-auth', 'checkAuth');
     });
 
     Route::controller(PostController::class)->group(function(){
-        Route::get('/profilePosts','profilePosts');
-        Route::get('/profilePosts/{id}','userPost');
+        Route::get('/profile-posts','profilePosts');
+        Route::get('/profile-posts/{id}','userPost');
         Route::get('/post/{id}','showPost');
         Route::get('/feed','homePosts');
         Route::post('/post','createPost');
@@ -60,10 +59,8 @@ Route::middleware('jwt.cookie')->group(function () {
         Route::get('/profile','MyProfile');
         Route::get('/profile/{id}','ShowProfile');
         Route::put('/profile','updateProfile');
-        Route::put('/avatar','updateAvatar');
+        Route::post('/avatar','updateAvatar');
         Route::put('/profile/changePrivacy','changePrivacy');
-        
-
     });
 
     Route::controller(hashtagController::class)->group(function(){
@@ -82,7 +79,7 @@ Route::middleware('jwt.cookie')->group(function () {
     Route::controller(CommentController::class)->group(function(){
         Route::post('/comment','createComment');
         Route::get('/comment/{postId}','showComments');
-        Route::delete('/comment','deleteComment');
+        Route::delete('/comment/{commentId}','deleteComment');
     });
 
     Route::controller(NotificationController::class)->group(function(){
@@ -111,23 +108,22 @@ Route::middleware('jwt.cookie')->group(function () {
     Route::controller(MessageController::class)->group(function(){
         Route::get('/contacts','contactsFull');
         Route::get('/unread_messages','unreadMessagesCount');
-        Route::get('/conversation/{$userId}','conversation');
-        // Route::delete('/message/{messageId}','deleteMessage');
-        // Route::post();
+        Route::get('/conversation/{userId}','conversation');
     });
 
     Route::controller(GroupeController::class)->group(function(){
         Route::get('/group/conersation/{groupId}','conversation');
         Route::post('/group','createGroup');
         Route::post('/group/add-membes/{$groupId}','addGroupMembers');
+        Route::get('/group/available-members','getAvailableMembers');
         Route::put('/group/{groupId}','updateGroup');
         Route::get('/group/{groupId}','getGroupDetails');
-        Route::get('/group/available-members/{groupId}','getAvailableMembers');
+        
     });
 
     Route::controller(EmailController::class)->group(function(){
-        Route::post('email/send-code','sendCode');
-        Route::post('email/verify-email','verifyEmail');
+        Route::post('/email/send-code','sendCode');
+        Route::post('/email/verify-email','verifyEmail');
 
     });
 
@@ -145,9 +141,7 @@ Route::middleware('jwt.cookie')->group(function () {
         Route::post('/report/post/{postId}','reportPost');
         Route::post('/report/comment/{commentId}','reportComment');
         Route::post('/report/user/{userId}','reportUser');
-        Route::post('/report','myReports');
+        Route::get('/report','myReports');
     });
-
-
 
 });

@@ -6,11 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\addMembersRequest;
 use App\Http\Requests\creatGroupRequest;
 use App\Http\Requests\updateGroupRequest;
+use App\Models\message;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -112,15 +114,17 @@ class GroupeController extends Controller
         foreach ($members as $memberId) {
             if ($memberId === $authId) continue;
 
-            $canAdd = DB::table('follows')
-                ->where(function ($q) use ($authId, $memberId) {
-                    $q->where('follower_id', $authId)->where('followed_id', $memberId);
-                })
-                ->Where(function ($q) use ($authId, $memberId) {
-                    $q->where('follower_id', $memberId)->where('followed_id', $authId);
-                })
+            $authFollowsMember = DB::table('follows')
+                ->where('follower_id', $authId)
+                ->where('followed_id', $memberId)
                 ->exists();
 
+            $memberFollowsAuth = DB::table('follows')
+                ->where('follower_id', $memberId)
+                ->where('followed_id', $authId)
+                ->exists();
+
+            $canAdd = $authFollowsMember && $memberFollowsAuth;
             if ($canAdd) {
                 DB::table('groupemembers')->insert([
                     'groupemember' => Str::uuid(),
@@ -131,6 +135,13 @@ class GroupeController extends Controller
                 ]);
             }
         }
+
+        message::create([
+            'message_id' => Str::uuid(),
+            'content' => 'welcome to this group',
+            'group_id' => $groupId,
+            'sender_id' => Auth::id()
+        ]);
 
         return response()->json([
             'message' => 'Group created successfully',
@@ -248,7 +259,7 @@ class GroupeController extends Controller
 
     public function getGroupDetails(string $groupId)
     {
-        // Get group info
+
         $group = DB::table('groups')
             ->where('group_id', $groupId)
             ->first();
@@ -257,7 +268,6 @@ class GroupeController extends Controller
             return response()->json(['message' => 'Group not found'], 404);
         }
 
-        // Get members
         $members = DB::table('groupemembers as gm')
             ->join('profiles as p', 'gm.user_id', '=', 'p.user_id')
             ->where('gm.group_id', $groupId)
@@ -280,15 +290,13 @@ class GroupeController extends Controller
         ]);
     }
 
-    public function getAvailableMembers(string $groupId)
+    public function getAvailableMembers()
     {
 
         $authId = Auth::id();
 
         $users = DB::table('users as u')
             ->join('profiles as p', 'u.user_id', '=', 'p.user_id')
-
-            // Mutual Follow
             ->join('follows as f1', function ($join) use ($authId) {
                 $join->on('f1.followed_id', '=', 'u.user_id')
                     ->where('f1.follower_id', '=', $authId);
@@ -297,14 +305,12 @@ class GroupeController extends Controller
                 $join->on('f2.follower_id', '=', 'u.user_id')
                     ->where('f2.followed_id', '=', $authId);
             })
-
-            // Exclude users already in group
-            ->whereNotExists(function ($query) use ($groupId) {
-                $query->select(DB::raw(1))
-                    ->from('groupemembers as gm')
-                    ->whereColumn('gm.user_id', 'u.user_id')
-                    ->where('gm.group_id', $groupId);
-            })
+            // ->whereNotExists(function ($query) use ($groupId) {
+            //     $query->select(DB::raw(1))
+            //         ->from('groupemembers as gm')
+            //         ->whereColumn('gm.user_id', 'u.user_id')
+            //         ->where('gm.group_id', $groupId);
+            // })
 
             ->where('u.user_id', '!=', $authId)
 
@@ -313,7 +319,6 @@ class GroupeController extends Controller
                 'p.display_name',
                 'p.avatar_url'
             )
-
             ->get();
 
         return response()->json($users);

@@ -35,6 +35,7 @@ class PostController extends Controller
                 'posts.content',
                 'posts.author_id',
                 'profiles.display_name',
+                'posts.external_link',
                 'profiles.avatar_url',
                 'posts.created_at',
                 'posts.updated_at',
@@ -59,6 +60,7 @@ class PostController extends Controller
                 'posts.content',
                 'posts.author_id',
                 'profiles.display_name',
+                'posts.external_link',
                 'profiles.avatar_url',
                 'posts.created_at',
                 'posts.updated_at'
@@ -103,6 +105,7 @@ class PostController extends Controller
                 'posts.content',
                 'posts.author_id',
                 'profiles.display_name',
+                'posts.external_link',
                 'profiles.avatar_url',
                 'posts.created_at',
                 'posts.updated_at',
@@ -127,6 +130,7 @@ class PostController extends Controller
                 'posts.content',
                 'posts.author_id',
                 'profiles.display_name',
+                'posts.external_link',
                 'profiles.avatar_url',
                 'posts.created_at',
                 'posts.updated_at'
@@ -163,6 +167,7 @@ class PostController extends Controller
                 'posts.content',
                 'posts.author_id',
                 'profiles.display_name',
+                'posts.external_link',
                 'profiles.avatar_url',
                 'posts.created_at',
                 'posts.updated_at',
@@ -187,6 +192,7 @@ class PostController extends Controller
                 'posts.content',
                 'posts.author_id',
                 'profiles.display_name',
+                'posts.external_link',
                 'profiles.avatar_url',
                 'posts.created_at',
                 'posts.updated_at'
@@ -236,6 +242,7 @@ class PostController extends Controller
                 'posts.content',
                 'posts.author_id',
                 'profiles.display_name',
+                'posts.external_link',
                 'profiles.avatar_url',
                 'posts.created_at',
                 'posts.updated_at',
@@ -259,6 +266,7 @@ class PostController extends Controller
                 'posts.post_id',
                 'posts.content',
                 'posts.author_id',
+                'posts.external_link',
                 'profiles.display_name',
                 'profiles.avatar_url',
                 'posts.created_at',
@@ -284,7 +292,7 @@ class PostController extends Controller
                 'post_id' => $postId,
                 'content' => $request->content,
                 'author_id' => Auth::id(),
-                'external_link' => $request->external_link || 'hhhhhhhhhhh',
+                'external_link' => $request->external_link,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -371,8 +379,10 @@ class PostController extends Controller
         if (!$post) {
             return response()->json(['message' => 'post not found'], 404);
         }
-
-        isAdmineOrTheSameUser($post->author_id);
+        $user = Auth::user();
+        if (!$user->is_admin && $post->author_id != $user->id) {
+            return response()->json(['message' => 'forbidden'], 403);
+        }
         DB::table('posts')->where('post_id', $id)->delete();
         return response()->json(['message' => 'the post deleted successfuly']);
     }
@@ -380,31 +390,33 @@ class PostController extends Controller
     private function handelNotification($postId)
     {
         $userId = Auth::id();
-        $followers = Follow::where('followed_id', $userId);
+        $followers = Follow::where('followed_id', $userId)->get();
         foreach ($followers as $follower) {
             notification::create([
                 'notification_id' => Str::uuid(),
                 'user_id' => $follower->follower_id,
                 'post_id' => $postId,
                 'source_user_id' => $userId,
-                'type' => 'comment',
+                'type' => 'post',
             ]);
         }
     }
 
     public function update(updatePostRequest $request, string $postId)
     {
-        
+
         $post = Post::find($postId);
+
 
         if (!$post) {
             return response()->json(['message' => 'Post not found'], 404);
         }
+        $user = Auth::user();
+        if (!$user->is_admin && $post->author != $user->id) {
+            return response()->json(['message' => 'forbidden'], 403);
+        }
 
-        //Only owner can modify
-        isAdmineOrTheSameUser($post->author_id);
 
-        //Update post
         $post->update([
             'content' => $request->content ?? $post->content,
         ]);
