@@ -8,6 +8,7 @@ import {
   Twitter,
   Facebook,
   PhoneIphone,
+  X,
 } from "@mui/icons-material";
 import { gooeyToast } from "goey-toast";
 
@@ -63,12 +64,12 @@ export default function SharePost({ url, text }) {
             </a>
 
             <a
-              href={`https://twitter.com/intent/tweet?url=${url}&text=${text}`}
+              href={`https://x.com/intent/tweet?url=${url}&text=${text}`}
               target="_blank"
-              className="flex items-center gap-2 hover:text-sky-500"
+              className="flex items-center gap-2 hover:text-black"
             >
-              <Twitter fontSize="small" />
-              Twitter
+              <X fontSize="small" />
+              X
             </a>
 
             <a

@@ -3,9 +3,14 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { getGroupDetails } from "@/redux/reducers/messageReducer";
-import { 
-  Avatar, CircularProgress, Chip, Button, Box, Divider 
+import { getGroupDetails } from "@/redux/Slices/messageSlice";
+import {
+  Avatar,
+  CircularProgress,
+  Chip,
+  Button,
+  Box,
+  Divider,
 } from "@mui/material";
 import GroupIcon from "@mui/icons-material/Group";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
@@ -26,7 +31,7 @@ export default function GroupDetailsPage() {
   if (loading || !groupInfo) {
     return (
       <div className="flex items-center justify-center h-screen bg-[#f8fafc]">
-        <CircularProgress sx={{ color: '#1477ff' }} />
+        <CircularProgress sx={{ color: "#1477ff" }} />
       </div>
     );
   }
@@ -60,9 +65,7 @@ export default function GroupDetailsPage() {
 
       {/* Members Section Header */}
       <div className="flex items-center justify-between mb-6 px-2">
-        <h2 className="text-lg font-black text-slate-800">
-          Members
-        </h2>
+        <h2 className="text-lg font-black text-slate-800">Members</h2>
         <Button
           variant="contained"
           startIcon={<PersonAddIcon />}
@@ -96,18 +99,20 @@ export default function GroupDetailsPage() {
             <Chip
               label={member.role}
               size="small"
-              className={member.role === "admin" 
-                ? "bg-orange-50 text-orange-600 font-black text-[10px]" 
-                : "bg-slate-50 text-slate-500 font-bold text-[10px]"}
+              className={
+                member.role === "admin"
+                  ? "bg-orange-50 text-orange-600 font-black text-[10px]"
+                  : "bg-slate-50 text-slate-500 font-bold text-[10px]"
+              }
             />
           </div>
         ))}
       </div>
 
       {/* Add Member Modal */}
-      <AddMemberModal 
-        open={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <AddMemberModal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         groupId={id}
         existingMembers={groupInfo?.members || []}
       />

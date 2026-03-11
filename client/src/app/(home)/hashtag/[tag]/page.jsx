@@ -11,8 +11,8 @@ import {
   Divider,
 } from "@mui/material";
 import TagIcon from "@mui/icons-material/Tag";
-import { hashtagCount, hashtagPosts } from "@/redux/reducers/hashtagReducer";
-import { likePost, deslikePost } from "@/redux/reducers/postReducer";
+import { hashtagCount, hashtagPosts } from "@/redux/Slices/hashtagSlice";
+import { likePost, deslikePost } from "@/redux/Slices/postSlice";
 import PostCard from "@/components/Post";
 
 export default function HashtagPage() {
@@ -48,7 +48,6 @@ export default function HashtagPage() {
 
   return (
     <main className="min-h-screen bg-[#f8fafc] pb-20">
-
       <Box className="bg-white border-b border-[#e2e8f0] pt-10 pb-6 px-4 mb-6">
         <div className="max-w-[650px] mx-auto flex items-center gap-5">
           <div className="w-16 h-16 rounded-3xl bg-blue-50 flex items-center justify-center text-[#1477ff] shadow-sm">

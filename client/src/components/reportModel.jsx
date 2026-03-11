@@ -10,7 +10,11 @@ import {
   TextField,
 } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { reportPost, reportComment, reportUser } from "@/redux/reducers/reportReducer";
+import {
+  reportPost,
+  reportComment,
+  reportUser,
+} from "@/redux/Slices/reportSlice";
 
 export default function ReportModal({ open, onClose, type, id }) {
   const [reason, setReason] = useState("");
@@ -51,8 +55,12 @@ export default function ReportModal({ open, onClose, type, id }) {
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="secondary">Cancel</Button>
-        <Button onClick={handleSubmit} variant="contained" color="error">Report</Button>
+        <Button onClick={onClose} color="secondary">
+          Cancel
+        </Button>
+        <Button onClick={handleSubmit} variant="contained" color="error">
+          Report
+        </Button>
       </DialogActions>
     </Dialog>
   );

@@ -1,21 +1,38 @@
-"use client"
-import { Card, TextField, Button, Typography, InputAdornment, Link } from '@mui/material';
-import MailOutlineIcon from '@mui/icons-material/MailOutline';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+"use client";
+import {
+  Card,
+  TextField,
+  Button,
+  Typography,
+  InputAdornment,
+  Link,
+} from "@mui/material";
+import MailOutlineIcon from "@mui/icons-material/MailOutline";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import api from "@/lib/api";
 
 const ForgotPassword = () => {
-  const [email,setEmail] = useState()
-  const router = useRouter()
+  const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
+  const router = useRouter();
 
-  const sendEmail=()=>{
-    router.push('/email-success')
-  }
+  const sendEmail = () => {
+    api
+      .post("/password/forgot-password",{
+        email,
+      })
+      .then((res) =>{
+        setError('')
+        router.push("/email-success")
+      })
+      .catch((err)=>setError(err.data.message));
+  };
 
   return (
     <div className="flex items-center justify-center min-h-[80vh] bg-slate-50 p-4">
-      <Card 
+      <Card
         className="w-full max-w-[420px] p-10 rounded-[20px] shadow-xl border-t-[5px] border-blue-600 text-center"
         elevation={0}
       >
@@ -26,9 +43,10 @@ const ForgotPassword = () => {
         <Typography variant="h5" className="font-bold mb-2 text-slate-900">
           Forgot Password?
         </Typography>
-        
+
         <Typography className="text-sm text-slate-500 mb-6 leading-relaxed">
-          No worries! Enter the email associated with your account and we'll send you a link to reset your password.
+          No worries! Enter the email associated with your account and we'll
+          send you a link to reset your password.
         </Typography>
 
         <div className="text-left mb-6">
@@ -41,7 +59,7 @@ const ForgotPassword = () => {
             variant="outlined"
             className="bg-slate-100 rounded-xl border-none"
             value={email}
-            onChange={(e)=>setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -49,15 +67,16 @@ const ForgotPassword = () => {
                 </InputAdornment>
               ),
               sx: {
-                '& fieldset': { border: 'none' },
-                borderRadius: '12px',
-              }
+                "& fieldset": { border: "none" },
+                borderRadius: "12px",
+              },
             }}
           />
         </div>
-
-        {/* Action Button */}
-        <Button 
+        {
+          error && <span className=" text-red-700" >{error}</span>
+        }
+        <Button
           onClick={sendEmail}
           fullWidth
           variant="contained"
@@ -66,11 +85,10 @@ const ForgotPassword = () => {
           Send Reset Link
         </Button>
 
-        {/* Back Link */}
         <Typography className="mt-5 text-sm text-slate-500">
-          Remember your password?{' '}
-          <Link 
-            href="/login" 
+          Remember your password?{" "}
+          <Link
+            href="/login"
             className="text-blue-600 font-medium no-underline hover:underline flex items-center justify-center gap-1 inline-flex"
           >
             <ArrowBackIcon fontSize="inherit" /> Back to Log In

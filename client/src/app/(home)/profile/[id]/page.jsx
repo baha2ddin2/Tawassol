@@ -16,7 +16,7 @@ import {
   likeProfilePost,
   postsByProfileId,
   ProfileById,
-} from "@/redux/reducers/profileReducer";
+} from "@/redux/Slices/profileSlice";
 import PostCard from "@/components/Post";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -69,10 +69,9 @@ export default function ProfilePage() {
               </div>
 
               <div className="flex items-center gap-3 self-end md:self-center">
-
                 <Button
-                  variant={"contained" }
-                  color={"primary" }
+                  variant={"contained"}
+                  color={"primary"}
                   className="rounded-full font-bold normal-case hover:bg-slate-50 transition-transform active:scale-95"
                   // onClick={() => {
                   //   if (isFollowing) {
@@ -82,7 +81,7 @@ export default function ProfilePage() {
                   //   }
                   // }}
                 >
-                  {"Following" }
+                  {"Following"}
                 </Button>
 
                 <Link href={`/messages/${id}`}>

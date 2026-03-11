@@ -17,13 +17,11 @@ import {
   LockReset, 
   CheckCircle 
 } from '@mui/icons-material';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useRouter,  } from 'next/navigation';
+import api from '@/lib/api';
 
 export default function ResetPasswordPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const token = searchParams.get('token'); // Get the token from URL
-
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -31,20 +29,26 @@ export default function ResetPasswordPage() {
     password: '',
     password_confirmation: '',
   });
+  const [error,setError]=useState('')
+  
+  const {userId,token} = useParams()
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.password_confirmation) {
-      alert("Passwords do not match!");
+      setError("Passwords do not match!");
       return;
     }
-
     setLoading(true);
-    setTimeout(() => {
+    api.post(`/password/change-password/${userId}/${token}`,formData)
+    .then((res)=>{
       setLoading(false);
       setIsSuccess(true);
       setTimeout(() => router.push('/login'), 3000);
-    }, 2000);
+    })
+    .catch((error)=>{
+      setError(error.data.message)
+    })
   };
 
   if (isSuccess) {
@@ -124,6 +128,8 @@ export default function ResetPasswordPage() {
                 formData.password !== formData.password_confirmation ? "Passwords must match" : ""
               }
             />
+
+            {error && <span className=' text-red-700' >{error}</span> }
 
             <Button
               fullWidth

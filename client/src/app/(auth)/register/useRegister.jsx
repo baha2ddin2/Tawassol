@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { register } from "@/redux/reducers/AuthReducer";
+import { register } from "@/redux/Slices/AuthSlice";
 import { useRouter } from "next/navigation";
 
 export const useRegister = () => {
@@ -13,7 +13,7 @@ export const useRegister = () => {
 
   const dispatch = useDispatch();
   const router = useRouter();
-  const { loading, error ,registerErrors } = useSelector((state) => state.auth);
+  const { loading, error, registerErrors } = useSelector((state) => state.auth);
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -26,7 +26,7 @@ export const useRegister = () => {
     formData.append("name", name);
     formData.append("email", email);
     formData.append("password", password);
-    formData.append("password_confirmation",confirmPassword)
+    formData.append("password_confirmation", confirmPassword);
     if (avatar) formData.append("avatar", avatar);
 
     const result = await dispatch(register(formData));
@@ -36,13 +36,21 @@ export const useRegister = () => {
   };
 
   return {
-    name, setName,
-    email, setEmail,
-    password, setPassword,
-    confirmPassword, setConfirmPassword,
-    avatar, setAvatar,
-    showPassword, setShowPassword,
-    loading, error,
-    handleRegister ,registerErrors
+    name,
+    setName,
+    email,
+    setEmail,
+    password,
+    setPassword,
+    confirmPassword,
+    setConfirmPassword,
+    avatar,
+    setAvatar,
+    showPassword,
+    setShowPassword,
+    loading,
+    error,
+    handleRegister,
+    registerErrors,
   };
 };

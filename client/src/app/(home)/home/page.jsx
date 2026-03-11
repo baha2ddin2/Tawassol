@@ -1,12 +1,17 @@
 "use client";
-import { feedPosts, followSuggetion, suggetionFriends, unfollowSuggestion } from "@/redux/reducers/postReducer";
+import {
+  feedPosts,
+  followSuggetion,
+  suggetionFriends,
+  unfollowSuggestion,
+} from "@/redux/Slices/postSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { Card, CardContent, Avatar, TextField, Button } from "@mui/material";
 import { AddAPhoto } from "@mui/icons-material";
 import PostCard from "@/components/Post";
 import { useEffect } from "react";
 import SkeletonChildren from "@/components/skelatons";
-import { deslikeFeedPost, likeFeedPost } from "@/redux/reducers/postReducer";
+import { deslikeFeedPost, likeFeedPost } from "@/redux/Slices/postSlice";
 import RightSidebar from "@/components/rightSidebar";
 
 export default function HomePage() {

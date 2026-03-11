@@ -10,7 +10,7 @@ import {
   reciveGroupMessage,
   sendGroupMessage,
   GroupMessages,
-} from "@/redux/reducers/messageReducer";
+} from "@/redux/Slices/messageSlice";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Link from "next/link";
@@ -69,14 +69,13 @@ export default function GroupChatPage() {
 
     socket.on("newGroupMessage", onNewGroupMsg);
     dispatch(GroupMessages(id));
-    scrollToBottom()
+    scrollToBottom();
 
     return () => {
       socket.off("joinGroupRoom");
       socket.off("newGroupMessage", onNewGroupMsg);
     };
   }, [id, dispatch]);
-
 
   useEffect(() => {
     const container = containerRef.current;
@@ -87,11 +86,10 @@ export default function GroupChatPage() {
         container.scrollHeight - container.scrollTop - container.clientHeight;
       setShowScrollBtn(distance > 400);
     };
-    scrollToBottom()
+    scrollToBottom();
     container.addEventListener("scroll", handleScroll);
     setTimeout(() => scrollToBottom("auto"), 100);
     return () => container.removeEventListener("scroll", handleScroll);
-
   }, [id]);
 
   const onFilesChange = (e) => {
@@ -118,7 +116,7 @@ export default function GroupChatPage() {
     setSending(false);
     scrollToBottom();
   };
-   const scrollToBottom = () => {
+  const scrollToBottom = () => {
     const container = containerRef.current;
     if (!container) return;
     container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
@@ -134,7 +132,7 @@ export default function GroupChatPage() {
             src={
               groupInfo?.photo_url
                 ? `http://127.0.0.1:8000/storage/${groupInfo.photo_url}`
-                : ""
+                : "/groupAvatar.jpeg"
             }
             sx={{ width: 40, height: 40 }}
           />
@@ -142,7 +140,6 @@ export default function GroupChatPage() {
             <div className="font-semibold text-sm">
               {groupInfo?.name || "Group Chat"}
             </div>
-            <div className="text-xs text-green-500">online</div>
           </div>
         </div>
       </Link>
@@ -209,17 +206,17 @@ export default function GroupChatPage() {
 
                   {/* Media Rendering */}
                   {attachments && attachments.length > 0 && (
-                  <div className="mt-2 grid grid-cols-2 gap-2">
-                    {attachments.map((att, i) => (
-                      <img
-                        key={i}
-                        src={`http://127.0.0.1:3001/${att.url}`}
-                        alt=""
-                        className="w-full h-32 object-cover rounded-md"
-                      />
-                    ))}
-                  </div>
-                )}
+                    <div className="mt-2 grid grid-cols-2 gap-2">
+                      {attachments.map((att, i) => (
+                        <img
+                          key={i}
+                          src={`http://127.0.0.1:3001/${att.url}`}
+                          alt=""
+                          className="w-full h-32 object-cover rounded-md"
+                        />
+                      ))}
+                    </div>
+                  )}
 
                   <div
                     className={`text-[9px] mt-1 text-right ${isMe ? "text-blue-100" : "text-gray-400"}`}
@@ -234,7 +231,7 @@ export default function GroupChatPage() {
       </div>
 
       {/* Floating Scroll Button */}
-       {showScrollBtn && (
+      {showScrollBtn && (
         <div className="fixed right-6 bottom-24 z-50">
           <IconButton
             onClick={scrollToBottom}

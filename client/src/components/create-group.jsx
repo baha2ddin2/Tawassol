@@ -14,20 +14,21 @@ import {
 import { Close, PhotoCamera, Group } from "@mui/icons-material";
 
 import { useDispatch, useSelector } from "react-redux";
-import { availableMembers, createGroup } from "@/redux/reducers/messageReducer";
+import { availableMembers, createGroup } from "@/redux/Slices/messageSlice";
 export default function CreateGroup({ open, setOpen }) {
-
   const dispatch = useDispatch();
-  const  availableMembersOptions = useSelector((state) => state.message.availableMembersOptions);
+  const availableMembersOptions = useSelector(
+    (state) => state.message.availableMembersOptions,
+  );
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [photo, setPhoto] = useState(null);
   const [members, setMembers] = useState([]);
 
-  useEffect(()=>{
-    dispatch(availableMembers())
-  },[])
+  useEffect(() => {
+    dispatch(availableMembers());
+  }, []);
 
   const handlePhoto = (e) => {
     setPhoto(e.target.files[0]);
@@ -51,9 +52,9 @@ export default function CreateGroup({ open, setOpen }) {
     });
 
     dispatch(createGroup(formData));
-    setPhoto(null)
-    setName('')
-    setDescription('')
+    setPhoto(null);
+    setName("");
+    setDescription("");
     setOpen(false);
   };
 

@@ -1,10 +1,10 @@
 "use client";
-import {useEffect } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { checkAuth} from "@/redux/reducers/AuthReducer";
+import { checkAuth } from "@/redux/Slices/AuthSlice";
 
 export default function Navbar() {
   const dispatch = useDispatch();

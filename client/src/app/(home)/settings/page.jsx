@@ -19,7 +19,7 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { Dashboard } from "@mui/icons-material";
 
 import { useDispatch, useSelector } from "react-redux";
-import { myReport } from "@/redux/reducers/reportReducer";
+import { myReport } from "@/redux/Slices/reportSlice";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -37,7 +37,7 @@ export default function Settings() {
     dispatch(myReport());
     setIsPrivate(is_private);
     setEmail(user?.email);
-    console.log(user?.is_admin)
+    console.log(user?.is_admin);
   }, [user]);
   return (
     <div className="min-h-screen bg-[#f6f8fc] font-sans text-[#0f172a]">
@@ -76,14 +76,14 @@ export default function Settings() {
             </button>
 
             {/* --- Admin Dashboard Button --- */}
-            {user?.is_admin ? 
-                <Link href={"/dashboard/analytics"}>
-                  <button className="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold transition-all text-left text-[#64748b] hover:bg-[#eef3fb] hover:text-[#0f172a]">
-                    <Dashboard />
-                    Admin Dashboard
-                  </button>
-                </Link>
-              :null}
+            {user?.is_admin ? (
+              <Link href={"/dashboard/analytics"}>
+                <button className="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold transition-all text-left text-[#64748b] hover:bg-[#eef3fb] hover:text-[#0f172a]">
+                  <Dashboard />
+                  Admin Dashboard
+                </button>
+              </Link>
+            ) : null}
           </div>
         </aside>
 

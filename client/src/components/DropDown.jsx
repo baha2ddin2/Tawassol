@@ -1,31 +1,25 @@
 "use client";
-import { deleteComment, deletePost } from "@/redux/reducers/postReducer";
-import { deletePostProfile } from "@/redux/reducers/profileReducer";
+import { deleteComment, deletePost } from "@/redux/Slices/postSlice";
+import { deletePostProfile } from "@/redux/Slices/profileSlice";
 import { Flag } from "@mui/icons-material";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import ReportModal from "./reportModel";
 
-export default function Dropdown({ children, isAuthor, postId ,commentId }) {
+export default function Dropdown({ children, isAuthor, postId, commentId }) {
   const [open, setOpen] = useState(false);
   const [openReport, setOpenReport] = useState(false);
   const dropdownRef = useRef(null);
-    const dispatch = useDispatch()
-  function handelDelete (){
-    if(postId){
-      dispatch(deletePost(postId))
-      dispatch(deletePostProfile(postId))
-    }else{
-      dispatch(deleteComment(commentId))
+  const dispatch = useDispatch();
+  function handelDelete() {
+    if (postId) {
+      dispatch(deletePost(postId));
+      dispatch(deletePostProfile(postId));
+    } else {
+      dispatch(deleteComment(commentId));
     }
-    
   }
-
-
-
-
-
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -55,26 +49,30 @@ export default function Dropdown({ children, isAuthor, postId ,commentId }) {
         <ul className="py-2 text-sm text-gray-700">
           {!isAuthor ? (
             <li>
-                <button onClick={() => setOpenReport(true)} className="w-full text-left flex justify-between text-red-600 px-4 py-2 hover:bg-gray-100 transition">
-                 <span>report</span> <Flag/>
-                </button>
-
+              <button
+                onClick={() => setOpenReport(true)}
+                className="w-full text-left flex justify-between text-red-600 px-4 py-2 hover:bg-gray-100 transition"
+              >
+                <span>report</span> <Flag />
+              </button>
             </li>
-            
           ) : (
             <li>
-                <button onClick={handelDelete} className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100 transition">
-                  delete {postId ? 'post' :'comment' }
-                </button>
+              <button
+                onClick={handelDelete}
+                className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100 transition"
+              >
+                delete {postId ? "post" : "comment"}
+              </button>
             </li>
           )}
         </ul>
         <ReportModal
-        open={openReport}
-        onClose={() => setOpenReport(false)}
-        type="post"
-        id={postId}
-      />
+          open={openReport}
+          onClose={() => setOpenReport(false)}
+          type="post"
+          id={postId}
+        />
       </div>
     </div>
   );

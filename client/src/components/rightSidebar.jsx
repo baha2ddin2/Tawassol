@@ -15,7 +15,7 @@ export default function RightSidebar({ suggestions, handelFollow }) {
                 <div className="flex gap-3 items-center">
                   <Avatar
                     className="w-9 h-9"
-                    src={`http://127.0.0.1:8000/storage/avatar/${user.avatar_url}`}
+                    src={`http://127.0.0.1:8000/storage/${user.avatar_url}`}
                   />
                   <div className="text-sm">
                     <p className="font-bold leading-none">

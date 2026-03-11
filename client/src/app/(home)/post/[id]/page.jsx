@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "next/navigation";
-import SendIcon from '@mui/icons-material/Send';
+import SendIcon from "@mui/icons-material/Send";
 import {
   Divider,
   Typography,
@@ -19,7 +19,7 @@ import {
   likePost,
   deslikePost,
   // addComment // <-- Make sure you have this action in your reducer
-} from "@/redux/reducers/postReducer";
+} from "@/redux/Slices/postSlice";
 
 export default function Page() {
   const { id } = useParams();

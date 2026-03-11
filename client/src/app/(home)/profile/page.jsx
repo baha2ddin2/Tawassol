@@ -15,7 +15,7 @@ import {
   likeProfilePost,
   profileInfo,
   profilePosts,
-} from "@/redux/reducers/profileReducer";
+} from "@/redux/Slices/profileSlice";
 import PostCard from "@/components/Post";
 import Link from "next/link";
 
@@ -90,7 +90,7 @@ export default function ProfilePage() {
                   posts
                 </div>
               </div>
-              <Link href={'/profile/following'}>
+              <Link href={"/profile/following"}>
                 <div className="bg-gradient-to-b from-white to-slate-50 border border-slate-100 py-4 rounded text-center shadow-sm">
                   <div className="text-xl font-black text-slate-900">
                     {infos.following_count}
@@ -100,15 +100,15 @@ export default function ProfilePage() {
                   </div>
                 </div>
               </Link>
-              <Link href={'/profile/followers'} >
+              <Link href={"/profile/followers"}>
                 <div className="bg-gradient-to-b from-white to-slate-50 border border-slate-100 py-4 rounded text-center shadow-sm">
-                <div className="text-xl font-black text-slate-900">
-                  {infos.followers_count}
+                  <div className="text-xl font-black text-slate-900">
+                    {infos.followers_count}
+                  </div>
+                  <div className="text-[11px] font-extrabold text-blue-500 uppercase tracking-tight">
+                    followers
+                  </div>
                 </div>
-                <div className="text-[11px] font-extrabold text-blue-500 uppercase tracking-tight">
-                  followers
-                </div>
-              </div>
               </Link>
             </section>
           ) : null}

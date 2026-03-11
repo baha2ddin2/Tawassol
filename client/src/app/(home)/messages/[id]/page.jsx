@@ -15,7 +15,7 @@ import {
   messages,
   sendMessage,
   reciveMessage,
-} from "@/redux/reducers/messageReducer";
+} from "@/redux/Slices/messageSlice";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Message from "@/components/message";
@@ -29,7 +29,7 @@ export default function ChatPage() {
   const { userInfo } = useSelector((state) => state.auth);
   const userId = userInfo?.user?.user_id;
   const user = contacts?.find((c) => c.user_id === id);
-  
+
   const [text, setText] = useState("");
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
@@ -57,7 +57,6 @@ export default function ChatPage() {
 
     const onNew = (data) => {
       dispatch(reciveMessage(data));
-
 
       const container = containerRef.current;
       if (!container) return;
@@ -163,7 +162,7 @@ export default function ChatPage() {
       }
     }
 
-    scrollToBottom()
+    scrollToBottom();
   }, [messagesData.length]);
 
   const handleSend = async () => {
@@ -246,7 +245,9 @@ export default function ChatPage() {
         ref={containerRef}
         className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50"
       >
-        {messagesData?.map((m) => <Message message={m} userId={userId} dayjs={dayjs} />)}
+        {messagesData?.map((m) => (
+          <Message message={m} userId={userId} dayjs={dayjs} />
+        ))}
       </div>
 
       {/* Floating "scroll to bottom" button */}
