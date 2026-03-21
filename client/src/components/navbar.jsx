@@ -14,9 +14,12 @@ export default function Navbar() {
   useEffect(() => {
     dispatch(checkAuth());
   }, [dispatch, router]);
-  if (isAuth) {
-    router.replace("/home");
-  }
+
+  useEffect(() => {
+    if (isAuth) {
+      router.replace("/home");
+    }
+  }, [isAuth, router]);
   return (
     <header className={"topbar"}>
       <div className={"brand"}>

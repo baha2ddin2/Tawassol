@@ -14,7 +14,9 @@ import {
 import { Close, PhotoCamera, Group } from "@mui/icons-material";
 
 import { useDispatch, useSelector } from "react-redux";
-import { availableMembers, createGroup } from "@/redux/Slices/messageSlice";
+import { availableMembers, contact, createGroup } from "@/redux/Slices/messageSlice";
+import { validateGroupName } from "@/lib/validation";
+
 export default function CreateGroup({ open, setOpen }) {
   const dispatch = useDispatch();
   const availableMembersOptions = useSelector(
@@ -25,6 +27,7 @@ export default function CreateGroup({ open, setOpen }) {
   const [description, setDescription] = useState("");
   const [photo, setPhoto] = useState(null);
   const [members, setMembers] = useState([]);
+  const [nameError, setNameError] = useState(null);
 
   useEffect(() => {
     dispatch(availableMembers());
@@ -43,6 +46,13 @@ export default function CreateGroup({ open, setOpen }) {
     });
   };
   const handleSubmit = () => {
+    const errorMsg = validateGroupName(name);
+    if (errorMsg) {
+      setNameError(errorMsg);
+      return;
+    }
+    setNameError(null);
+
     const formData = new FormData();
     formData.append("name", name);
     formData.append("description", description);
@@ -56,16 +66,17 @@ export default function CreateGroup({ open, setOpen }) {
     setName("");
     setDescription("");
     setOpen(false);
+    dispatch(contact());
   };
 
   return (
-    <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
-      <DialogContent className="p-6">
+    <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth PaperProps={{ sx: { bgcolor: "var(--card-bg)", color: "var(--text-primary)" } }}>
+      <DialogContent className="p-6 bg-[var(--card-bg)]">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold">Create New Group</h2>
+          <h2 className="text-xl font-semibold text-[var(--text-primary)]">Create New Group</h2>
 
           <IconButton onClick={() => setOpen(false)}>
-            <Close />
+            <Close sx={{ color: "var(--text-muted)" }} />
           </IconButton>
         </div>
 
@@ -81,12 +92,12 @@ export default function CreateGroup({ open, setOpen }) {
 
             <input hidden type="file" accept="image/*" onChange={handlePhoto} />
 
-            <div className="absolute bottom-0 right-0 bg-blue-500 text-white rounded-full p-1">
+            <div className="absolute bottom-0 right-0 p-1 rounded-full text-white" style={{ backgroundColor: "var(--color-primary)" }}>
               <PhotoCamera fontSize="small" />
             </div>
           </label>
 
-          <p className="text-sm text-gray-500 mt-2">Upload Group Photo</p>
+          <p className="text-sm mt-2 text-[var(--text-muted)]">Upload Group Photo</p>
         </div>
 
         {/* Form */}
@@ -94,9 +105,10 @@ export default function CreateGroup({ open, setOpen }) {
           <TextField
             label="Group Name"
             fullWidth
-            className=""
             value={name}
             onChange={(e) => setName(e.target.value)}
+            error={!!nameError}
+            helperText={nameError}
           />
 
           <TextField
@@ -111,15 +123,16 @@ export default function CreateGroup({ open, setOpen }) {
 
         {/* Members */}
         <div className="mt-6">
-          <h3 className="text-sm font-semibold mb-3 text-gray-500">
+          <h3 className="text-sm font-semibold mb-3 text-[var(--text-muted)]">
             SUGGESTED FRIENDS
           </h3>
 
-          <div className="space-y-3 max-h-[200px] overflow-y-auto">
+          <div className="space-y-3 max-h-[200px] overflow-y-auto scrollbar-thin">
             {availableMembersOptions?.map((friend) => (
               <div
                 key={friend.user_id}
-                className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50"
+                className="flex items-center justify-between p-2 rounded-lg hover:bg-[var(--hover-overlay)] cursor-pointer transition-colors"
+                onClick={() => toggleMember(friend.user_id)}
               >
                 <div className="flex items-center gap-3">
                   <Avatar
@@ -127,13 +140,14 @@ export default function CreateGroup({ open, setOpen }) {
                   />
 
                   <div>
-                    <p className="text-sm font-medium">{friend.display_name}</p>
+                    <p className="text-sm font-medium text-[var(--text-primary)]">{friend.display_name}</p>
                   </div>
                 </div>
 
                 <Checkbox
                   checked={members.includes(friend.user_id)}
                   onChange={() => toggleMember(friend.user_id)}
+                  sx={{ color: "var(--text-muted)", "&.Mui-checked": { color: "var(--color-primary)" } }}
                 />
               </div>
             ))}
@@ -142,7 +156,7 @@ export default function CreateGroup({ open, setOpen }) {
 
         {/* Footer */}
         <div className="flex justify-end gap-3 mt-6">
-          <Button variant="outlined" onClick={() => setOpen(false)}>
+          <Button variant="outlined" sx={{ color: "var(--text-muted)", borderColor: "var(--card-border)" }} onClick={() => setOpen(false)}>
             Cancel
           </Button>
 
@@ -150,6 +164,7 @@ export default function CreateGroup({ open, setOpen }) {
             variant="contained"
             startIcon={<Group />}
             onClick={handleSubmit}
+            sx={{ bgcolor: "var(--color-primary)", "&:hover": { bgcolor: "var(--color-primary-dark)" } }}
           >
             Create Group
           </Button>

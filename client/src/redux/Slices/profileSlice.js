@@ -28,9 +28,9 @@ export const ProfileById = createAsyncThunk(
 );
 export const postsByProfileId = createAsyncThunk(
   "profile/postsByProfileId",
-  async (userId, thunkAPI) => {
+  async ({ userId, page = 1 }, thunkAPI) => {
     try {
-      const response = await api.get(`/profile-posts/${userId}`);
+      const response = await api.get(`/profile-posts/${userId}?page=${page}`);
       return response.data;
     } catch (error) {
       const errorMsg = error.response.data;
@@ -64,11 +64,11 @@ export const followers = createAsyncThunk(
   },
 );
 
-export const profilePosts = createAsyncThunk(
-  "profile/profilePosts",
+export const followingByUser = createAsyncThunk(
+  "profile/followingByUser",
   async (_, thunkAPI) => {
     try {
-      const response = await api.get("/profile-posts");
+      const response = await api.get(`/following/${userId}`);
       return response.data;
     } catch (error) {
       const errorMsg = error.response.data;
@@ -76,6 +76,33 @@ export const profilePosts = createAsyncThunk(
     }
   },
 );
+
+export const followersByUser = createAsyncThunk(
+  "profile/followersByUser",
+  async (userId, thunkAPI) => {
+    try {
+      const response = await api.get(`/followers/${userId}`);
+      return response.data;
+    } catch (error) {
+      const errorMsg = error.response.data;
+      return thunkAPI.rejectWithValue(errorMsg);
+    }
+  },
+);
+
+export const profilePosts = createAsyncThunk(
+  "profile/profilePosts",
+  async (page = 1, thunkAPI) => {
+    try {
+      const response = await api.get(`/profile-posts?page=${page}`);
+      return response.data;
+    } catch (error) {
+      const errorMsg = error.response.data;
+      return thunkAPI.rejectWithValue(errorMsg);
+    }
+  },
+);
+
 export const likeProfilePost = createAsyncThunk(
   "Profile/likePost",
   async (postId, thunkAPI) => {
@@ -134,38 +161,132 @@ export const deslikeProfilePost = createAsyncThunk(
   },
 );
 
+export const followUser = createAsyncThunk(
+  "profile/follow",
+  async (userId, thunkAPI) => {
+    try {
+      const response = await api.post(`/follow/${userId}`);
+      return response.data;
+    } catch (error) {
+      const errorMsg = error.response.data;
+      return thunkAPI.rejectWithValue(errorMsg);
+    }
+  },
+);
+
+export const unfollowUser = createAsyncThunk(
+  "profile/unfollow",
+  async (userId, thunkAPI) => {
+    try {
+      const response = await api.delete(`/unfollow/${userId}`);
+      return response.data;
+    } catch (error) {
+      const errorMsg = error.response.data;
+      return thunkAPI.rejectWithValue(errorMsg);
+    }
+  },
+);
+
 const ProfileReducer = createSlice({
   name: "Profile",
   initialState: {
+    loadingProfilePosts: false,
     profileInfo: {},
-    profileId:{},
+    profileId: {},
     profilePosts: [],
     following: [],
     followers: [],
+    followingByUser: [],
+    followersByUser: [],
   },
   reducers: {
     deletePostProfile: (state, action) => {
-      state.profilePosts.data = state.feedPosts.data.filter((p) => {
+      state.profilePosts.data = state.profilePosts.data.filter((p) => {
         return p.post_id !== action.payload;
       });
+    },
+    followFollowingUser: (state, action) => {
+      const user = state.following.find((s) => s.user_id === action.payload);
+      user.has_followed = 1;
+    },
+    unfollowFollowingUser: (state, action) => {
+      const user = state.following.find((s) => s.user_id === action.payload);
+      user.has_followed = 0;
+    },
+    followFollowersUser: (state, action) => {
+      const user = state.followers.find((s) => s.user_id === action.payload);
+      user.has_followed = 1;
+    },
+    unfollowFollowersUser: (state, action) => {
+      const user = state.followers.find((s) => s.user_id === action.payload);
+      user.has_followed = 0;
+    },
+    followFollowingByUser: (state, action) => {
+      const user = state.followingByUser.find(
+        (s) => s.user_id === action.payload,
+      );
+      user.has_followed = 1;
+    },
+    unfollowFollowingByUser: (state, action) => {
+      const user = state.followingByUser.find(
+        (s) => s.user_id === action.payload,
+      );
+      user.has_followed = 0;
+    },
+    followFollowersByUser: (state, action) => {
+      const user = state.followersByUser.find(
+        (s) => s.user_id === action.payload,
+      );
+      user.has_followed = 1;
+    },
+    unfollowFollowersByUser: (state, action) => {
+      const user = state.followersByUser.find(
+        (s) => s.user_id === action.payload,
+      );
+      user.has_followed = 0;
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(profileInfo.fulfilled, (state, action) => {
         const data = action.payload;
-        console.log(data);
         state.profileInfo = data;
       })
+      .addCase(profilePosts.pending, (state) => {
+        state.loadingProfilePosts = true;
+      })
       .addCase(profilePosts.fulfilled, (state, action) => {
-        const data = action.payload;
-        console.log(data);
-        state.profilePosts = data;
+        state.loadingProfilePosts = false;
+        const { data, current_page, last_page } = action.payload;
+
+        if (current_page === 1 || !state.profilePosts) {
+          state.profilePosts = action.payload;
+        } else {
+          state.profilePosts.data = [...state.profilePosts.data, ...data];
+          state.profilePosts.current_page = current_page;
+          state.profilePosts.last_page = last_page;
+        }
+      })
+      .addCase(profilePosts.rejected, (state) => {
+        state.loadingProfilePosts = false;
+      })
+      .addCase(postsByProfileId.pending, (state) => {
+        state.loadingProfilePosts = true;
       })
       .addCase(postsByProfileId.fulfilled, (state, action) => {
-        const data = action.payload;
-        console.log(data);
-        state.profilePosts = data;
+        state.loadingProfilePosts = false;
+        const { data, current_page, last_page } = action.payload;
+
+        if (current_page === 1 || !state.profilePosts) {
+          state.profilePosts = action.payload;
+        } else {
+          state.profilePosts.data = [...state.profilePosts.data, ...data];
+          state.profilePosts.current_page = current_page;
+          state.profilePosts.last_page = last_page;
+        }
+      })
+      .addCase(postsByProfileId.rejected, (state) => {
+        state.loadingProfilePosts = false;
       })
       .addCase(likeProfilePost.fulfilled, (state, action) => {
         const postLiked = state.profilePosts.data.find(
@@ -190,10 +311,32 @@ const ProfileReducer = createSlice({
       .addCase(followers.fulfilled, (state, action) => {
         state.followers = action.payload;
       })
-      .addCase(ProfileById.fulfilled,(state,action)=>{
-        state.profileId = action.payload
+      .addCase(ProfileById.fulfilled, (state, action) => {
+        state.profileId = action.payload;
       })
+      .addCase(followUser.fulfilled, (state, action) => {
+        state.profileId.is_following = 1;
+      })
+      .addCase(unfollowUser.fulfilled, (state, action) => {
+        state.profileId.is_following = 0;
+      })
+      .addCase(followersByUser.fulfilled, (state, action) => {
+        state.followersByUser = action.payload;
+      })
+      .addCase(followingByUser.fulfilled, (state, action) => {
+        state.followingByUser = action.payload;
+      });
   },
 });
-export const { deletePostProfile } = ProfileReducer.actions;
+export const {
+  deletePostProfile,
+  followFollowersByUser,
+  followFollowingByUser,
+  followFollowersUser,
+  followFollowingUser,
+  unfollowFollowersByUser,
+  unfollowFollowersUser,
+  unfollowFollowingByUser,
+  unfollowFollowingUser,
+} = ProfileReducer.actions;
 export default ProfileReducer.reducer;

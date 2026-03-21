@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\createCommentRequest;
 use App\Models\Comment;
 use App\Models\notification;
+use App\Models\Profile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -33,18 +34,25 @@ class CommentController extends Controller
             'post_id' => $postId
         ]);
 
-        notification::create([
-            'notification_id' => Str::uuid(),
-            'user_id' => $post->author_id,
-            'comment_id' => $comment->comment_id,
-            'source_user_id' => $userId,
-            'type' => 'comment',
-        ]);
+        $profile = Profile::where('user_id', $userId)->first();
+        $comment['user_id'] = $userId;
+        $comment['user_has_like'] = 0;
+        $comment['display_name'] = $profile->display_name;
+        $comment['avatar_url'] = $profile->avatar_url;
+        
+        if ($userId !== $post->author_id) {
+            notification::create([
+                'notification_id' => Str::uuid(),
+                'user_id' => $post->author_id,
+                'comment_id' => $comment->comment_id,
+                'post_id' => $postId,
+                'source_user_id' => $userId,
+                'type' => 'comment',
+            ]);
+        }
 
-        return response()->json([
-            'message' => 'the comment created successfuly',
-            'data' => $comment
-        ]);
+
+        return response()->json($comment);
     }
 
     public function showComments(string $postId)
@@ -66,6 +74,7 @@ class CommentController extends Controller
                 'users.user_id',
                 'profiles.avatar_url',
                 'profiles.display_name',
+                'comments.author_id',
                 'comments.created_at',
                 'comments.updated_at',
                 DB::raw('MAX(CASE WHEN user_like.like_id IS NOT NULL THEN 1 ELSE 0 END) as user_has_liked'),
@@ -87,16 +96,17 @@ class CommentController extends Controller
 
     public function deleteComment($commentId)
     {
-        $comment = Comment::find($commentId);
+        $comment = Comment::where('comment_id',$commentId)->first();
         if (!$comment) {
             return response()->json(['message' => 'comment not found'], 404);
         }
         $user = Auth::user();
-        if (!$user->is_admin && $comment->author_id!= $user->id) {
+        
+        if (!$user->is_admin && $comment->author_id != $user->user_id) {
             return response()->json(['message' => 'forbidden'], 403);
         }
 
-        $comment->delete();
+         DB::table('comments')->where('comment_id', $commentId)->delete();
         return response()->json(['message' => 'the comment deleted successfuly']);
     }
 }

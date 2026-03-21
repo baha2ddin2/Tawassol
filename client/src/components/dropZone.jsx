@@ -5,18 +5,13 @@ import { useDropzone } from "react-dropzone";
 import { UploadFile, Close } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
 
-/**
- * Props:
- * - onFiles(files: File[]) => void
- * - maxFiles (default 5)
- * - maxSize (bytes, default 5MB)
- */
+
 export default function StyledUploader({
   onFiles = () => {},
   maxFiles = 10,
   maxSize = 50 * 1024 * 1024,
 }) {
-  const [files, setFiles] = useState([]); // { file, preview, sizeError }
+  const [files, setFiles] = useState([]);
 
   const onDrop = useCallback(
     (acceptedFiles, fileRejections) => {
@@ -28,7 +23,6 @@ export default function StyledUploader({
         };
       });
 
-      // Keep up to maxFiles
       const next = [...files, ...accepted].slice(0, maxFiles);
       setFiles(next);
       onFiles(next.map((x) => x.file));
@@ -39,12 +33,11 @@ export default function StyledUploader({
   const { getRootProps, getInputProps, isDragActive, isDragReject } =
     useDropzone({
       onDrop,
-      accept: { "image/*": [] ,"video":[]},
+      accept: { "image/*": [] ,"video/*":[]},
       maxSize,
       multiple: true,
     });
 
-  // cleanup previews on unmount
   useEffect(() => {
     return () => files.forEach((f) => URL.revokeObjectURL(f.preview));
   }, [files]);

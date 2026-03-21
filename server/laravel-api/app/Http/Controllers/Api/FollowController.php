@@ -33,6 +33,24 @@ class FollowController extends Controller
         return response()->json($following);
     }
 
+    public function getFollowingById(string $userId)
+    {
+        $following = DB::table('follows')
+            ->join('profiles', 'follows.followed_id', '=', 'profiles.user_id')
+            ->where('follows.follower_id', $userId)
+            ->select(
+                'profiles.user_id',
+                'profiles.display_name',
+                'profiles.avatar_url',
+                'profiles.is_private',
+                DB::raw('true as has_followed'),
+                'follows.created_at as followed_at'
+            )
+            ->get();
+
+        return response()->json($following);
+    }
+
     public function getFollowers()
     {
         $authId = Auth::id();
@@ -44,6 +62,30 @@ class FollowController extends Controller
                     ->where('my_follow.follower_id', '=', $authId);
             })
             ->where('follows.followed_id', $authId)
+            ->select(
+                'profiles.user_id',
+                'profiles.display_name',
+                'profiles.avatar_url',
+                'profiles.is_private',
+                DB::raw('CASE WHEN my_follow.follow_id IS NOT NULL THEN true ELSE false END as has_followed'),
+                'follows.created_at as followed_at'
+            )
+            ->get();
+
+        return response()->json($followers);
+    }
+
+    public function getFollowersById(string $userId)
+    {
+        $authId = Auth::id();
+
+        $followers = DB::table('follows')
+            ->join('profiles', 'follows.follower_id', '=', 'profiles.user_id')
+            ->leftJoin('follows as my_follow', function ($join) use ($authId) {
+                $join->on('profiles.user_id', '=', 'my_follow.followed_id')
+                    ->where('my_follow.follower_id', '=', $authId);
+            })
+            ->where('follows.followed_id', $userId)
             ->select(
                 'profiles.user_id',
                 'profiles.display_name',

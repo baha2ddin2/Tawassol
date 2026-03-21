@@ -18,8 +18,8 @@ class UserController extends Controller
         try {
             $user = Auth::user();
             $user->update([
-                'email'=>$request->email,
-                'email_verified_at'=>null
+                'email' => $request->email,
+                'email_verified_at' => null
             ]);
             return response()->json($user);
         } catch (JWTException $e) {
@@ -27,43 +27,42 @@ class UserController extends Controller
         }
     }
 
-    
-    public function changePassword(ChangePasswordRequest $request){
-        try{
+
+    public function changePassword(ChangePasswordRequest $request)
+    {
+        try {
             $user = Auth::user();
 
-            if(!$user){
-                return response()->json(['message'=>'user not found']);
+            if (!$user) {
+                return response()->json(['message' => 'user not found']);
             }
-            if(!Hash::check($request->current_password , $user->password)){
-                return response()->json(['message'=>'password incorect']);
+            if (!Hash::check($request->current_password, $user->password)) {
+                return response()->json(['message' => 'password incorect'], 401);
             }
             $user->update([
-                'password'=>Hash::make($request->current_password)
+                'password' => Hash::make($request->new_password)
             ]);
-            return response()->json(['message'=>'the password changed successfuly'],200);
-        }catch (JWTException $e) {
+            return response()->json(['message' => 'the password changed successfuly'], 200);
+        } catch (JWTException $e) {
             return response()->json(['error' => 'Failed to update password'], 500);
         }
     }
 
-    public function deleteUser(){
-        try{
+    public function deleteUser()
+    {
+        try {
             $user = Auth::user();
 
-            if(!$user){
-                return response()->json(['message'=>'user not found']);
+            if (!$user) {
+                return response()->json(['message' => 'user not found']);
             }
             $cookie = Cookie::forget('access_token');
-            if($user->delete()){
-                return response()->json(['message'=>'the user deleted successfuly'])->withCookie($cookie);
+            if ($user->delete()) {
+                return response()->json(['message' => 'the user deleted successfuly'])->withCookie($cookie);
             }
-            
-        }catch (JWTException $e) {
-            
+        } catch (JWTException $e) {
+
             return response()->json(['error' => 'Failed to delete user'], 500);
         }
     }
-
 }
-

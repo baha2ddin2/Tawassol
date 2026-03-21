@@ -34,7 +34,7 @@ class NotificationController extends Controller
                 'comments.content as comment_content'
             )
             ->orderByDesc('notifications.created_at')
-            ->paginate(15);
+            ->paginate(10);
 
         return response()->json($notifications);
     } 
@@ -54,12 +54,12 @@ class NotificationController extends Controller
 
     public function markAsRead($notificationId)
     {
-        $notification =  notification::find($notificationId);
+        $notification =  notification::where('notification_id',$notificationId);
         if(!$notification){
             return response()->json(['message'=>'notification not found']);
         }
 
-        isAdmineOrTheSameUser($notification->user_id);
+        // isAdmineOrTheSameUser($notification->user_id);
 
         DB::table('notifications')
             ->where('notification_id', $notificationId)

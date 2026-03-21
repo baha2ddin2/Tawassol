@@ -1,32 +1,52 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { 
-  Dialog, DialogTitle, DialogContent, DialogActions, 
-  TextField, List, ListItem, ListItemAvatar, 
-  ListItemText, Avatar, Checkbox, Button, IconButton,
-  InputAdornment
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  Avatar,
+  Checkbox,
+  Button,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 import { useDispatch, useSelector } from "react-redux";
-// import { addMembersToGroup } from "@/redux/reducers/messageReducer"; 
+import { addMembersToGroup } from "@/redux/Slices/messageSlice";
 
-export default function AddMemberModal({ open, onClose, groupId, existingMembers }) {
+export default function AddMemberModal({
+  open,
+  onClose,
+  groupId,
+  existingMembers,
+}) {
   const dispatch = useDispatch();
-  const { contacts } = useSelector((state) => state.message); 
-  
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUsers, setSelectedUsers] = useState([]);
 
-  const availableUsers = contacts?.filter(contact => 
-    !existingMembers.some(member => member.user_id === contact.user_id) &&
-    contact?.display_name?.toLowerCase().includes(searchTerm.toLowerCase())
+  const availableMembersOptions = useSelector(
+    (state) => state.message.availableMembersOptions,
+  );
+
+  const availableUsers = availableMembersOptions?.filter(
+    (contact) =>
+      !existingMembers.some((member) => member.user_id === contact.user_id) &&
+      contact?.display_name?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const handleToggle = (userId) => {
-    setSelectedUsers(prev => 
-      prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]
+    setSelectedUsers((prev) =>
+      prev.includes(userId)
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId],
     );
   };
 
@@ -37,16 +57,18 @@ export default function AddMemberModal({ open, onClose, groupId, existingMembers
   };
 
   return (
-    <Dialog 
-      open={open} 
-      onClose={onClose} 
-      fullWidth 
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
       maxWidth="xs"
       PaperProps={{ className: "rounded-3xl p-2" }}
     >
       <DialogTitle className="flex justify-between items-center pb-2">
         <span className="font-black text-xl text-slate-900">Add Members</span>
-        <IconButton onClick={onClose} size="small"><CloseIcon /></IconButton>
+        <IconButton onClick={onClose} size="small">
+          <CloseIcon />
+        </IconButton>
       </DialogTitle>
 
       <DialogContent>
@@ -63,24 +85,30 @@ export default function AddMemberModal({ open, onClose, groupId, existingMembers
                 <SearchIcon className="text-slate-400" />
               </InputAdornment>
             ),
-            className: "rounded-xl bg-slate-50 border-none"
+            className: "rounded-xl bg-slate-50 border-none",
           }}
         />
 
         <List className="max-h-[300px] overflow-y-auto">
           {availableUsers?.length > 0 ? (
             availableUsers.map((user) => (
-              <ListItem 
-                key={user.user_id} 
-                button 
+              <ListItem
+                key={user.user_id}
+                button
                 onClick={() => handleToggle(user.user_id)}
                 className="rounded-xl mb-1 hover:bg-blue-50"
               >
                 <ListItemAvatar>
-                  <Avatar src={`http://127.0.0.1:8000/storage/${user.avatar_url}`} />
+                  <Avatar
+                    src={`http://127.0.0.1:8000/storage/${user.avatar_url}`}
+                  />
                 </ListItemAvatar>
-                <ListItemText 
-                  primary={<span className="font-bold text-sm">{user.display_name}</span>}
+                <ListItemText
+                  primary={
+                    <span className="font-bold text-sm">
+                      {user.display_name}
+                    </span>
+                  }
                 />
                 <Checkbox
                   checked={selectedUsers.includes(user.user_id)}
@@ -97,7 +125,10 @@ export default function AddMemberModal({ open, onClose, groupId, existingMembers
       </DialogContent>
 
       <DialogActions className="p-4 border-t border-slate-50">
-        <Button onClick={onClose} className="text-slate-500 font-bold normal-case">
+        <Button
+          onClick={onClose}
+          className="text-slate-500 font-bold normal-case"
+        >
           Cancel
         </Button>
         <Button

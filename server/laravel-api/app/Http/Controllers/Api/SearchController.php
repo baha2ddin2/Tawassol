@@ -30,10 +30,10 @@ class SearchController extends Controller
     public function searchResults(Request $request)
     {
         $query = $request->query('s');
-        if(empty($query)){
+        if (empty($query)) {
             return response()->json([]);
         }
-        
+
         $authId = Auth::id();
 
         $hashtags = DB::table('hashtags')
@@ -91,7 +91,7 @@ class SearchController extends Controller
                     ->where('my_follow.follower_id', $authId);
             })
             ->where('profiles.display_name', 'like', "%{$query}%")
-            ->orWhere('profiles.bio','like', "%{$query}%")
+            ->orWhere('profiles.bio', 'like', "%{$query}%")
             ->where(function ($q) {
                 $q->where('profiles.is_private', false)
                     ->orWhereNotNull('my_follow.follow_id');
@@ -112,9 +112,10 @@ class SearchController extends Controller
         ]);
     }
 
-    public function postsResults(Request $request){
+    public function postsResults(Request $request)
+    {
         $query = $request->query('s');
-        if(empty($query)){
+        if (empty($query)) {
             return response()->json([]);
         }
         $authId = Auth::id();
@@ -157,17 +158,16 @@ class SearchController extends Controller
             )
             ->groupBy('posts.post_id', 'posts.content', 'posts.author_id', 'profiles.display_name', 'profiles.avatar_url', 'posts.created_at', 'posts.updated_at')
             ->latest()
-            ->limit(5)
-            ->get();
+            ->paginate(10);
 
         return response()->json($posts);
-
     }
 
-    public function profilesResult(Request $request){
-        
+    public function profilesResult(Request $request)
+    {
+
         $query = $request->query('s');
-        if(empty($query)){
+        if (empty($query)) {
             return response()->json([]);
         }
         $authId = Auth::id();
@@ -176,21 +176,23 @@ class SearchController extends Controller
                 $join->on('profiles.user_id', '=', 'my_follow.followed_id')
                     ->where('my_follow.follower_id', $authId);
             })
-            ->where('profiles.display_name', 'like', "%{$query}%")
-            ->orWhere('profiles.bio','like', "%{$query}%")
-            ->where(function ($q) {
+            ->where(function ($q) use ($query) {
+                $q->where('profiles.display_name', 'like', "%{$query}%")
+                    ->orWhere('profiles.bio', 'like', "%{$query}%");
+            })
+            ->where(function ($q) { 
                 $q->where('profiles.is_private', false)
                     ->orWhereNotNull('my_follow.follow_id');
             })
+
             ->select(
                 'profiles.user_id',
                 'profiles.display_name',
                 'profiles.avatar_url',
                 DB::raw('CASE WHEN my_follow.follow_id IS NOT NULL THEN true ELSE false END as has_followed')
             )
-            ->limit(5)
-            ->get();
+            ->paginate(10);
 
         return response()->json($profiles);
-    } 
+    }
 }

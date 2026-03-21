@@ -11,9 +11,11 @@ import {
   X,
 } from "@mui/icons-material";
 import { gooeyToast } from "goey-toast";
+import { useTranslation } from "react-i18next";
 
 export default function SharePost({ url, text }) {
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation();
 
   const copyLink = async () => {
     await navigator.clipboard.writeText(url);
@@ -36,27 +38,32 @@ export default function SharePost({ url, text }) {
 
   return (
     <div className="relative w-full">
-      <button
-        onClick={() => setOpen(!open)}
-        className="flex items-center justify-center gap-2 w-full py-2 px-4 normal-case text-blue-600 font-normal to-blue-400 rounded-md transition-colors"
+      <div
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen(!open);
+        }}
+        className="flex items-center justify-center gap-2 w-full py-2 px-4 normal-case text-[var(--text-primary)] font-normal rounded-md transition-colors cursor-pointer"
       >
-        <ShareOutlined className=" text-blue-500"  />
-        <span className=" text-blue-600" >Share</span>
-      </button>
+        <ShareOutlined sx={{ color: "var(--text-primary)" }} />
+        <span>{t("post.share", "Share")}</span>
+      </div>
       {open && (
         <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute bottom-full right-0 mb-2 w-52 bg-white shadow-xl border border-gray-100 rounded-xl p-3 flex flex-col gap-3 z-50">
-            <button
-              onClick={copyLink}
-              className="flex items-center gap-2 hover:text-blue-500 text-sm"
+          <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setOpen(false); }} />
+          <div className="absolute bottom-full right-0 mb-2 w-52 bg-[var(--card-bg)] shadow-xl border border-[var(--card-border)] text-[var(--text-primary)] rounded-xl p-3 flex flex-col gap-3 z-50">
+            <div
+               role="button"
+               onClick={(e) => { e.stopPropagation(); copyLink(); }}
+               className="flex items-center gap-2 hover:text-[var(--color-primary)] text-sm cursor-pointer"
             >
               <ContentCopy fontSize="inherit" />
-              Copy Link
-            </button>
+              {t("post.copyLink", "Copy Link")}
+            </div>
             <a
               href={`https://wa.me/?text=${url}`}
               target="_blank"
+              onClick={(e) => e.stopPropagation()}
               className="flex items-center gap-2 hover:text-green-500"
             >
               <WhatsApp fontSize="small" />
@@ -66,7 +73,8 @@ export default function SharePost({ url, text }) {
             <a
               href={`https://x.com/intent/tweet?url=${url}&text=${text}`}
               target="_blank"
-              className="flex items-center gap-2 hover:text-black"
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center gap-2 hover:text-slate-400"
             >
               <X fontSize="small" />
               X
@@ -75,19 +83,21 @@ export default function SharePost({ url, text }) {
             <a
               href={`https://www.facebook.com/sharer/sharer.php?u=${url}`}
               target="_blank"
-              className="flex items-center gap-2 hover:text-blue-600"
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center gap-2 hover:text-[var(--color-primary)]"
             >
               <Facebook fontSize="small" />
               Facebook
             </a>
 
-            <button
-              onClick={handleNativeShare}
-              className="flex items-center gap-2 hover:text-purple-500"
+            <div
+              role="button"
+              onClick={(e) => { e.stopPropagation(); handleNativeShare(); }}
+              className="flex items-center gap-2 hover:text-purple-500 cursor-pointer text-sm"
             >
               <PhoneIphone fontSize="small" />
-              Share to Contacts
-            </button>
+              {t("post.shareContacts", "Share to Contacts")}
+            </div>
           </div>
         </>
       )}

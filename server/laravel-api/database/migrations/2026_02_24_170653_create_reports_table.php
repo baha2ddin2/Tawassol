@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('reports', function (Blueprint $table) {
             $table->uuid('report_id')->primary();
             $table->string('reason');
-            $table->enum('status',['completed','in progress','rejected']);
+            $table->enum('status',['completed','in progress','rejected'])->default('in progress');
             $table->date('handled_at');
             $table->uuid('reporter_id');
             $table->uuid('target_id')->nullable();

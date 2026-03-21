@@ -1,81 +1,182 @@
 "use client";
 
-import React, { useState } from 'react';
-import Head from 'next/head';
-import { 
-  Typography, Paper, Chip, Button, IconButton, 
-  Divider, Tooltip, Alert, Box 
-} from '@mui/material';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import BlockIcon from '@mui/icons-material/Block';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
-import HistoryIcon from '@mui/icons-material/History';
-import GavelIcon from '@mui/icons-material/Gavel';
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  Typography,
+  Paper,
+  Chip,
+  Button,
+  Divider,
+  Alert,
+  CircularProgress,
+  Avatar,
+  Box,
+  Stack,
+} from "@mui/material";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import BlockIcon from "@mui/icons-material/Block";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import HistoryIcon from "@mui/icons-material/History";
+import GavelIcon from "@mui/icons-material/Gavel";
+import PersonIcon from "@mui/icons-material/Person";
+import ArticleIcon from "@mui/icons-material/Article";
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
+import { useDispatch, useSelector } from "react-redux";
+import { getReport, handelReport } from "@/redux/Slices/dashboardSlice";
+import { useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
+function safeLabel(value) {
+  if (!value) return "-";
+  return String(value)
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (c) => c?.toUpperCase());
+}
 
-const pendingReport = {
-  report_id: "REP-9921",
-  reason: "This user is spreading misinformation and harassing others in the comments section.",
-  status: "pending",
-  created_at: "2026-03-07T21:00:00Z",
-  report_type: "comment",
-  target_id: 45,
-  target_comment_id: 102,
-  target_post_id: null,
-  reporter_name: "Sami K.",
-  target_name: "BadActor_01"
-};
+function formatDate(value) {
+  if (!value) return "-";
+  try {
+    return new Intl.DateTimeFormat("en", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    }).format(new Date(value.replace(" ", "T")));
+  } catch {
+    return value;
+  }
+}
 
 export default function HandleReportPage() {
-  const [report, setReport] = useState(pendingReport);
-  const [loading, setLoading] = useState(false);
+  const { id } = useParams();
+  const dispatch = useDispatch();
+  const router = useRouter()
+
+  const { report, loading } = useSelector((state) => state.dashboard);
+  const [localLoading, setLocalLoading] = useState(false);
+
+  useEffect(() => {
+    if (id) dispatch(getReport(id));
+  }, [id, dispatch]);
+
+  const targetInfo = useMemo(() => {
+    if (!report) return null;
+
+    if (report.report_type === "comment") {
+      return {
+        title: "Reported Comment",
+        icon: <ChatBubbleOutlineIcon />,
+        name: report.comment_owner_name || "Unknown user",
+        avatar: report.comment_owner_avatar || null,
+        content: report.comment_content || "No comment content",
+        typeLabel: "Comment",
+        id: report.comment_id || "-",
+      };
+    }
+
+    if (report.report_type === "post") {
+      return {
+        title: "Reported Post",
+        icon: <ArticleIcon />,
+        name: report.post_owner_name || "Unknown user",
+        avatar: report.post_owner_avatar || null,
+        content: report.post_content || "No post content",
+        typeLabel: "Post",
+        id: report.post_id || "-",
+      };
+    }
+
+    return {
+      title: "Reported User",
+      icon: <PersonIcon />,
+      name: report.target_user_name || "Unknown user",
+      avatar: report.target_user_avatar || null,
+      content: null,
+      typeLabel: "User",
+      id: report.target_id || "-",
+    };
+  }, [report]);
+
+  const evidenceMedia = useMemo(() => {
+    if (!report?.post_media) return [];
+    try {
+      const parsed = JSON.parse(report.post_media);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }, [report]);
 
   const handleAction = async (action) => {
-    setLoading(true);
-    
-    console.log(`Calling API: /api/reports/${report.report_id}/handle with action: ${action}`);
-    
-    setTimeout(() => {
-      setReport({ 
-        ...report, 
-        status: action === 'ignore' ? 'rejected' : 'completed' 
-      });
-      setLoading(false);
-    }, 800);
+    if (!id) return;
+    setLocalLoading(true);
+
+    try {
+      await dispatch(handelReport({ action, reportId: id }));
+      router.push('/dashboard/reports')
+      await dispatch(getReport(id));
+    } finally {
+      setLocalLoading(false);
+    }
   };
+
+  if (!report) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f1f5f9]">
+        <CircularProgress />
+      </div>
+    );
+  }
+
+  const isBusy = loading || localLoading;
+  const isOpen = report.status === "in progress";
+  const statusColor =
+    report.status === "completed"
+      ? "success"
+      : report.status === "ignored"
+      ? "default"
+      : "warning";
 
   return (
     <div className="min-h-screen bg-[#f1f5f9] p-4 md:p-8 font-sans">
-      <Head>
-        <title>Tawassol Admin - Handle Report</title>
-      </Head>
-
-      <div className="max-w-[800px] mx-auto">
-        
-        {/* Breadcrumbs / Back */}
+      <div className="max-w-[900px] mx-auto">
         <div className="flex items-center gap-2 text-[#64748b] mb-6">
           <HistoryIcon fontSize="small" />
-          <span className="text-sm font-bold hover:underline cursor-pointer">Moderation Queue</span>
+          <span className="text-sm font-bold hover:underline cursor-pointer">
+            Moderation Queue
+          </span>
           <span className="text-xs">/</span>
-          <span className="text-sm font-medium">Report #{report.report_id}</span>
+          <span className="text-sm font-medium">
+            Report #{report.report_id}
+          </span>
         </div>
 
-        <Paper elevation={0} className="rounded-[24px] border border-[#e2e8f0] overflow-hidden shadow-sm">
-          
-          {/* Header Section */}
+        <Paper
+          elevation={0}
+          className="rounded-[24px] border border-[#e2e8f0] overflow-hidden shadow-sm"
+        >
           <div className="bg-white p-6 border-b border-[#f1f5f9] flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl bg-orange-100 flex items-center justify-center text-orange-600">
                 <GavelIcon />
               </div>
+
               <div>
-                <Typography className="font-black text-xl text-[#0f172a]">Handle Report</Typography>
-                <div className="flex items-center gap-2">
-                  <Chip 
-                    label={report.report_type.toUpperCase()} 
-                    size="small" 
-                    className="bg-slate-100 text-slate-600 font-black text-[10px]" 
+                <Typography className="font-black text-xl text-[#0f172a]">
+                  Handle Report
+                </Typography>
+
+                <div className="flex flex-wrap items-center gap-2 mt-1">
+                  <Chip
+                    label={safeLabel(report.report_type).toUpperCase()}
+                    size="small"
+                    className="bg-slate-100 text-slate-600 font-black text-[10px]"
+                  />
+                  <Chip
+                    label={report?.status?.toUpperCase()}
+                    size="small"
+                    color={statusColor}
+                    variant="outlined"
+                    className="font-black text-[10px]"
                   />
                   <Typography className="text-[#64748b] text-xs font-bold uppercase tracking-widest">
                     ID: {report.report_id}
@@ -84,107 +185,163 @@ export default function HandleReportPage() {
               </div>
             </div>
 
-            {report.status !== 'pending' && (
-              <Alert severity={report.status === 'completed' ? "success" : "info"} className="rounded-xl font-bold py-0">
-                Case {report.status === 'completed' ? 'Resolved' : 'Rejected/Ignored'}
+            {report.status !== "in progress" && (
+              <Alert
+                severity={report.status === "completed" ? "success" : "info"}
+                className="rounded-xl font-bold py-0"
+              >
+                Case{" "}
+                {report.status === "completed" ? "Resolved" : "Not Resolved"}
               </Alert>
             )}
           </div>
 
-          {/* Details Body */}
-          <div className="p-8 bg-white space-y-8">
-            
-            {/* Report Context */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-1">
-                <Typography className="text-xs font-black text-[#94a3b8] uppercase">Reporter</Typography>
-                <Typography className="font-bold text-[#0f172a]">{report.reporter_name}</Typography>
-              </div>
-              <div className="space-y-1">
-                <Typography className="text-xs font-black text-[#94a3b8] uppercase">Reported User</Typography>
-                <Typography className="font-bold text-red-600">{report.target_name} (UID: {report.target_id})</Typography>
-              </div>
+          <div className="p-6 md:p-8 bg-white space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Box className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                <Typography className="text-[11px] font-black text-slate-400 uppercase">
+                  Reporter
+                </Typography>
+                <Stack direction="row" spacing={1.5} alignItems="center" mt={1}>
+                  <Avatar src={`http://127.0.0.1:8000/storage/${report.reporter_avatar}` || undefined}>
+                    {report.reporter_name?.[0]?.toUpperCase() || "U"}
+                  </Avatar>
+                  <Typography className="font-bold text-slate-900">
+                    {report.reporter_name || "-"}
+                  </Typography>
+                </Stack>
+              </Box>
+
+              <Box className="p-4 rounded-2xl bg-red-50 border border-red-100">
+                <Typography className="text-[11px] font-black text-red-400 uppercase">
+                  Target
+                </Typography>
+                <Stack direction="row" spacing={1.5} alignItems="center" mt={1}>
+                  <Avatar src={ `http://127.0.0.1:8000/storage/${targetInfo?.avatar}` || undefined}>
+                    {targetInfo?.name?.[0]?.toUpperCase() || "?"}
+                  </Avatar>
+                  <Box>
+                    <Typography className="font-bold text-red-700">
+                      {targetInfo?.name || "-"}
+                    </Typography>
+                    <Typography className="text-xs text-red-500 font-medium">
+                      {targetInfo?.typeLabel} ID: {targetInfo?.id}
+                    </Typography>
+                  </Box>
+                </Stack>
+              </Box>
+
+              <Box className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                <Typography className="text-[11px] font-black text-slate-400 uppercase">
+                  Created At
+                </Typography>
+                <Typography className="font-bold text-slate-900 mt-1">
+                  {formatDate(report.created_at)}
+                </Typography>
+              </Box>
             </div>
 
             <Divider />
 
-            {/* Reason Section */}
             <div>
-              <Typography className="text-xs font-black text-[#94a3b8] uppercase mb-2">Report Reason</Typography>
-              <Paper variant="outlined" className="p-4 bg-slate-50 border-slate-200 rounded-xl">
+              <Typography className="text-xs font-black text-[#94a3b8] uppercase mb-2">
+                Report Reason
+              </Typography>
+              <Paper
+                variant="outlined"
+                className="p-4 bg-slate-50 border-slate-200 rounded-2xl"
+              >
                 <Typography className="text-[#334155] leading-relaxed italic">
-                  "{report.reason}"
+                  “{report.reason || "-"}”
                 </Typography>
               </Paper>
             </div>
 
-            {/* Evidence Preview (Conditional) */}
             <div>
-              <Typography className="text-xs font-black text-[#94a3b8] uppercase mb-3">Evidence Preview</Typography>
-              <div className="flex items-center justify-between p-4 border border-[#e2e8f0] rounded-xl bg-white hover:border-blue-300 transition-colors cursor-pointer group">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
-                    <VisibilityOutlinedIcon />
+              <Typography className="text-xs font-black text-[#94a3b8] uppercase mb-3">
+                Evidence Preview
+              </Typography>
+
+              <Paper
+                variant="outlined"
+                className="p-4 md:p-5 rounded-2xl border-slate-200 bg-white"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-blue-50 text-blue-600 rounded-xl mt-0.5">
+                      <VisibilityOutlinedIcon />
+                    </div>
+
+                    <div>
+                      <Typography className="font-bold text-sm text-[#0f172a]">
+                        {targetInfo?.title || "Evidence"}
+                      </Typography>
+
+                      <Typography className="text-sm text-slate-600 mt-1">
+                        {targetInfo?.content || "No content available."}
+                      </Typography>
+
+                      {evidenceMedia.length > 0 && (
+                        <Typography className="text-xs text-slate-400 mt-2">
+                          {evidenceMedia.length} media file
+                          {evidenceMedia.length > 1 ? "s" : ""} attached
+                        </Typography>
+                      )}
+                    </div>
                   </div>
-                  <Typography className="font-bold text-sm text-[#0f172a]">
-                    View flagged {report.report_type} content
-                  </Typography>
+
+                  <Chip
+                    label={safeLabel(report.report_type)}
+                    size="small"
+                    className="bg-slate-100 text-slate-600 font-bold"
+                  />
                 </div>
-                <Typography className="text-xs font-bold text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                  OPEN LINK
-                </Typography>
-              </div>
+              </Paper>
             </div>
 
             <Divider />
 
-            {/* Actions Footer - Matches Laravel Logic */}
-            {report.status === 'pending' && (
-              <div className="flex flex-col md:flex-row gap-3">
-                <Button 
-                  fullWidth 
-                  variant="contained" 
-                  disabled={loading}
-                  onClick={() => handleAction('ignore')}
+            {isOpen ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <Button
+                  fullWidth
+                  variant="contained"
+                  disabled={isBusy}
+                  onClick={() => handleAction("ignore")}
                   className="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 rounded-xl shadow-none normal-case"
                 >
                   Ignore Report
                 </Button>
 
-                {/* Specific Action for Content */}
-                {(report.target_post_id || report.target_comment_id) && (
-                  <Button 
-                    fullWidth 
-                    variant="contained" 
+                {(report.post_id || report.comment_id) && (
+                  <Button
+                    fullWidth
+                    variant="contained"
                     color="error"
-                    disabled={loading}
+                    disabled={isBusy}
                     startIcon={<DeleteOutlineIcon />}
-                    onClick={() => handleAction('delete')}
+                    onClick={() => handleAction("delete")}
                     className="bg-red-500 hover:bg-red-600 font-bold py-3 rounded-xl shadow-lg shadow-red-500/20 normal-case"
                   >
-                    Delete {report.report_type}
+                    Delete {safeLabel(report.report_type)}
                   </Button>
                 )}
 
-                {/* Specific Action for Account */}
-                <Button 
-                  fullWidth 
-                  variant="contained" 
-                  color="error"
-                  disabled={loading}
+                <Button
+                  fullWidth
+                  variant="contained"
+                  disabled={isBusy}
                   startIcon={<BlockIcon />}
-                  onClick={() => handleAction('block')}
+                  onClick={() => handleAction("block")}
                   className="bg-black hover:bg-gray-800 font-bold py-3 rounded-xl shadow-lg shadow-gray-900/20 normal-case"
                 >
                   Block User Account
                 </Button>
               </div>
-            )}
-
-            {report.status !== 'pending' && (
-              <Button 
-                fullWidth 
-                variant="outlined" 
+            ) : (
+              <Button
+                fullWidth
+                variant="outlined"
                 startIcon={<CheckCircleOutlineIcon />}
                 className="border-slate-200 text-slate-400 font-bold py-3 rounded-xl normal-case"
                 disabled

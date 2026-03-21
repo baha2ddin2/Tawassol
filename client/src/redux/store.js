@@ -7,6 +7,7 @@ import profileReducer from "./Slices/profileSlice";
 import hashtagReducer from "./Slices/hashtagSlice";
 import messageReducer from "./Slices/messageSlice";
 import reportReducer from "./Slices/reportSlice";
+import dashboardSlice from "./Slices/dashboardSlice"
 
 export default configureStore({
   reducer: {
@@ -18,5 +19,6 @@ export default configureStore({
     hashtag: hashtagReducer,
     message: messageReducer,
     report: reportReducer,
+    dashboard : dashboardSlice
   },
 });

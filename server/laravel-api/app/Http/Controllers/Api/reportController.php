@@ -18,17 +18,15 @@ class reportController extends Controller
     public function reportPost(reportRequest $request, string $postId)
     {
 
-        $post = Post::find($postId);
+        $post = DB::table('posts')->where('post_id',$postId)->first();  
         if (!$post) {
             return response()->json(['message' => 'Post not found'], 404);
         }
 
-        // Prevent reporting your own post
         if ($post->author_id === Auth::id()) {
             return response()->json(['message' => 'You cannot report your own post'], 403);
         }
 
-        // Create the report
         $report = Report::create([
             'report_id' => Str::uuid(),
             'reason' => $request->reason,
@@ -47,17 +45,15 @@ class reportController extends Controller
     public function reportComment(reportRequest $request, string $commentId)
     {
 
-        $comment = Comment::find($commentId);
+        $comment = Comment::where('comment_id', $commentId)->first();
         if (!$comment) {
             return response()->json(['message' => 'Comment not found'], 404);
         }
 
-        // Prevent reporting your own comment
         if ($comment->author_id === Auth::id()) {
             return response()->json(['message' => 'You cannot report your own comment'], 403);
         }
 
-        // Create the report
         $report = Report::create([
             'report_id' => Str::uuid(),
             'reason' => $request->reason,
@@ -82,12 +78,10 @@ class reportController extends Controller
             return response()->json(['message' => 'User not found'], 404);
         }
 
-        // Prevent reporting yourself
         if ($targetUser->user_id === Auth::id()) {
             return response()->json(['message' => 'You cannot report yourself'], 403);
         }
 
-        // Create the report
         $report = Report::create([
             'report_id' => Str::uuid(),
             'reason' => $request->reason,

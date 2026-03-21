@@ -13,7 +13,7 @@ use Carbon\Carbon;
 class EmailController extends Controller
 {
 
-    public function sendCode(Request $request)
+    public function sendCode()
     {
         $user = Auth::user();
 
@@ -54,21 +54,18 @@ class EmailController extends Controller
             ], 404);
         }
 
-        // Check if already verified
         if ($user->email_verified_at) {
             return response()->json([
                 'message' => 'Email already verified'
             ], 400);
         }
 
-        // Check code
         if ($user->email_validation_code !== $request->code) {
             return response()->json([
                 'message' => 'Invalid verification code'
             ], 400);
         }
 
-        // Check expiration
         if (Carbon::now()->gt($user->validate_code_expired_at)) {
             return response()->json([
                 'message' => 'Verification code expired'

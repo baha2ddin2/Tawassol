@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { register } from "@/redux/Slices/AuthSlice";
 import { useRouter } from "next/navigation";
+import { validateRegisterForm } from "@/lib/validation";
 
 export const useRegister = () => {
   const [name, setName] = useState("");
@@ -10,6 +11,7 @@ export const useRegister = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [avatar, setAvatar] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({});
 
   const dispatch = useDispatch();
   const router = useRouter();
@@ -18,10 +20,13 @@ export const useRegister = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
 
-    // if (password !== confirmPassword) {
-    //   alert("Passwords do not match!");
-    //   return;
-    // }
+    const vErrors = validateRegisterForm({ name, email, password, confirmPassword });
+    if (vErrors) {
+      setValidationErrors(vErrors);
+      return;
+    }
+    setValidationErrors({});
+
     const formData = new FormData();
     formData.append("name", name);
     formData.append("email", email);
@@ -52,5 +57,6 @@ export const useRegister = () => {
     error,
     handleRegister,
     registerErrors,
+    validationErrors,
   };
 };

@@ -94,7 +94,7 @@ class AuthController extends Controller
 
 
 
-    protected function ResponseWithCookie($token, $message, $status)
+    protected function ResponseWithCookie($token, $message ,$status)
     {
         return response()->json([
             'message' => $message

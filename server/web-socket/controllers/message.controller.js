@@ -75,12 +75,15 @@ const PrivateMessageController = {
 
       const fullMessage = { ...message, media: mediaData};
       const room = createPrivateRoom(senderId, recipientId);
+
       io.to(room).emit("newPrivateMessage", fullMessage);
-      io.to(`notification_${recipientId.user_id}`)
+
+      io.to(`notification_${recipientId}`)
         .emit('new_message',{
           'message':`new message from ${user.display_name}`,
           'data':fullMessage
         })
+
       res.status(201).json(fullMessage);
 
     } catch (err) {
@@ -144,13 +147,34 @@ const PrivateMessageController = {
       await db.query("DELETE FROM messages WHERE message_id = ?", [messageId]);
 
       const room = createPrivateRoom(message.sender_id, message.recipient_id);
-
       io.to(room).emit("privateMessageDeleted", { messageId });
 
-      res.json({ success: true });
+      res.json({ success: true, messageId });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
   },
+  messageSeen:async (req,res)=>{
+    const { messageId } = req.params;
+    const userId = req.user.user_id;
+    try {
+      const [rows] = await db.query(
+        "SELECT * FROM messages WHERE message_id = ?",
+        [messageId],
+      );
+      const message = rows[0];
+      if (!message) return res.status(404).json({ error: "Message not found" });
+      if (message.recipient_id !== userId)
+        return res.status(403).json({ error: "Unauthorized" });
+
+      await db.query("update messages set is_read = 1 where message_id = ? ", [messageId]);
+
+      const room = createPrivateRoom(message.sender_id, message.recipient_id);
+      io.to(room).emit("privateMessageSeen", { messageId });
+      res.json({ success: true, messageId });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
 };
 export default PrivateMessageController;

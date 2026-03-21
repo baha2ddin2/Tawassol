@@ -1,40 +1,57 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
-import { Avatar, TextField, IconButton, Badge } from "@mui/material";
+import { useState, useEffect, useRef } from "react";
+import { Avatar, TextField, IconButton } from "@mui/material";
 import {
   Send,
   PhotoCamera,
-  AttachFile,
   ArrowDownward,
+  ArrowBack,
 } from "@mui/icons-material";
 import socket from "@/lib/soket";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import {
   messages,
   sendMessage,
   reciveMessage,
+  deleteMessage,
+  deletedMessage,
+  getContact,
+  updateMessage,
+  updatedMessage,
+  seenMessageAction,
 } from "@/redux/Slices/messageSlice";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import Message from "@/components/message";
+import Message from "@/components/Message";
+import { MessageSkeleton as PrivateMessageSkeleton } from "@/components/Skelatons";
+import Link from "next/link";
+import { useTranslation } from "react-i18next";
+
 dayjs.extend(relativeTime);
 
 export default function ChatPage() {
   const dispatch = useDispatch();
   const { id } = useParams();
+  const router = useRouter();
   const messagesData = useSelector((state) => state.message.messages) || [];
-  const { contacts } = useSelector((state) => state.message);
+  const { contact } = useSelector((state) => state.message);
   const { userInfo } = useSelector((state) => state.auth);
   const userId = userInfo?.user?.user_id;
-  const user = contacts?.find((c) => c.user_id === id);
 
   const [text, setText] = useState("");
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
   const [sending, setSending] = useState(false);
+  
+  const { t } = useTranslation();
+  const [isOnline, setIsOnline] = useState(contact?.is_active === 1 || contact?.is_active === true);
+
+  useEffect(() => {
+    setIsOnline(contact?.is_active === 1 || contact?.is_active === true);
+  }, [contact?.is_active]);
 
   const containerRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -49,6 +66,9 @@ export default function ChatPage() {
 
   useEffect(() => {
     if (!id) return;
+    dispatch(messages(id));
+    dispatch(getContact(id));
+
     socket.emit("joinPrivateRoom", { otherUserId: id });
     const onJoined = (data) => {
       console.log("Joined room:", data.room);
@@ -83,11 +103,37 @@ export default function ChatPage() {
 
     socket.on("newPrivateMessage", onNew);
 
-    dispatch(messages(id));
+    const onDelete = (data) => {
+      dispatch(deletedMessage(data));
+    };
+
+    socket.on("privateMessageDeleted", onDelete);
+
+    const onUpdate = (data) => {
+      dispatch(updatedMessage(data));
+    };
+    socket.on("privateMessageUpdated", onUpdate);
+
+    const onSeen = (data) => {
+      dispatch(seenMessageAction(data));
+    };
+
+    socket.on("privateMessageSeen", onSeen);
+
+    const onUserStatusChanged = (data) => {
+      if (String(data.userId) === String(id)) {
+        setIsOnline(data.status === "online");
+      }
+    };
+    socket.on("user-status-changed", onUserStatusChanged);
 
     return () => {
       socket.off("joinedPrivateRoom", onJoined);
       socket.off("newPrivateMessage", onNew);
+      socket.off("privateMessageDeleted", onDelete);
+      socket.off("privateMessageUpdated", onUpdate);
+      socket.off("privateMessageSeen", onSeen);
+      socket.off("user-status-changed", onUserStatusChanged);
     };
   }, [id, dispatch]);
 
@@ -222,50 +268,76 @@ export default function ChatPage() {
     setShowScrollBtn(false);
   };
 
+  const handleDelete = (messageId) => {
+    dispatch(deleteMessage(messageId));
+  };
+
+  const handleUpdate = (messageId, newContent) => {
+    dispatch(updateMessage({ messageId, newContent }));
+  };
+
   return (
-    <div className="h-[calc(100vh-90px)] flex flex-col overflow-hidden bg-white shadow-sm rounded-md">
+    <div className="h-[calc(100dvh-90px)] md:h-[calc(100vh-90px)] flex flex-col overflow-hidden bg-[var(--card-bg)] shadow-sm md:rounded-md border border-[var(--card-border)]">
       {/* Header */}
-      <div className="flex items-center gap-3 p-3 border-b">
+      <div className="flex items-center gap-3 p-3 border-b border-[var(--card-border)]">
+        <IconButton
+          className="md:hidden"
+          onClick={() => router.push("/messages")}
+          edge="start"
+          sx={{ color: "var(--color-primary)" }}
+        >
+          <ArrowBack />
+        </IconButton>
         <Avatar
-          src={user ? `http://127.0.0.1:8000/storage/${user.avatar_url}` : ""}
+          src={
+            contact ? `http://127.0.0.1:8000/storage/${contact.avatar_url}` : ""
+          }
           sx={{ width: 40, height: 40 }}
         />
         <div>
           <div className="font-semibold text-sm">
-            {user?.display_name ?? "Unknown"}
+            <Link href={`/profile/${contact.user_id}`} >{contact?.display_name ?? "Unknown"}</Link>
           </div>
-          <div className="text-xs text-gray-400">
-            {user?.is_active ? "online" : "offline"}
+          <div className="text-xs text-gray-400 flex items-center gap-1">
+            <span className={`w-2 h-2 rounded-full ${isOnline ? "bg-[#709601]" : "bg-gray-400"}`}></span>
+            {isOnline ? t("messages.online", "Online") : t("messages.offline", "Offline")}
           </div>
         </div>
       </div>
-
-      {/* Messages */}
       <div
         ref={containerRef}
-        className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50"
+        className="flex-1 overflow-y-auto p-4 space-y-3 bg-[var(--background)]"
       >
-        {messagesData?.map((m) => (
-          <Message message={m} userId={userId} dayjs={dayjs} />
-        ))}
+        {messagesData?.length === 0 ? (
+          <PrivateMessageSkeleton />
+        ) : (
+          messagesData.map((m) => (
+            <Message
+              key={m.message_id}
+              message={m}
+              userId={userId}
+              dayjs={dayjs}
+              handelDelete={handleDelete}
+              handleUpdate={handleUpdate}
+            />
+          ))
+        )}
       </div>
 
-      {/* Floating "scroll to bottom" button */}
       {showScrollBtn && (
         <div className="fixed right-6 bottom-24 z-50">
           <IconButton
             onClick={scrollToBottom}
             size="large"
-            className="bg-white shadow-md"
+            className="bg-[var(--card-bg)] shadow-md text-[var(--text-primary)]"
           >
             <ArrowDownward />
           </IconButton>
         </div>
       )}
 
-      {/* Attachment previews (small strip) */}
       {previews.length > 0 && (
-        <div className="p-2 border-t bg-white flex gap-2 overflow-x-auto">
+        <div className="p-2 border-t border-[var(--card-border)] bg-[var(--card-bg)] flex gap-2 overflow-x-auto">
           {previews.map((p, idx) => (
             <div key={idx} className="relative">
               <img
@@ -285,9 +357,7 @@ export default function ChatPage() {
         </div>
       )}
 
-      {/* Input area */}
-      <div className="flex gap-2 p-3 border-t items-end bg-white">
-        {/* hidden file input */}
+      <div className="flex gap-2 p-3 border-t border-[var(--card-border)] items-end bg-[var(--card-bg)]">
         <input
           ref={fileInputRef}
           type="file"
@@ -297,7 +367,6 @@ export default function ChatPage() {
           onChange={onFilesChange}
         />
 
-        {/* attachments + camera icons */}
         <div className="flex items-center gap-1">
           <IconButton
             onClick={() => fileInputRef.current?.click()}
@@ -318,6 +387,14 @@ export default function ChatPage() {
             onKeyDown={onKeyDown}
             multiline
             maxRows={4}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                bgcolor: "var(--input-bg)",
+                "& fieldset": { borderColor: "var(--input-border)" },
+                "&:hover fieldset": { borderColor: "var(--color-primary)" },
+              },
+              "& .MuiInputBase-input": { color: "var(--text-primary)" }
+            }}
           />
         </div>
 

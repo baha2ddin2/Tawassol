@@ -380,7 +380,7 @@ class PostController extends Controller
             return response()->json(['message' => 'post not found'], 404);
         }
         $user = Auth::user();
-        if (!$user->is_admin && $post->author_id != $user->id) {
+        if (!$user->is_admin && $post->author_id != $user->user_id) {
             return response()->json(['message' => 'forbidden'], 403);
         }
         DB::table('posts')->where('post_id', $id)->delete();

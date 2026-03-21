@@ -5,13 +5,22 @@ import { Flag } from "@mui/icons-material";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import ReportModal from "./reportModel";
+import ReportModal from "./ReportModel";
+import { useTranslation } from "react-i18next";
 
-export default function Dropdown({ children, isAuthor, postId, commentId }) {
+export default function Dropdown({
+  children,
+  isAuthor,
+  postId,
+  commentId,
+  userId,
+}) {
   const [open, setOpen] = useState(false);
   const [openReport, setOpenReport] = useState(false);
   const dropdownRef = useRef(null);
   const dispatch = useDispatch();
+  const { t } = useTranslation();
+
   function handelDelete() {
     if (postId) {
       dispatch(deletePost(postId));
@@ -34,11 +43,10 @@ export default function Dropdown({ children, isAuthor, postId, commentId }) {
 
   return (
     <div className="relative inline-block" ref={dropdownRef}>
-      <button onClick={() => setOpen(!open)}>{children}</button>
+      <div onClick={() => setOpen(!open)}>{children}</div>
 
-      {/* Dropdown */}
       <div
-        className={`absolute right-0 mt-3 w-44 bg-white rounded-2xl shadow-xl border 
+        className={`absolute right-0 mt-3 w-44 bg-[var(--card-bg)] rounded-2xl shadow-xl border border-[var(--card-border)] 
         transform transition-all duration-200 ease-out z-50
         ${
           open
@@ -46,33 +54,54 @@ export default function Dropdown({ children, isAuthor, postId, commentId }) {
             : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
         }`}
       >
-        <ul className="py-2 text-sm text-gray-700">
+        <ul className="py-2 text-sm text-[var(--text-primary)]">
           {!isAuthor ? (
             <li>
-              <button
+              <div
                 onClick={() => setOpenReport(true)}
-                className="w-full text-left flex justify-between text-red-600 px-4 py-2 hover:bg-gray-100 transition"
+                className="w-full cursor-pointer text-left flex justify-between text-red-600 px-4 py-2 hover:bg-[var(--hover-overlay)] transition"
               >
-                <span>report</span> <Flag />
-              </button>
+                <span>{t("post.report", "report")}</span> <Flag />
+              </div>
             </li>
           ) : (
             <li>
-              <button
+              <div
                 onClick={handelDelete}
-                className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100 transition"
+                className="w-full cursor-pointer text-left px-4 py-2 text-red-600 hover:bg-[var(--hover-overlay)] transition"
               >
-                delete {postId ? "post" : "comment"}
-              </button>
+                {t("post.delete", "delete")} {postId ? t("post.post", "post") : t("post.comment", "comment")}
+              </div>
             </li>
           )}
         </ul>
-        <ReportModal
-          open={openReport}
-          onClose={() => setOpenReport(false)}
-          type="post"
-          id={postId}
-        />
+
+        {postId ? (
+          <ReportModal
+            open={openReport}
+            onClose={() => setOpenReport(false)}
+            type="post"
+            id={postId}
+          />
+        ) : null}
+
+        {commentId ? (
+          <ReportModal
+            open={openReport}
+            onClose={() => setOpenReport(false)}
+            type="comment"
+            id={commentId}
+          />
+        ) : null}
+
+        {userId ? (
+          <ReportModal
+            open={openReport}
+            onClose={() => setOpenReport(false)}
+            type="user"
+            id={userId}
+          />
+        ) : null}
       </div>
     </div>
   );

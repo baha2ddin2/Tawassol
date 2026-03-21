@@ -1,24 +1,22 @@
-"use client";
-
-import { useEffect, useState } from "react";
+'use client'
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "next/navigation";
 import SendIcon from "@mui/icons-material/Send";
 import {
-  Divider,
   Typography,
   CircularProgress,
   TextField,
   Button,
 } from "@mui/material";
 import PostCard from "@/components/Post";
-import Comment from "@/components/comment";
+import Comment from "@/components/Comment";
 import {
   comments,
   postById,
   likePost,
   deslikePost,
-  // addComment // <-- Make sure you have this action in your reducer
+  addComment
 } from "@/redux/Slices/postSlice";
 
 export default function Page() {
@@ -26,16 +24,41 @@ export default function Page() {
   const dispatch = useDispatch();
 
   const [commentText, setCommentText] = useState("");
-
-  useEffect(() => {
-    if (id) {
-      dispatch(postById(id));
-      dispatch(comments(id));
-    }
-  }, [id, dispatch]);
+  const observerTarget = useRef(null);
 
   const post = useSelector((state) => state.post.postById);
   const commentList = useSelector((state) => state.post.comments);
+  const { data: commentsData, current_page, last_page, total } = commentList || {};
+  const loadingComments = useSelector((state) => state.post.loadingComments);
+
+  // 1. Initial Load
+  useEffect(() => {
+    if (id) {
+      dispatch(postById(id));
+      dispatch(comments({ postId: id, page: 1 }));
+    }
+  }, [id, dispatch]);
+
+  // 2. Observer Logic for Pagination
+  const handleObserver = useCallback(
+    (entries) => {
+      const [target] = entries;
+      if (target.isIntersecting && current_page < last_page && !loadingComments) {
+        dispatch(comments({ postId: id, page: current_page + 1 }));
+      }
+    },
+    [dispatch, id, current_page, last_page, loadingComments]
+  );
+
+  useEffect(() => {
+    const element = observerTarget.current;
+    const observer = new IntersectionObserver(handleObserver, { threshold: 0.1 });
+
+    if (element) observer.observe(element);
+    return () => {
+      if (element) observer.unobserve(element);
+    };
+  }, [handleObserver]);
 
   const handleLike = (postItem) => {
     if (postItem.user_has_liked) {
@@ -47,7 +70,7 @@ export default function Page() {
 
   const handleAddComment = () => {
     if (commentText.trim() === "") return;
-    // dispatch(addComment({ post_id: id, text: commentText }));
+    dispatch(addComment({ postId: id, content: commentText }));
     setCommentText("");
   };
 
@@ -59,66 +82,84 @@ export default function Page() {
     );
 
   return (
-    <main className="min-h-screen bg-[#f8fafc] pb-20">
+    <main className="min-h-screen bg-[var(--background)] pb-10 transition-colors duration-300">
       <div className="max-w-[650px] mx-auto pt-6 px-4">
         {/* The Main Post */}
-        <div className="bg-white rounded-2xl shadow-sm border flex justify-center items-center border-[#e2e8f0] overflow-hidden">
+        <div className="bg-[var(--card-bg)] rounded-2xl shadow-sm border flex justify-center items-center border-[var(--card-border)] overflow-hidden transition-colors duration-300">
           <PostCard post={post} handelLike={handleLike} />
         </div>
 
         {/* Discussion Header */}
         <div className="mt-8 mb-4 flex items-center gap-4 px-2">
-          <Typography className="font-black text-lg text-[#0f172a]">
+          <Typography className="font-black text-lg text-[var(--text-primary)]">
             Discussion
           </Typography>
-          <div className="h-[1px] flex-grow bg-[#e2e8f0]" />
-          <Typography className="text-sm font-bold text-[#64748b]">
-            {commentList?.data?.length || 0} Comments
+          <div className="h-[1px] flex-grow bg-[var(--card-border)]" />
+          <Typography className="text-sm font-bold text-[var(--text-muted)]">
+            {total || commentsData?.length || 0} Comments
           </Typography>
         </div>
 
-        {/* Comment Input */}
-
         {/* Comments List */}
-        <div className="space-y-3">
-          {commentList?.data?.length > 0 ? (
-            commentList.data.map((com) => (
-              <Comment key={com.comment_id} comment={com} />
-            ))
+        {/* ADDED pb-32 so the list scrolls past the fixed input! */}
+        <div className="space-y-3 pb-32">
+          {commentsData?.length > 0 ? (
+            <>
+              {commentsData.map((com) => (
+                <Comment key={com.comment_id} comment={com} />
+              ))}
+              
+              {/* TRIGGER ELEMENT */}
+              <div ref={observerTarget} className="py-4 w-full flex justify-center">
+                {current_page < last_page && (
+                  <CircularProgress size={24} sx={{ color: "#64748b" }} />
+                )}
+                {current_page >= last_page && commentsData.length > 5 && (
+                  <Typography className="text-sm text-[var(--text-muted)]">
+                    No more comments.
+                  </Typography>
+                )}
+              </div>
+            </>
           ) : (
-            <div className="text-center py-10 bg-white rounded-2xl border border-dashed border-slate-300">
-              <Typography className="text-slate-400 font-medium">
+            <div className="text-center py-10 bg-[var(--card-bg)] rounded-2xl border border-dashed border-[var(--card-border)]">
+              <Typography className="text-[var(--text-muted)] font-medium">
                 No comments yet. Be the first to share your thoughts!
               </Typography>
             </div>
           )}
         </div>
-        <div className="fixed bottom-4 right-4 left-0 flex justify-end items-center gap-2 max-w-[650px] mx-auto px-4">
-          <TextField
-            fullWidth
-            placeholder="Write a comment..."
-            value={commentText}
-            onChange={(e) => setCommentText(e.target.value)}
-            variant="outlined"
-            size="small"
-            sx={{
-              backgroundColor: "white",
-              borderRadius: "999px",
-            }}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleAddComment}
-            disabled={!commentText.trim()}
-            sx={{
-              minWidth: 0,
-              padding: "10px",
-              borderRadius: "50%",
-            }}
-          >
-            <SendIcon />
-          </Button>
+
+        <div className="fixed bottom-4 right-4 left-0 flex justify-end items-center gap-2 max-w-[650px] mx-auto px-4 z-10">
+          <div className="bg-[var(--card-bg)] shadow-lg rounded-full p-1 flex items-center w-full border border-[var(--card-border)] transition-colors duration-300">
+            <TextField
+              fullWidth
+              placeholder="Write a comment..."
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              variant="standard"
+              InputProps={{
+                disableUnderline: true,
+                sx: { px: 2, py: 1, color: "var(--text-primary)" }
+              }}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleAddComment}
+              disabled={!commentText.trim()}
+              sx={{
+                marginRight:1,
+                minWidth: 0,
+                width: 40,
+                height: 40,
+                borderRadius: "50%",
+                boxShadow: "none",
+              }}
+            >
+              <SendIcon sx={{ fontSize: 18 }} />
+            </Button>
+          </div>
         </div>
       </div>
     </main>

@@ -31,39 +31,39 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[80vh] bg-slate-50 p-4">
+    <div className="wrap">
       <Card
-        className="w-full max-w-[420px] p-10 rounded-[20px] shadow-xl border-t-[5px] border-blue-600 text-center"
+        className="w-full max-w-[420px] p-10 rounded-[20px] border border-[var(--card-border)] bg-[var(--card-bg)] shadow-md border-t-[5px] border-t-[var(--color-primary)] text-center"
         elevation={0}
       >
-        <div className="w-[60px] h-[60px] bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-5 text-blue-600 text-2xl">
+        <div className="w-[60px] h-[60px] bg-[var(--nav-pill-bg)] rounded-full flex items-center justify-center mx-auto mb-5 text-[var(--color-primary)] text-2xl border border-[var(--card-border)]">
           <MailOutlineIcon fontSize="inherit" />
         </div>
 
-        <Typography variant="h5" className="font-bold mb-2 text-slate-900">
+        <Typography variant="h5" className="font-bold mb-2 text-[var(--text-primary)]">
           Forgot Password?
         </Typography>
 
-        <Typography className="text-sm text-slate-500 mb-6 leading-relaxed">
+        <Typography className="text-sm text-[var(--text-muted)] mb-6 leading-relaxed">
           No worries! Enter the email associated with your account and we'll
           send you a link to reset your password.
         </Typography>
 
         <div className="text-left mb-6">
-          <Typography className="text-sm font-semibold mb-1.5 text-slate-800">
+          <Typography className="text-sm font-semibold mb-1.5 text-[var(--text-primary)]">
             Email address
           </Typography>
           <TextField
             fullWidth
             placeholder="name@example.com"
             variant="outlined"
-            className="bg-slate-100 rounded-xl border-none"
+            className="bg-[var(--input-bg)] rounded-xl border-none"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <MailOutlineIcon className="text-slate-400 text-xl" />
+                  <MailOutlineIcon sx={{ color: "var(--text-muted)" }} className="text-xl" />
                 </InputAdornment>
               ),
               sx: {
@@ -74,22 +74,23 @@ const ForgotPassword = () => {
           />
         </div>
         {
-          error && <span className=" text-red-700" >{error}</span>
+          error && <span className=" text-[var(--danger)]" >{error}</span>
         }
         <Button
           onClick={sendEmail}
           fullWidth
           variant="contained"
-          className="py-3.5 rounded-full font-bold text-base capitalize shadow-none bg-gradient-to-r from-blue-600 to-blue-700 hover:opacity-90"
+          className="btn shadow-none bg-[var(--color-primary)] hover:opacity-90"
+          sx={{ background: "var(--color-primary)" }}
         >
           Send Reset Link
         </Button>
 
-        <Typography className="mt-5 text-sm text-slate-500">
+        <Typography className="mt-5 text-sm text-[var(--text-muted)]">
           Remember your password?{" "}
           <Link
             href="/login"
-            className="text-blue-600 font-medium no-underline hover:underline flex items-center justify-center gap-1 inline-flex"
+            className="text-[var(--color-primary)] font-bold no-underline hover:underline flex items-center justify-center gap-1 inline-flex"
           >
             <ArrowBackIcon fontSize="inherit" /> Back to Log In
           </Link>

@@ -2,30 +2,39 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Avatar, TextField, IconButton, Tooltip } from "@mui/material";
-import { Send, PhotoCamera, ArrowDownward } from "@mui/icons-material";
+import { Send, PhotoCamera, ArrowDownward, ArrowBack } from "@mui/icons-material";
 import socket from "@/lib/soket";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import {
   reciveGroupMessage,
   sendGroupMessage,
   GroupMessages,
+  updatedGroupMessage,
+  deletedGroupMessage,
+  deleteGroupMessage,
+  updateGroupMessage,
 } from "@/redux/Slices/messageSlice";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Link from "next/link";
+import GroupMessage from "@/components/GroupMessage";
+import { MessageSkeleton } from "@/components/Skelatons";
+import { useTranslation } from "react-i18next";
 dayjs.extend(relativeTime);
 
 export default function GroupChatPage() {
   const dispatch = useDispatch();
   const { id } = useParams();
+  const router = useRouter();
   const containerRef = useRef(null);
   const fileInputRef = useRef(null);
   const messagesData =
     useSelector((state) => state.message.GroupMessages) || [];
-  const { contacts } = useSelector((state) => state.message);
+  const { contacts, loading } = useSelector((state) => state.message);
   const { userInfo } = useSelector((state) => state.auth);
   const userId = userInfo?.user?.user_id;
+  const { t } = useTranslation();
 
   const [text, setText] = useState("");
   const [files, setFiles] = useState([]);
@@ -34,6 +43,14 @@ export default function GroupChatPage() {
   const [showScrollBtn, setShowScrollBtn] = useState(false);
 
   const groupInfo = contacts?.find((c) => c.group_id === id);
+  const [onlineMembers, setOnlineMembers] = useState(0);
+
+  useEffect(() => {
+    if (groupInfo?.members) {
+      const count = groupInfo.members.filter(m => m.is_active && m.user_id !== userId).length;
+      setOnlineMembers(count);
+    }
+  }, [groupInfo?.members, userId]);
 
   useEffect(() => {
     if (!id) return;
@@ -41,7 +58,7 @@ export default function GroupChatPage() {
     socket.on("joinedGroupRoom", (data) => {
       console.log(data);
     });
-
+    dispatch(GroupMessages(id));
     const onNewGroupMsg = (data) => {
       dispatch(reciveGroupMessage(data));
       const container = containerRef.current;
@@ -53,7 +70,7 @@ export default function GroupChatPage() {
 
       if (
         distanceFromBottom <= NEAR_BOTTOM_THRESHOLD ||
-        normalized.is_user === 1
+        data.sender_id === userId
       ) {
         requestAnimationFrame(() => {
           container.scrollTo({
@@ -66,14 +83,36 @@ export default function GroupChatPage() {
         setShowScrollBtn(true);
       }
     };
-
     socket.on("newGroupMessage", onNewGroupMsg);
-    dispatch(GroupMessages(id));
-    scrollToBottom();
 
+    const onDelete = (data) => {
+      dispatch(deletedGroupMessage(data));
+    };
+    socket.on("messageDeleted", onDelete);
+
+    const onUpdate = (data) => {
+      dispatch(updatedGroupMessage(data));
+    };
+    socket.on("messageUpdated", onUpdate);
+
+    const onUserStatusChanged = (data) => {
+      // If a member of this group changes status, we might want to update our local count
+      // but groupInfo is in Redux. For simplicity and real-time feel, we can just increment/decrement
+      // if the user belongs to this group.
+      const isMember = groupInfo?.members?.some(m => String(m.user_id) === String(data.userId));
+      if (isMember) {
+        setOnlineMembers(prev => data.status === "online" ? prev + 1 : Math.max(0, prev - 1));
+      }
+    };
+    socket.on("user-status-changed", onUserStatusChanged);
+
+    scrollToBottom();
     return () => {
       socket.off("joinGroupRoom");
       socket.off("newGroupMessage", onNewGroupMsg);
+      socket.off("messageUpdated", onUpdate);
+      socket.off("messageDeleted", onDelete);
+      socket.off("user-status-changed", onUserStatusChanged);
     };
   }, [id, dispatch]);
 
@@ -123,11 +162,27 @@ export default function GroupChatPage() {
     setShowScrollBtn(false);
   };
 
+  const handelUpdate = (messageId, newContent) => {
+    dispatch(updateGroupMessage({ messageId, newContent }));
+  };
+
+  const handelDelete = (messageId) => {
+    dispatch(deleteGroupMessage(messageId));
+  };
+
   return (
-    <div className="h-[calc(100vh-90px)] flex flex-col bg-white shadow-sm rounded-md overflow-hidden relative">
+    <div className="h-[calc(100dvh-90px)] md:h-[calc(100vh-90px)] flex flex-col bg-[var(--card-bg)] shadow-sm rounded-md overflow-hidden relative transition-colors duration-300">
       {/* Group Header */}
-      <Link href={`${id}/info`}>
-        <div className="flex items-center gap-3 p-3 border-b bg-white z-10">
+      <div className="flex items-center gap-3 p-3 border-b border-[var(--card-border)] bg-[var(--card-bg)] z-10 transition-colors duration-300">
+        <IconButton
+          className="md:hidden"
+          onClick={() => router.push("/messages")}
+          edge="start"
+          sx={{ color: "var(--color-primary)" }}
+        >
+          <ArrowBack />
+        </IconButton>
+        <Link href={`${id}/info`} className="flex items-center gap-3 flex-1">
           <Avatar
             src={
               groupInfo?.photo_url
@@ -137,97 +192,41 @@ export default function GroupChatPage() {
             sx={{ width: 40, height: 40 }}
           />
           <div>
-            <div className="font-semibold text-sm">
+            <div className="font-semibold text-sm text-[var(--text-primary)]">
               {groupInfo?.name || "Group Chat"}
             </div>
+            <div className="text-[10px] text-gray-400 flex items-center gap-1">
+              <span className={`w-1.5 h-1.5 rounded-full ${onlineMembers > 0 ? "bg-[#709601]" : "bg-gray-400"}`}></span>
+              {onlineMembers > 0 
+                ? `${onlineMembers} ${t("messages.online", "Online")}`
+                : t("messages.offline", "Offline")
+              }
+            </div>
           </div>
-        </div>
-      </Link>
+        </Link>
+      </div>
 
       {/* Messages Area */}
       <div
         ref={containerRef}
-        className="flex-1 overflow-y-auto p-4 space-y-1 bg-slate-50"
+        className="flex-1 overflow-y-auto p-4 space-y-1 bg-[var(--background)] transition-colors duration-300"
       >
-        {messagesData.map((m, index) => {
-          const isMe = m.sender_id === userId;
-          const prevMsg = messagesData[index - 1];
-          const isSameAsPrev = prevMsg && prevMsg.sender_id === m.sender_id;
-          const showHeader = !isSameAsPrev && !isMe;
-          let attachments = [];
-          try {
-            if (Array.isArray(m.media)) {
-              attachments = m.media;
-            } else if (typeof m.media === "string") {
-              attachments = JSON.parse(m.media);
-            } else if (m.media) {
-              attachments = Array.isArray(m.media) ? m.media : [m.media];
-            }
-          } catch (e) {
-            attachments = [];
-          }
-          return (
-            <div
-              key={m.message_id || index}
-              className={`flex flex-col ${isMe ? "items-end" : "items-start"} ${!isSameAsPrev ? "mt-4" : "mt-0.5"}`}
-            >
-              {/* Sender Name (only for others and first message in a row) */}
-              {showHeader && (
-                <span className="text-[11px] font-bold text-blue-600 ml-10 mb-1">
-                  {m.display_name}
-                </span>
-              )}
-
-              <div
-                className={`flex items-end gap-2 max-w-[80%] ${isMe ? "flex-row-reverse" : "flex-row"}`}
-              >
-                {/* Avatar (only for others and first message in a row) */}
-                {!isMe ? (
-                  <div className="w-8">
-                    {!isSameAsPrev ? (
-                      <Avatar
-                        src={`http://127.0.0.1:8000/storage/${m.sender_avatar}`}
-                        sx={{ width: 32, height: 32 }}
-                      />
-                    ) : null}
-                  </div>
-                ) : null}
-
-                {/* Message Bubble */}
-                <div
-                  className={`px-3 py-2 rounded-2xl text-sm shadow-sm 
-                  ${isMe ? "bg-blue-600 text-white rounded-tr-none" : "bg-white text-gray-800 rounded-tl-none"}
-                  ${isSameAsPrev ? (isMe ? "rounded-tr-2xl" : "rounded-tl-2xl") : ""} 
-                `}
-                >
-                  {m.content && (
-                    <div className="whitespace-pre-wrap">{m.content}</div>
-                  )}
-
-                  {/* Media Rendering */}
-                  {attachments && attachments.length > 0 && (
-                    <div className="mt-2 grid grid-cols-2 gap-2">
-                      {attachments.map((att, i) => (
-                        <img
-                          key={i}
-                          src={`http://127.0.0.1:3001/${att.url}`}
-                          alt=""
-                          className="w-full h-32 object-cover rounded-md"
-                        />
-                      ))}
-                    </div>
-                  )}
-
-                  <div
-                    className={`text-[9px] mt-1 text-right ${isMe ? "text-blue-100" : "text-gray-400"}`}
-                  >
-                    {dayjs(m.created_at).format("HH:mm")}
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+        {messagesData.length === 0 ? (
+          <MessageSkeleton />
+        ) : (
+          messagesData.map((m, index) => (
+            <GroupMessage
+              key={m.message_id}
+              index={index}
+              messagesData={messagesData}
+              message={m}
+              userId={userId}
+              dayjs={dayjs}
+              handelDelete={handelDelete}
+              handelUpdate={handelUpdate}
+            />
+          ))
+        )}
       </div>
 
       {/* Floating Scroll Button */}
@@ -236,16 +235,16 @@ export default function GroupChatPage() {
           <IconButton
             onClick={scrollToBottom}
             size="large"
-            className="bg-white shadow-md"
+            className="bg-[var(--card-bg)] shadow-md"
           >
-            <ArrowDownward />
+            <ArrowDownward sx={{ color: "var(--text-primary)" }} />
           </IconButton>
         </div>
       )}
 
       {/* Attachment Previews */}
       {previews.length > 0 && (
-        <div className="p-2 border-t flex gap-2 overflow-x-auto bg-gray-50">
+        <div className="p-2 border-t border-[var(--card-border)] flex gap-2 overflow-x-auto bg-[var(--background)]">
           {previews.map((p, i) => (
             <div key={i} className="relative h-16 w-16 flex-shrink-0">
               <img
@@ -267,7 +266,7 @@ export default function GroupChatPage() {
       )}
 
       {/* Input Area */}
-      <div className="p-3 border-t bg-white flex items-center gap-2">
+      <div className="p-3 border-t border-[var(--card-border)] bg-[var(--card-bg)] flex items-center gap-2 transition-colors duration-300">
         <input
           type="file"
           ref={fileInputRef}
@@ -277,13 +276,13 @@ export default function GroupChatPage() {
           onChange={onFilesChange}
         />
         <IconButton onClick={() => fileInputRef.current.click()} size="small">
-          <PhotoCamera />
+          <PhotoCamera sx={{ color: "var(--text-muted)" }} />
         </IconButton>
 
         <TextField
           fullWidth
           size="small"
-          placeholder="Write a message..."
+          placeholder={t("messages.writeMessage")}
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) =>
@@ -293,6 +292,15 @@ export default function GroupChatPage() {
           }
           multiline
           maxRows={4}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              color: "var(--text-primary)",
+              bgcolor: "var(--input-bg)",
+              borderRadius: "12px",
+              "& fieldset": { borderColor: "var(--input-border)" },
+              "&:hover fieldset": { borderColor: "var(--text-muted)" },
+            },
+          }}
         />
 
         <IconButton color="primary" onClick={handleSend} disabled={sending}>

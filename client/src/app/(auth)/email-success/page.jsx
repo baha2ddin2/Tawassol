@@ -38,21 +38,21 @@ export default function EmailSuccessPage({ email = "user@example.com" }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] h-[calc(100hv-80px)] flex items-center justify-center p-6">
+    <div className="wrap bg-[var(--background)] transition-colors duration-300">
       <motion.div 
         variants={containerVariants}
         initial="hidden"
         animate="visible"
         className="w-full max-w-md"
       >
-        <Paper className="p-10 rounded-[40px] border-none shadow-xl shadow-blue-100/50 dark:shadow-none dark:bg-slate-900 text-center">
+        <Paper className="p-10 rounded-[40px] border border-[var(--card-border)] bg-[var(--card-bg)] shadow-md text-center transition-colors duration-300">
           
           {/* Animated Icon Section */}
           <Box className="relative flex justify-center mb-8">
             <motion.div 
               variants={airplaneVariants}
               animate="animate"
-              className="w-24 h-24 bg-blue-50 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-[#1477ff]"
+              className="w-24 h-24 bg-[var(--nav-pill-bg)] rounded-full flex items-center justify-center border border-[var(--card-border)] text-[var(--color-primary)]"
             >
               <MarkEmailReadIcon sx={{ fontSize: 48 }} />
             </motion.div>
@@ -62,7 +62,7 @@ export default function EmailSuccessPage({ email = "user@example.com" }) {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.8, type: 'spring' }}
-              className="absolute top-0 right-1/3 bg-green-500 text-white rounded-full p-1 border-4 border-white dark:border-slate-900"
+              className="absolute top-0 right-1/3 bg-[var(--success)] text-[var(--card-bg)] rounded-full p-1 border-4 border-[var(--card-bg)]"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
@@ -72,13 +72,13 @@ export default function EmailSuccessPage({ email = "user@example.com" }) {
 
           {/* Text Content */}
           <motion.div variants={itemVariants}>
-            <Typography variant="h4" className="font-black text-slate-900 dark:text-white mb-3 tracking-tight">
+            <Typography variant="h4" className="font-black text-[var(--text-primary)] mb-3 tracking-tight">
               Check your inbox
             </Typography>
-            <Typography className="text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
+            <Typography className="text-[var(--text-muted)] font-medium leading-relaxed">
               We've sent a password recovery link to:
               <br />
-              <span className="text-slate-900 dark:text-slate-200 font-bold">{email}</span>
+              <span className="text-[var(--text-primary)] font-bold">{email}</span>
             </Typography>
           </motion.div>
 
@@ -87,7 +87,8 @@ export default function EmailSuccessPage({ email = "user@example.com" }) {
             <Button
               fullWidth
               variant="contained"
-              className="py-4 rounded-2xl bg-[#1477ff] hover:bg-blue-700 font-black normal-case text-lg shadow-lg shadow-blue-200 dark:shadow-none"
+              className="btn bg-[var(--color-primary)] shadow-none"
+              sx={{ background: "var(--color-primary)" }}
               onClick={() => window.open('https://mail.google.com', '_blank')}
             >
               Open Email App
@@ -97,7 +98,7 @@ export default function EmailSuccessPage({ email = "user@example.com" }) {
               <Button
                 fullWidth
                 startIcon={<ArrowBackIcon />}
-                className="text-slate-400 font-bold normal-case hover:text-blue-600"
+                className="text-[var(--text-muted)] font-bold normal-case hover:text-[var(--color-primary)]"
               >
                 Back to Login
               </Button>
@@ -105,10 +106,10 @@ export default function EmailSuccessPage({ email = "user@example.com" }) {
           </motion.div>
 
           {/* Footer Footer */}
-          <motion.div variants={itemVariants} className="mt-8 pt-8 border-t border-slate-50 dark:border-slate-800">
-            <Typography className="text-sm text-slate-400 font-medium">
+          <motion.div variants={itemVariants} className="mt-8 pt-8 border-t border-[var(--card-border)]">
+            <Typography className="text-sm text-[var(--text-muted)] font-medium">
               Didn't receive the email?{' '}
-              <button className="text-[#1477ff] font-black hover:underline">
+              <button className="text-[var(--color-primary)] font-black hover:underline">
                 Click to resend
               </button>
             </Typography>

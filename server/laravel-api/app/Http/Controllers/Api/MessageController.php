@@ -47,7 +47,8 @@ class MessageController extends Controller
                  LIMIT 1) as last_message'),
                 DB::raw('NULL as group_id'),
                 DB::raw('NULL as name'),
-                DB::raw('NULL as photo_url')
+                DB::raw('NULL as photo_url'),
+                DB::raw('MAX(m.created_at) as last_message_time'),
             )
             ->groupBy('u.user_id', 'p.display_name', 'p.avatar_url','u.is_active')
             ->get();
@@ -77,6 +78,20 @@ class MessageController extends Controller
             ->values();
 
         return response()->json($contacts);
+    }
+
+    public function contact(string $userId)
+    {
+        $contact = DB::table('profiles')
+        ->join('users','users.user_id','=','profiles.user_id')
+        ->where('users.user_id',$userId)
+        ->select(
+            'users.is_active',
+            'users.user_id',
+            'profiles.display_name',
+            'profiles.avatar_url',
+            )->first();
+        return response()->json($contact);
     }
 
     public function unreadMessagesCount()

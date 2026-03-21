@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import ErrorSnackbar from "@/components/errorSnackbar";
+import ErrorSnackbar from "@/components/ErrorSnackbar";
 import { LoginForm } from "./LoginForm";
 import { useLogin } from "./useLogin";
 

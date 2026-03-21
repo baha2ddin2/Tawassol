@@ -46,14 +46,14 @@ class LikeController extends Controller
         ->where('likes.user_id',$userId)->first();
 
         if(!$LikePost){
-            return response()->json(['message'=>'you dont not like this post']);
+            return response()->json(['message'=>'you dont not like this post'],401);
         }
         $like = like::find($LikePost->like_id);
         if(!$like){
             return response()->json(['message'=>'like not found'],404);
         }
         $like->delete();
-        return response()->json(['message'=>'the message deleted successfuly']);
+        return response()->json(['message'=>'the like deleted successfuly']);
     }
 
     public function likeComment(string $commentId){

@@ -10,6 +10,6 @@ const router = express.Router();
 router.use(protectRoute)
 router.post("/send/:groupId", upload , validate(message.send) ,expressAsyncHandler(messageGroupeController.sendMessage));
 router.put("/update/:messageId",validate(message.update), expressAsyncHandler(messageGroupeController.updateMessage))
-router.delete("/delete/messageId",expressAsyncHandler(messageGroupeController.deleteMessage))
+router.delete("/delete/:messageId",expressAsyncHandler(messageGroupeController.deleteMessage))
 
 export default router;

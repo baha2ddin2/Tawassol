@@ -9,6 +9,7 @@ class report extends Model
 {
     public $incrementing = false;
     protected $keyType = 'string';
+    protected $primaryKey = 'report_id';
     
 
     protected static function boot()
@@ -22,6 +23,7 @@ class report extends Model
     }
 
     protected $fillable = [
+        'report_id',
         'reason',
         'handled_at',
         'reporter_id',

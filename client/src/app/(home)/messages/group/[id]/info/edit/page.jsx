@@ -8,17 +8,15 @@ import {
 import { PhotoCamera, ArrowBack, Save } from '@mui/icons-material';
 import { useParams, useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateGroupAction, getGroupDetails } from '@/redux/reducers/groupReducer';
-import { useTranslations } from 'next-intl';
+import { updateGroup, getGroupDetails } from '@/redux/Slices/messageSlice';
 
 export default function UpdateGroupPage() {
-  const { groupId } = useParams();
+  const { id } = useParams();
   const router = useRouter();
   const dispatch = useDispatch();
-  const t = useTranslations('Groups');
   const fileInputRef = useRef(null);
 
-  const { currentGroup, loading } = useSelector((state) => state.groups);
+  const { groupInfo, loading } = useSelector((state) => state.message);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -28,31 +26,30 @@ export default function UpdateGroupPage() {
   const [previewUrl, setPreviewUrl] = useState('');
 
   useEffect(() => {
-    dispatch(getGroupDetails(groupId));
-  }, [groupId, dispatch]);
+    dispatch(getGroupDetails(id));
+  }, [id, dispatch]);
 
   useEffect(() => {
-    if (currentGroup) {
+    if (groupInfo) {
       setFormData({
-        name: currentGroup.name || '',
-        description: currentGroup.description || '',
+        name: groupInfo.name || '',
+        description: groupInfo.description || '',
       });
-      setPreviewUrl(`http://127.0.0.1:8000/storage/${currentGroup.photo_url}`);
+      setPreviewUrl(`http://127.0.0.1:8000/storage/${groupInfo.photo_url}`);
     }
-  }, [currentGroup]);
+  }, [groupInfo]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setSelectedFile(file);
-      setPreviewUrl(URL.createObjectURL(file)); // Create local preview
+      setPreviewUrl(URL.createObjectURL(file));
     }
   };
 
   const handleSubmit = async (e) => {
+    const groupId = id
     e.preventDefault();
-    
-    // Create FormData
     const data = new FormData();
     data.append('name', formData.name);
     data.append('description', formData.description);
@@ -61,31 +58,16 @@ export default function UpdateGroupPage() {
       data.append('photo', selectedFile);
     }
 
-    // CRITICAL: Laravel Method Spoofing
-    // Since we are sending a file via POST but your route is likely PUT/PATCH
-    data.append('_method', 'PUT');
-
-    dispatch(updateGroupAction({ groupId, data }));
+    dispatch(updateGroup({ groupId, data }));
+    router.back()
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] dark:bg-slate-950 p-6">
-      <div className="max-w-2xl mx-auto">
-        {/* Header */}
-        <Box className="flex items-center gap-4 mb-8">
-          <IconButton onClick={() => router.back()} className="bg-white dark:bg-slate-800 shadow-sm">
-            <ArrowBack />
-          </IconButton>
-          <Typography variant="h5" className="font-black text-slate-900 dark:text-white">
-            {t('editGroup')}
-          </Typography>
-        </Box>
-
-        <Paper className="p-8 rounded-3xl border border-slate-200 dark:border-slate-800 dark:bg-slate-900 shadow-sm">
-          <form onSubmit={handleSubmit} className="space-y-8">
-            
-            {/* Photo Upload Section */}
-            <div className="flex flex-col items-center gap-4">
+    <div className="min-h-screen bg-[#f8fafc]">
+      <div className="max-w-2xl mx-auto flex flex-col gap-1.5">
+        <Paper className="p-8 rounded-3xl border border-slate-200 shadow-sm">
+          <form onSubmit={handleSubmit} className="space-y-8 flex flex-col justify-center gap-2">
+            <div className="flex flex-col items-center  gap-2">
               <div className="relative">
                 <Avatar 
                   src={previewUrl} 
@@ -108,15 +90,14 @@ export default function UpdateGroupPage() {
                 onChange={handleFileChange} 
               />
               <Typography className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                {t('groupAvatar')}
+                {'groupAvatar'}
               </Typography>
             </div>
 
-            {/* Form Fields */}
-            <div className="space-y-6">
+            <div className="space-y-6 flex flex-col gap-2">
               <TextField
                 fullWidth
-                label={t('groupName')}
+                label='groupName'
                 variant="outlined"
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
@@ -125,7 +106,7 @@ export default function UpdateGroupPage() {
 
               <TextField
                 fullWidth
-                label={t('description')}
+                label={'description'}
                 variant="outlined"
                 multiline
                 rows={4}
@@ -143,7 +124,7 @@ export default function UpdateGroupPage() {
                 onClick={() => router.back()}
                 className="py-3 rounded-xl border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold normal-case"
               >
-                {t('cancel')}
+                {'cancel'}
               </Button>
               <Button
                 type="submit"
@@ -153,7 +134,7 @@ export default function UpdateGroupPage() {
                 startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <Save />}
                 className="py-3 rounded-xl bg-[#1477ff] hover:bg-blue-700 shadow-lg shadow-blue-200 dark:shadow-none font-bold normal-case"
               >
-                {loading ? t('saving') : t('saveChanges')}
+                {loading ? 'saving' : 'saveChanges'}
               </Button>
             </Box>
           </form>

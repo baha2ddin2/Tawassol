@@ -1,14 +1,16 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import StyledUploader from "@/components/dropZone";
+import StyledUploader from "@/components/DropZone";
 import { TextField, Button } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { createPost } from "@/redux/Slices/postSlice";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
 
 export default function CreatePostPage() {
   const dispatch = useDispatch?.() || (() => {});
+  const { t } = useTranslation();
   const [content, setContent] = useState("");
   const [externalLink, setExternalLink] = useState("");
   const [images, setImages] = useState([]);
@@ -40,18 +42,18 @@ export default function CreatePostPage() {
 
   return (
     <div className="max-w-3xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Create Post</h1>
+      <h1 className="text-2xl font-bold mb-4">{t("createPost.title", "Create Post")}</h1>
 
       <div className="space-y-4">
         <div>
           <TextField
-            label="Content"
+            label={t("createPost.content", "Content")}
             multiline
             minRows={3}
             value={content}
             onChange={(e) => setContent(e.target.value)}
             fullWidth
-            placeholder="Write something..."
+            placeholder={t("createPost.writeSomething", "Write something...")}
           />
           {errors?.errors?.content && (
             <p className=" text-red-500">{errors.errors.content[0]}</p>
@@ -60,7 +62,7 @@ export default function CreatePostPage() {
 
         <div>
           <TextField
-            label="External link (optional)"
+            label={t("createPost.externalLink", "External link (optional)")}
             value={externalLink}
             onChange={(e) => setExternalLink(e.target.value)}
             fullWidth
@@ -79,14 +81,14 @@ export default function CreatePostPage() {
         </div>
 
         {images.length > 0 && (
-          <div className="text-sm text-gray-600">
-            {images.length} image(s) selected
+          <div className="text-sm text-[var(--text-muted)]">
+            {images.length} {t("createPost.imagesSelected", "image(s) selected")}
           </div>
         )}
 
         <div className="flex gap-2">
           <Button onClick={handleSubmit} variant="contained">
-            Publish
+            {t("createPost.publish", "Publish")}
           </Button>
           <Button
             variant="outlined"
@@ -96,7 +98,7 @@ export default function CreatePostPage() {
               setImages([]);
             }}
           >
-            Reset
+            {t("createPost.reset", "Reset")}
           </Button>
         </div>
       </div>

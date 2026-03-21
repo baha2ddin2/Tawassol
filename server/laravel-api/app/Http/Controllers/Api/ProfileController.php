@@ -54,12 +54,14 @@ class ProfileController extends Controller
     public function ShowProfile(string $id)
     {
 
+        $authUserId = Auth::id();
+
         $profile = DB::table('users')
             ->join('profiles', 'users.user_id', '=', 'profiles.user_id')
             ->leftJoin('follows as f1', 'users.user_id', '=', 'f1.followed_id')
             ->leftJoin('follows as f2', 'users.user_id', '=', 'f2.follower_id')
-            ->leftJoin('posts as p', 'p.author_id', 'users.user_id')
-            ->where('users.user_id', '=', $id)
+            ->leftJoin('posts as p', 'p.author_id', '=', 'users.user_id')
+            ->where('users.user_id', $id)
             ->select(
                 'profiles.avatar_url as avatar_url',
                 'profiles.display_name as display_name',
@@ -67,11 +69,16 @@ class ProfileController extends Controller
                 DB::raw('COUNT(DISTINCT f1.follow_id) as followers_count'),
                 DB::raw('COUNT(DISTINCT f2.follow_id) as following_count'),
                 DB::raw('COUNT(DISTINCT p.post_id) as posts_count'),
-            )->groupBy(
+                DB::raw('(SELECT COUNT(*) FROM follows WHERE follower_id = ? AND followed_id = users.user_id) as is_following')
+            )
+            ->addBinding($authUserId, 'select')
+            ->groupBy(
                 'profiles.avatar_url',
                 'profiles.display_name',
-                'profiles.bio'
-            )->first();
+                'profiles.bio',
+                'users.user_id'
+            )
+            ->first();
 
         if (!$profile) {
             return response()->json(['message' => 'profile not found'], 404);
@@ -84,7 +91,7 @@ class ProfileController extends Controller
     {
         try {
             $profile = Profile::where('user_id', '=', Auth::id())->first();
-            
+
             if (!$profile) {
                 return response()->json(['message' => 'profile not found'], 404);
             }
@@ -102,7 +109,7 @@ class ProfileController extends Controller
 
     public function updateAvatar(changeAvatarRequest $request)
     {
-    
+
         try {
             if (!$request->hasFile('avatar')) {
                 return response()->json(['message' => 'No file provided'], 400);

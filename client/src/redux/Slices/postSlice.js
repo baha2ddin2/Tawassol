@@ -5,9 +5,9 @@ import { notFound } from "next/navigation";
 
 export const feedPosts = createAsyncThunk(
   "Post/feedPosts",
-  async (_, thunkAPI) => {
+  async (page = 1, thunkAPI) => {
     try {
-      const response = await api.get("/feed");
+      const response = await api.get(`/feed?page=${page}`);
       return response.data;
     } catch (error) {
       const errorMsg = error.response.data;
@@ -149,9 +149,50 @@ export const postById = createAsyncThunk(
 
 export const comments = createAsyncThunk(
   "Post/comments",
-  async (postId, thunkAPI) => {
+  async ({ postId, page = 1 }, thunkAPI) => {
     try {
-      const response = await api.get(`/comment/${postId}`);
+      const response = await api.get(`/comment/${postId}?page=${page}`);
+      return response.data;
+    } catch (error) {
+      const errorMsg = error.response.data;
+      return thunkAPI.rejectWithValue(errorMsg);
+    }
+  },
+);
+
+export const addComment = createAsyncThunk(
+  "Post/addComment",
+  async ({ content, postId }, thunkAPI) => {
+    try {
+      const response = await api.post(`/comment/${postId}`, {
+        content,
+      });
+      return response.data;
+    } catch (error) {
+      const errorMsg = error.response.data;
+      return thunkAPI.rejectWithValue(errorMsg);
+    }
+  },
+);
+
+export const likeComment = createAsyncThunk(
+  "Post/likeComment",
+  async (commentId, thunkAPI) => {
+    try {
+      const response = await api.post(`/like-comment/${commentId}`);
+      return response.data;
+    } catch (error) {
+      const errorMsg = error.response.data;
+      return thunkAPI.rejectWithValue(errorMsg);
+    }
+  },
+);
+
+export const deslikeComment = createAsyncThunk(
+  "Post/deslikeComment",
+  async (commentId, thunkAPI) => {
+    try {
+      const response = await api.delete(`/like-comment/${commentId}`);
       return response.data;
     } catch (error) {
       const errorMsg = error.response.data;
@@ -182,13 +223,20 @@ const PostReducer = createSlice({
     error: {},
     postById: {},
     comments: [],
+    loandingComments: false,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(feedPosts.fulfilled, (state, action) => {
-        const data = action.payload;
-        state.feedPosts = data;
+        const { data, current_page, last_page } = action.payload;
+        if (current_page === 1) {
+          state.feedPosts = action.payload;
+        } else {
+          state.feedPosts.data = [...state.feedPosts.data, ...data];
+          state.feedPosts.current_page = current_page;
+          state.feedPosts.last_page = last_page;
+        }
       })
       .addCase(feedPosts.pending, (state, action) => {
         state.loading = true;
@@ -201,20 +249,22 @@ const PostReducer = createSlice({
         state.suggetionFriends = action.payload;
       })
       .addCase(likeFeedPost.fulfilled, (state, action) => {
-        console.log("like");
-        const postLiked = state.feedPosts.data.find(
+        const postLiked = state?.feedPosts?.data?.find(
           (p) => p.post_id === action.meta.arg,
         );
-        postLiked.user_has_liked = 1;
-        postLiked.likes_count++;
+        if (postLiked) {
+          postLiked.user_has_liked = 1;
+          postLiked.likes_count++;
+        }
       })
       .addCase(deslikeFeedPost.fulfilled, (state, action) => {
-        console.log("deslike");
-        const postLiked = state.feedPosts.data.find(
+        const postLiked = state?.feedPosts?.data?.find(
           (p) => p.post_id === action.meta.arg,
         );
-        postLiked.user_has_liked = 0;
-        postLiked.likes_count--;
+        if (postLiked) {
+          postLiked.user_has_liked = 0;
+          postLiked.likes_count--;
+        }
       })
       .addCase(followSuggetion.fulfilled, (state, action) => {
         const userSuggestion = state.suggetionFriends.find(
@@ -231,42 +281,73 @@ const PostReducer = createSlice({
       .addCase(createPost.fulfilled, (state, action) => {
         gooeyToast.success("Post created successfuly");
         state.error = {};
-        // state.feedPosts.data.push(action.payload)
       })
       .addCase(createPost.rejected, (state, action) => {
         state.error = action.payload;
       })
       .addCase(postById.fulfilled, (state, action) => {
         state.postById = action.payload;
-        console.log(action.payload);
       })
       .addCase(postById.rejected, (state, action) => {
-        console.log(action.payload);
         notFound();
       })
+      .addCase(comments.pending, (state) => {
+        state.loadingComments = true;
+      })
       .addCase(comments.fulfilled, (state, action) => {
-        state.comments = action.payload;
-        console.log(action.payload);
+        state.loadingComments = false;
+        const { data, current_page, last_page, total } = action.payload;
+
+        if (current_page === 1) {
+          state.comments = action.payload;
+        } else {
+          state.comments.data = [...state.comments.data, ...data];
+          state.comments.current_page = current_page;
+          state.comments.last_page = last_page;
+          state.comments.total = total;
+        }
+      })
+      .addCase(comments.rejected, (state) => {
+        state.loadingComments = false;
+      })
+
+      .addCase(addComment.fulfilled, (state, action) => {
+        state.comments.data.push(action.payload);
       })
       .addCase(likePost.fulfilled, (state, action) => {
-        console.log("like");
         const postLiked = state.postById;
         postLiked.user_has_liked = true;
         postLiked.likes_count++;
       })
       .addCase(deslikePost.fulfilled, (state, action) => {
-        console.log("deslike");
         const postLiked = state.postById;
         postLiked.user_has_liked = false;
         postLiked.likes_count--;
       })
-      .addCase(deletePost.fulfilled , (state,action)=>{
-        console.log(state.feedPosts.data)
-        state.feedPosts.data = state.feedPosts.data.filter((p)=>{
-          return p.post_id !== action.meta.arg
-        })
-        gooeyToast.success('post deleted successfuly')
+      .addCase(deletePost.fulfilled, (state, action) => {
+        state.feedPosts.data = state.feedPosts.data.filter((p) => {
+          return p.post_id !== action.meta.arg;
+        });
+        gooeyToast.success("post deleted successfuly");
       })
+      .addCase(likeComment.fulfilled, (state, action) => {
+        const comment = state.comments.data.find(
+          (c) => c.comment_id === action.meta.arg,
+        );
+        comment.user_has_liked = 1;
+      })
+      .addCase(deslikeComment.fulfilled, (state, action) => {
+        const comment = state.comments.data.find(
+          (c) => c.comment_id === action.meta.arg,
+        );
+        comment.user_has_liked = 0;
+      })
+      .addCase(deleteComment.fulfilled, (state, action) => {
+        const comments = state.comments.data.filter(
+          (c) => c.comment_id !== action.meta.arg,
+        );
+        state.comments.data = comments;
+      });
   },
 });
 export default PostReducer.reducer;

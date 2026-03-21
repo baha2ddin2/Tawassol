@@ -2,10 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { searchResult } from "@/redux/Slices/searchSlice";
-import { Avatar, Card, CardContent, CircularProgress } from "@mui/material";
+import { deslikeResultsSearchPost, likeSearchResultsPost, searchResult } from "@/redux/Slices/searchSlice";
+import { Avatar, Card } from "@mui/material";
 import Link from "next/link";
-import HashtagText from "@/components/hashtagText";
 import { deslikeFeedPost, likeFeedPost } from "@/redux/Slices/postSlice";
 import PostCard from "@/components/Post";
 import { useSearchParams } from "next/navigation";
@@ -18,23 +17,28 @@ export default function SearchPage() {
   const { userInfo } = useSelector((state) => state.auth);
   const userId = userInfo?.user?.user_id;
   const q = seachParams.get("q");
+
   useEffect(() => {
-    setQuery(q);
-  }, []);
+    setQuery(q || "");
+  }, [q]);
 
   useEffect(() => {
     if (query.length > 0) {
       const timeout = setTimeout(() => {
         dispatch(searchResult(query));
       }, 300);
+
       return () => clearTimeout(timeout);
     }
   }, [query, dispatch]);
+
   function handelLike(post) {
     if (post.user_has_liked) {
       dispatch(deslikeFeedPost(post.post_id));
+      dispatch(deslikeResultsSearchPost(post.post_id))
     } else {
       dispatch(likeFeedPost(post.post_id));
+      dispatch(likeSearchResultsPost(post.post_id))
     }
   }
 
@@ -49,12 +53,6 @@ export default function SearchPage() {
           onChange={(e) => setQuery(e.target.value)}
         />
       </div>
-
-      {/* {loading && (
-        <div className="flex justify-center py-10">
-          <CircularProgress />
-        </div>
-      )} */}
 
       {query && (
         <div className="space-y-6">
@@ -79,7 +77,16 @@ export default function SearchPage() {
           {/* Profiles */}
           {searchResults?.profiles?.length > 0 && (
             <div>
-              <h2 className="font-semibold text-lg mb-2">Users</h2>
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="font-semibold text-lg">Users</h2>
+                <Link
+                  href={`/search-result/profiles?q=${encodeURIComponent(query)}`}
+                  className="text-sm font-medium text-blue-600 hover:underline"
+                >
+                  See more
+                </Link>
+              </div>
+
               <div className="space-y-2">
                 {searchResults.profiles.map((p) => (
                   <Link key={p.user_id} href={`/profile/${p.user_id}`}>
@@ -105,7 +112,16 @@ export default function SearchPage() {
           {/* Posts */}
           {searchResults?.posts?.length > 0 && (
             <div>
-              <h2 className="font-semibold text-lg mb-2">Posts</h2>
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="font-semibold text-lg">Posts</h2>
+                <Link
+                  href={`/search-result/posts?q=${encodeURIComponent(query)}`}
+                  className="text-sm font-medium text-blue-600 hover:underline"
+                >
+                  See more
+                </Link>
+              </div>
+
               <div className="space-y-4">
                 {searchResults.posts.map((post) => (
                   <PostCard

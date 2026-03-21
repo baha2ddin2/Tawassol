@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, IconButton, Avatar } from "@mui/material";
+import { Button, Avatar, CircularProgress } from "@mui/material";
 import {
   Edit as EditIcon,
   MoreHoriz as MoreIcon,
@@ -9,7 +9,7 @@ import {
   IosShare as ShareIcon,
 } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import {
   deslikeProfilePost,
   likeProfilePost,
@@ -18,15 +18,44 @@ import {
 } from "@/redux/Slices/profileSlice";
 import PostCard from "@/components/Post";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 
 export default function ProfilePage() {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
+  const observerTarget = useRef(null);
+
+  const infos = useSelector((state) => state.profile.profileInfo);
+  const postsState = useSelector((state) => state.profile.profilePosts);
+  const loading = useSelector((state) => state.profile.loadingProfilePosts);
+
+  const { data: postsData, current_page, last_page } = postsState || {};
+
+  // 1. Initial Load
   useEffect(() => {
     dispatch(profileInfo());
-    dispatch(profilePosts());
-  }, []);
-  const infos = useSelector((state) => state.profile.profileInfo);
-  const posts = useSelector((state) => state.profile.profilePosts);
+    dispatch(profilePosts(1)); 
+  }, [dispatch]);
+
+  const handleObserver = useCallback(
+    (entries) => {
+      const [target] = entries;
+      if (target.isIntersecting && current_page < last_page && !loading) {
+        dispatch(profilePosts(current_page + 1));
+      }
+    },
+    [dispatch, current_page, last_page, loading]
+  );
+
+  useEffect(() => {
+    const element = observerTarget.current;
+    const observer = new IntersectionObserver(handleObserver, { threshold: 0.1 });
+
+    if (element) observer.observe(element);
+    return () => {
+      if (element) observer.unobserve(element);
+    };
+  }, [handleObserver]);
 
   function handelLike(post) {
     if (post.user_has_liked) {
@@ -37,28 +66,28 @@ export default function ProfilePage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 py-8 px-4">
+    <main className="min-h-screen py-8 px-4">
       <div className="max-w-[1100px] mx-auto">
         {/* Main Shell */}
-        <div className="bg-white border border-slate-200 rounded-2xl shadow-xl shadow-slate-200/60 p-5 md:p-8">
+        <div className="bg-[var(--card-bg)] border border-[var(--card-border)] rounded-2xl shadow-xl p-5 md:p-8">
           {/* Profile Section */}
           {infos ? (
-            <section className="flex flex-col md:flex-row md:items-center justify-between gap-6 border border-slate-100 rounded-2xl p-6 bg-white shadow-sm">
+            <section className="flex flex-col md:flex-row md:items-center justify-between gap-6 border border-[var(--card-border)] rounded-2xl p-6 bg-[var(--card-bg)] shadow-sm">
               <div className="flex items-center gap-6">
                 <Avatar
                   src={`http://127.0.0.1:8000/storage/${infos.avatar_url}`}
                   sx={{
                     width: 92,
                     height: 92,
-                    border: "4px solid white",
+                    border: "4px solid var(--card-bg)",
                     boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
                   }}
                 />
                 <div className="space-y-1">
-                  <h1 className="text-2xl font-black text-slate-900">
+                  <h1 className="text-2xl font-black text-[var(--text-primary)]">
                     {infos.display_name}
                   </h1>
-                  <p className="text-sm text-slate-500 max-w-md leading-relaxed">
+                  <p className="text-sm text-[var(--text-muted)] max-w-md leading-relaxed">
                     {infos.bio}
                   </p>
                 </div>
@@ -69,44 +98,42 @@ export default function ProfilePage() {
                   <Button
                     variant="outlined"
                     startIcon={<EditIcon />}
-                    className="rounded-full font-bold border-slate-200 text-slate-800 normal-case hover:bg-slate-50 transition-transform active:scale-95"
+                    className="rounded-full font-bold border-[var(--card-border)] text-[var(--text-primary)] normal-case hover:bg-[var(--hover-overlay)] transition-transform active:scale-95"
                   >
-                    Edit Profile
+                    {t("profile.editProfile", "Edit Profile")}
                   </Button>
                 </Link>
-                <IconButton className="border border-slate-200 p-2">
-                  <MoreIcon />
-                </IconButton>
               </div>
             </section>
           ) : null}
+
           {infos ? (
             <section className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
-              <div className="bg-gradient-to-b from-white to-slate-50 border border-slate-100 py-4 rounded text-center shadow-sm">
-                <div className="text-xl font-black text-slate-900">
+              <div className="bg-[var(--nav-pill-bg)] border border-[var(--card-border)] py-4 rounded text-center shadow-sm">
+                <div className="text-xl font-black text-[var(--text-primary)]">
                   {infos.posts_count}
                 </div>
-                <div className="text-[11px] font-extrabold text-blue-500 uppercase tracking-tight">
-                  posts
+                <div className="text-[11px] font-extrabold text-[var(--color-primary)] uppercase tracking-tight">
+                  {t("profile.posts", "posts")}
                 </div>
               </div>
               <Link href={"/profile/following"}>
-                <div className="bg-gradient-to-b from-white to-slate-50 border border-slate-100 py-4 rounded text-center shadow-sm">
-                  <div className="text-xl font-black text-slate-900">
+                <div className="bg-[var(--nav-pill-bg)] border border-[var(--card-border)] py-4 rounded text-center shadow-sm">
+                  <div className="text-xl font-black text-[var(--text-primary)]">
                     {infos.following_count}
                   </div>
-                  <div className="text-[11px] font-extrabold text-blue-500 uppercase tracking-tight">
-                    following
+                  <div className="text-[11px] font-extrabold text-[var(--color-primary)] uppercase tracking-tight">
+                    {t("profile.following", "following")}
                   </div>
                 </div>
               </Link>
               <Link href={"/profile/followers"}>
-                <div className="bg-gradient-to-b from-white to-slate-50 border border-slate-100 py-4 rounded text-center shadow-sm">
-                  <div className="text-xl font-black text-slate-900">
+                <div className="bg-[var(--nav-pill-bg)] border border-[var(--card-border)] py-4 rounded text-center shadow-sm">
+                  <div className="text-xl font-black text-[var(--text-primary)]">
                     {infos.followers_count}
                   </div>
-                  <div className="text-[11px] font-extrabold text-blue-500 uppercase tracking-tight">
-                    followers
+                  <div className="text-[11px] font-extrabold text-[var(--color-primary)] uppercase tracking-tight">
+                    {t("profile.followers", "followers")}
                   </div>
                 </div>
               </Link>
@@ -114,12 +141,35 @@ export default function ProfilePage() {
           ) : null}
 
           {/* Feed */}
-          <section className="mt-4 flex items-center flex-col gap-4">
-            {posts.data
-              ? posts.data.map((post, key) => (
+          <section className="mt-4 flex flex-col justify-center items-center gap-4">
+            {postsData?.length > 0 ? (
+              <>
+                {postsData.map((post, key) => (
                   <PostCard handelLike={handelLike} key={key} post={post} />
-                ))
-              : null}
+                ))}
+
+                <div ref={observerTarget} className="py-6 flex justify-center w-full">
+                  {current_page < last_page && (
+                    <CircularProgress size={24} sx={{ color: "#1477ff" }} />
+                  )}
+                  {current_page >= last_page && postsData.length > 0 && (
+                    <p className="text-sm text-[var(--text-muted)]">
+                      {t("profile.endOfProfile", "You've reached the end of the profile.")}
+                    </p>
+                  )}
+                </div>
+              </>
+            ) : !loading ? (
+              <div className="text-center py-10">
+                <p className="text-[var(--text-muted)] font-medium">{t("profile.noPosts", "No posts found.")}</p>
+              </div>
+            ) : null}
+
+            {loading && !postsData && (
+              <div className="flex justify-center py-10">
+                <CircularProgress size={30} sx={{ color: "#1477ff" }} />
+              </div>
+            )}
           </section>
         </div>
       </div>

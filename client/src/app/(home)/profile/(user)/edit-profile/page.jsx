@@ -8,14 +8,16 @@ import {
   Switch,
   FormControlLabel,
 } from "@mui/material";
-import AvatarUpload from "@/components/avatarUpload";
+import AvatarUpload from "@/components/AvatarUpload";
 import { profileInfo } from "@/redux/Slices/profileSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { updateAvatar, updateProfile } from "@/redux/Slices/profileSlice";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function EditProfilePage() {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const infos = useSelector((state) => state.profile.profileInfo);
 
   const [avatar, setAvatar] = useState(null);
@@ -27,8 +29,8 @@ export default function EditProfilePage() {
 
   useEffect(() => {
     if (infos) {
-      setBio(infos.bio);
-      setUsername(infos.display_name);
+      setBio(infos.bio??"");
+      setUsername(infos.display_name??"");
     }
   }, [infos]);
 
@@ -48,7 +50,7 @@ export default function EditProfilePage() {
   return (
     <div className="max-w-3xl mx-auto p-6 space-y-6">
       <h1 className="text-2xl font-bold text-gray-900 flex justify-between">
-        Edit Profile
+        {t("editProfile.title", "Edit Profile")}
       </h1>
 
       {/* Avatar Section */}
@@ -66,16 +68,16 @@ export default function EditProfilePage() {
       >
         <TextField
           className=" mb-6"
-          label="name"
-          value={username}
+          label={t("editProfile.name", "name")}
+          value={username??""}
           onChange={(e) => setUsername(e.target.value)}
           fullWidth
         />
         <TextField
-          label="Bio"
+          label={t("editProfile.bio", "Bio")}
           multiline
           minRows={3}
-          value={bio}
+          value={bio??""}
           onChange={(e) => setBio(e.target.value)}
           fullWidth
         />
@@ -92,10 +94,10 @@ export default function EditProfilePage() {
             setBio("");
           }}
         >
-          Reset
+          {t("editProfile.reset", "Reset")}
         </Button>
         <Button variant="contained" color="primary" onClick={handleSave}>
-          Save
+          {t("editProfile.save", "Save")}
         </Button>
       </div>
     </div>

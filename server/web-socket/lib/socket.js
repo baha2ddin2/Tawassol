@@ -22,6 +22,7 @@ io.on("connection", async (socket) => {
   console.log("A user connected", socket.user.user_id);
   const sql = `UPDATE users set is_active = 1 WHERE user_id = ?`;
   await db.query(sql, [socket.user.user_id]);
+  io.emit("user-status-changed", { userId: socket.user.user_id, status: "online" });
   const userId = socket.userId;
 
   socket.on("joinPrivateRoom", ({ otherUserId }) => {
@@ -62,6 +63,7 @@ io.on("connection", async (socket) => {
     console.log("A user disconnected", socket.user.user_id);
     const sql = `UPDATE users set is_active = 0 WHERE user_id = ?`;
     await db.query(sql, [socket.user.user_id]);
+    io.emit("user-status-changed", { userId: socket.user.user_id, status: "offline" });
   });
 });
 

@@ -12,7 +12,14 @@ const  MessageController = {
       return res.status(400).json({ error: "Message cannot be empty" });
     }
 
+    
+
     try {
+      const [profileInfo] = await db.query(
+        "SELECT * FROM profiles WHERE user_id = ?",
+        [userId],
+      );
+
       const [membership] = await db.query(
         "SELECT * FROM groupemembers WHERE user_id = ? and group_id = ?",
         [userId, groupId],
@@ -55,7 +62,7 @@ const  MessageController = {
         );
       }
 
-      const fullMessage = { ...message, media: mediaData };
+      const fullMessage = { ...message, media: mediaData , display_name: profileInfo[0].display_name , avatar_url : profileInfo[0].avatar_url  };
       io.to(`group_${groupId}`).emit("newGroupMessage", fullMessage);
       const [groupMembers] = await db.query(
         `SELECT groupemembers.user_id ,display_name FROM groupemembers 
@@ -82,12 +89,11 @@ const  MessageController = {
     const { messageId } = req.params;
     const { content } = req.body;
     const userId = req.user.user_id;
-    const io = req.app.get("socketio");
 
     try {
       const [rows] = await db.query(
         "SELECT * FROM messages WHERE message_id = ?",
-        [userId],
+        [messageId],
       );
       const message = rows[0];
       if (!message || message.sender_id !== userId) {
@@ -113,14 +119,14 @@ const  MessageController = {
   deleteMessage: async (req, res) => {
     const { messageId } = req.params;
     const userId = req.user.user_id;
-    const io = req.app.get("socketio");
 
     try {
-      const [message] = await db.query(
+      const [rows] = await db.query(
         "SELECT * FROM messages WHERE message_id = ?",
         [messageId],
       );
 
+      const message = rows[0];
       if (!message || message.sender_id !== userId) {
         return res.status(403).json({ error: "Unauthorized" });
       }
@@ -130,7 +136,7 @@ const  MessageController = {
 
       io.to(`group_${groupId}`).emit("messageDeleted", { messageId });
 
-      res.json({ success: true });
+      res.json({ success: true,messageId });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }

@@ -1,10 +1,12 @@
 "use client";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function Dropdown({ children, logout }) {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -23,7 +25,7 @@ export default function Dropdown({ children, logout }) {
 
       {/* Dropdown */}
       <div
-        className={`absolute right-0 mt-3 w-44 bg-white rounded-2xl shadow-xl border 
+        className={`absolute right-0 mt-3 w-44 bg-[var(--card-bg)] rounded-2xl shadow-xl border border-[var(--card-border)] 
         transform transition-all duration-200 ease-out z-50
         ${
           open
@@ -31,27 +33,27 @@ export default function Dropdown({ children, logout }) {
             : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
         }`}
       >
-        <ul className="py-2 text-sm text-gray-700">
+        <ul className="py-2 text-sm text-[var(--text-primary)]">
           <li>
             <Link href={"/profile"}>
-              <button className="w-full text-left px-4 py-2 hover:bg-gray-100 transition">
-                profile
+              <button className="w-full text-left px-4 py-2 hover:bg-[var(--hover-overlay)] transition">
+                {t("nav.profile", "profile")}
               </button>
             </Link>
           </li>
           <li>
             <Link href={"/settings"}>
-              <button className="w-full text-left px-4 py-2 hover:bg-gray-100 transition">
-                settings
+              <button className="w-full text-left px-4 py-2 hover:bg-[var(--hover-overlay)] transition">
+                {t("nav.settings", "settings")}
               </button>
             </Link>
           </li>
           <li>
             <button
               onClick={() => logout()}
-              className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100 transition"
+              className="w-full text-left px-4 py-2 text-red-600 hover:bg-[var(--hover-overlay)] transition"
             >
-              logout
+              {t("nav.logout", "logout")}
             </button>
           </li>
         </ul>

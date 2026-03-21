@@ -203,12 +203,12 @@ class GroupeController extends Controller
     public function updateGroup(updateGroupRequest $request, string $groupId)
     {
         $authId = Auth::id();
-
-
         $group = DB::table('groups')->where('group_id', $groupId)->first();
         if (!$group) {
             return response()->json(['message' => 'Group not found'], 404);
         }
+
+
 
         $isAdmin = DB::table('groupemembers')
             ->where('group_id', $groupId)
@@ -220,6 +220,7 @@ class GroupeController extends Controller
             return response()->json(['message' => 'Only group admin can update group'], 403);
         }
         $filename = null;
+        $data = [];
 
         if ($request->hasFile('photo')) {
             $file = $request->file('photo');
@@ -255,6 +256,84 @@ class GroupeController extends Controller
         DB::table('groups')->where('group_id', $groupId)->update($data);
 
         return response()->json(['message' => 'Group updated successfully', 'data' => $data]);
+    }
+
+    public function deleteGroup(string $groupId)
+    {
+        $authId = Auth::id();
+
+        $group = DB::table('groups')
+            ->where('group_id', $groupId)
+            ->first();
+
+        if (!$group) {
+            return response()->json(['message' => 'Group not found'], 404);
+        }
+
+        $oldestAdmin = DB::table('groupemembers')
+            ->where('group_id', $groupId)
+            ->where('role', 'admin')
+            ->orderBy('joined_at', 'asc')
+            ->first();
+
+        if (!$oldestAdmin || $oldestAdmin->user_id !== $authId) {
+            return response()->json([
+                'message' => 'Only the oldest admin can delete the group'
+            ], 403);
+        }
+
+        DB::transaction(function () use ($groupId) {
+            DB::table('groupemembers')->where('group_id', $groupId)->delete();
+            DB::table('groups')->where('group_id', $groupId)->delete();
+        });
+
+        return response()->json([
+            'message' => 'Group deleted successfully'
+        ]);
+    }
+
+    public function removeMember(string $groupId, string $userId)
+    {
+        $authId = Auth::id();
+        
+        $groupAdmin = DB::table('groupemembers')
+            ->where('group_id', $groupId)
+            ->where('user_id', $authId)
+            ->where('role', 'admin')
+            ->exists();
+            
+        if (!$groupAdmin && $authId !== $userId) {
+            return response()->json(['message' => 'Unauthorized to remove member'], 403);
+        }
+        
+        DB::table('groupemembers')
+            ->where('group_id', $groupId)
+            ->where('user_id', $userId)
+            ->delete();
+            
+        return response()->json(['message' => 'Member removed successfully']);
+    }
+
+    public function makeAdmin(string $groupId, string $userId)
+    {
+        $authId = Auth::id();
+        
+        $groupAdmin = DB::table('groupemembers')
+            ->where('group_id', $groupId)
+            ->where('user_id', $authId)
+            ->where('role', 'admin')
+            ->exists();
+            
+        if (!$groupAdmin) {
+            return response()->json(['message' => 'Only admins can promote members'], 403);
+        }
+        
+        DB::table('groupemembers')
+            ->where('group_id', $groupId)
+            ->where('user_id', $userId)
+            ->update(['role' => 'admin']);
+            
+        return response()->json(['message' => 'Member promoted to admin']);
     }
 
     public function getGroupDetails(string $groupId)
@@ -305,13 +384,6 @@ class GroupeController extends Controller
                 $join->on('f2.follower_id', '=', 'u.user_id')
                     ->where('f2.followed_id', '=', $authId);
             })
-            // ->whereNotExists(function ($query) use ($groupId) {
-            //     $query->select(DB::raw(1))
-            //         ->from('groupemembers as gm')
-            //         ->whereColumn('gm.user_id', 'u.user_id')
-            //         ->where('gm.group_id', $groupId);
-            // })
-
             ->where('u.user_id', '!=', $authId)
 
             ->select(

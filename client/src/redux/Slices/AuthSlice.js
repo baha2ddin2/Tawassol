@@ -56,6 +56,20 @@ export const checkAuth = createAsyncThunk('Auth/checkAuth',
     }
 )
 
+export const changeEmail = createAsyncThunk('Auth/changeEmail',
+    async(newEmail,thunkAPI)=>{
+        try{
+            const response = await api.put('/changeEmail',{
+                email:newEmail
+            })
+            return response.data
+        }catch(error){
+            const errorMsg = error.response.data;
+            return thunkAPI.rejectWithValue(errorMsg)
+        }
+    }
+)
+
 
 
 const AuthReducer = createSlice({
@@ -120,6 +134,10 @@ const AuthReducer = createSlice({
             })
             .addCase(checkAuth.rejected,(state,action)=>{
                 state.checkAuthLoading =false
+            })
+            .addCase(changeEmail.fulfilled,(state,action)=>{
+                state.userInfo.user.email=action.payload.email
+                state.userInfo.user.email_verified_at=null
             })
             
         }

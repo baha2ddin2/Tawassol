@@ -2,14 +2,12 @@ import api from "@/lib/api";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { gooeyToast } from "goey-toast";
 
-
-
 export const reportPost = createAsyncThunk(
   "report/posts",
-  async ({id,reason}, thunkAPI) => {
+  async ({ postId, reason }, thunkAPI) => {
     try {
-      const response = await api.post(`/report/post/${id}`,{
-        reason
+      const response = await api.post(`/report/post/${postId}`, {
+        reason,
       });
       return response.data;
     } catch (error) {
@@ -21,10 +19,10 @@ export const reportPost = createAsyncThunk(
 
 export const reportComment = createAsyncThunk(
   "report/comment",
-  async ({id,reason}, thunkAPI) => {
+  async ({ commentId, reason }, thunkAPI) => {
     try {
-      const response = await api.post(`/report/comment/${id}`,{
-        reason
+      const response = await api.post(`/report/comment/${commentId}`, {
+        reason,
       });
       return response.data;
     } catch (error) {
@@ -36,9 +34,9 @@ export const reportComment = createAsyncThunk(
 
 export const myReport = createAsyncThunk(
   "report/myReport",
-  async (_, thunkAPI) => {
+  async (page = 1, thunkAPI) => {
     try {
-      const response = await api.get(`/report`);
+      const response = await api.get(`/report?page=${page}`);
       return response.data;
     } catch (error) {
       const errorMsg = error.response.data;
@@ -49,10 +47,10 @@ export const myReport = createAsyncThunk(
 
 export const reportUser = createAsyncThunk(
   "report/user",
-  async ({id,reason}, thunkAPI) => {
+  async ({ userId, reason }, thunkAPI) => {
     try {
-      const response = await api.post(`/report/user/${id}`,{
-        reason
+      const response = await api.post(`/report/user/${userId}`, {
+        reason,
       });
       return response.data;
     } catch (error) {
@@ -62,32 +60,48 @@ export const reportUser = createAsyncThunk(
   },
 );
 
-
-
-
-
 const reportReducer = createSlice({
   name: "report",
   initialState: {
-    reports:[]
+    reports: [],
+    loadingReports:false
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(reportUser.fulfilled, () => {
-        gooeyToast.success("thank you for your report will be handel it soon posible ")
+        gooeyToast.success(
+          "thank you for your report will be handel it soon posible ",
+        );
       })
       .addCase(reportComment.fulfilled, () => {
-        gooeyToast.success("thank you for your report will be handel it soon posible ")
+        gooeyToast.success(
+          "thank you for your report will be handel it soon posible ",
+        );
       })
-      .addCase(reportPost.fulfilled,()=>{
-        gooeyToast.success("thank you for your report will be handel it soon posible ")
+      .addCase(reportPost.fulfilled, () => {
+        gooeyToast.success(
+          "thank you for your report will be handel it soon posible ",
+        );
       })
-      .addCase(myReport.fulfilled,(state,action)=>{
-          state.reports=action.payload
+      .addCase(myReport.pending, (state) => {
+        state.loadingReports = true;
       })
+      .addCase(myReport.fulfilled, (state, action) => {
+        state.loadingReports = false;
+        const { data, current_page, last_page } = action.payload;
 
-
+        if (current_page === 1 || !state.reports) {
+          state.reports = action.payload;
+        } else {
+          state.reports.data = [...state.reports.data, ...data];
+          state.reports.current_page = current_page;
+          state.reports.last_page = last_page;
+        }
+      })
+      .addCase(myReport.rejected, (state) => {
+        state.loadingReports = false;
+      });
   },
 });
 export default reportReducer.reducer;
