@@ -55,14 +55,18 @@ class MessageController extends Controller
 
         $groups = DB::table('groups as g')
             ->join('groupemembers as gm', 'g.group_id', '=', 'gm.group_id')
-            ->join('messages as m', 'g.group_id', '=', 'm.group_id')
+            ->leftJoin('messages as m', 'g.group_id', '=', 'm.group_id')
             ->where('gm.user_id', $authId)
             ->select(
                 DB::raw("'group' as type"),
                 DB::raw('NULL as user_id'),
                 DB::raw('NULL as display_name'),
                 DB::raw('NULL as avatar_url'),
-                DB::raw('MAX(m.content) as last_message'),
+                DB::raw('(SELECT content 
+                 FROM messages 
+                 WHERE group_id = g.group_id
+                 ORDER BY created_at DESC 
+                 LIMIT 1) as last_message'),
                 DB::raw('MAX(m.created_at) as last_message_time'),
                 DB::raw('NULL as is_active'),
                 'g.group_id',

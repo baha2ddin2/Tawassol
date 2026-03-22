@@ -11,6 +11,7 @@ import { useEffect, useRef, useCallback } from "react";
 import SkeletonChildren from "@/components/Skelatons";
 import { deslikeFeedPost, likeFeedPost } from "@/redux/Slices/postSlice";
 import RightSidebar from "@/components/RightSidebar";
+import SuggestionSkeleton from "@/components/SuggestionSkeleton";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function HomePage() {
@@ -69,8 +70,18 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] transition-colors duration-300">
-      <div className="max-w-6xl mx-auto flex justify-center gap-10 p-6">
-        <main className="w-full max-w-[600px] space-y-6">
+      <div className="max-w-6xl mx-auto flex flex-col lg:flex-row justify-center lg:gap-10 p-4 lg:p-6">
+        
+        {/* MOBILE SUGGESTIONS (TOP) */}
+        <div className="block lg:hidden w-full max-w-[600px] mx-auto mb-6">
+            {postsData?.length > 0 ? (
+               <RightSidebar suggestions={suggestions} handelFollow={handelFollow} />
+            ) : (
+               <SuggestionSkeleton />
+            )}
+        </div>
+
+        <main className="w-full max-w-[600px] mx-auto lg:mx-0 space-y-6">
           <div className="flex flex-col w-full">
             {postsData?.length > 0 ? (
               <>
@@ -87,7 +98,15 @@ export default function HomePage() {
             )}
           </div>
         </main>
-        <RightSidebar suggestions={suggestions} handelFollow={handelFollow} />
+
+        {/* DESKTOP SUGGESTIONS (RIGHT SIDEBAR) */}
+        <div className="hidden lg:block">
+            {postsData?.length > 0 ? (
+               <RightSidebar suggestions={suggestions} handelFollow={handelFollow} />
+            ) : (
+               <SuggestionSkeleton />
+            )}
+        </div>
       </div>
     </div>
   );

@@ -22,6 +22,16 @@ class Profile extends Model
             'user_id'=>$this->user_id
         ];
     }
+    
+    protected static function boot()
+    {
+        parent::boot();
+        static::deleting(function($model){
+            if($model->avatar_url){
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($model->avatar_url);
+            }
+        });
+    }
     /**
      * The attributes that are mass assignable.
      *

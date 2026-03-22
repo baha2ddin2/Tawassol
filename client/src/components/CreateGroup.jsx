@@ -16,9 +16,11 @@ import { Close, PhotoCamera, Group } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import { availableMembers, contact, createGroup } from "@/redux/Slices/messageSlice";
 import { validateGroupName } from "@/lib/validation";
+import { useTranslation } from "react-i18next";
 
 export default function CreateGroup({ open, setOpen }) {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const availableMembersOptions = useSelector(
     (state) => state.message.availableMembersOptions,
   );
@@ -73,7 +75,7 @@ export default function CreateGroup({ open, setOpen }) {
     <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth PaperProps={{ sx: { bgcolor: "var(--card-bg)", color: "var(--text-primary)" } }}>
       <DialogContent className="p-6 bg-[var(--card-bg)]">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-[var(--text-primary)]">Create New Group</h2>
+          <h2 className="text-xl font-semibold text-[var(--text-primary)]">{t("messages.createGroup", "Create New Group")}</h2>
 
           <IconButton onClick={() => setOpen(false)}>
             <Close sx={{ color: "var(--text-muted)" }} />
@@ -97,13 +99,13 @@ export default function CreateGroup({ open, setOpen }) {
             </div>
           </label>
 
-          <p className="text-sm mt-2 text-[var(--text-muted)]">Upload Group Photo</p>
+          <p className="text-sm mt-2 text-[var(--text-muted)]">{t("messages.uploadGroupPhoto", "Upload Group Photo")}</p>
         </div>
 
         {/* Form */}
         <div className="space-y-4 flex flex-col gap-2.5">
           <TextField
-            label="Group Name"
+            label={t("messages.groupName", "Group Name")}
             fullWidth
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -112,7 +114,7 @@ export default function CreateGroup({ open, setOpen }) {
           />
 
           <TextField
-            label="Description (Optional)"
+            label={t("messages.groupDescription", "Description (Optional)")}
             multiline
             rows={3}
             fullWidth
@@ -123,8 +125,8 @@ export default function CreateGroup({ open, setOpen }) {
 
         {/* Members */}
         <div className="mt-6">
-          <h3 className="text-sm font-semibold mb-3 text-[var(--text-muted)]">
-            SUGGESTED FRIENDS
+          <h3 className="text-sm font-semibold mb-3 text-[var(--text-muted)] uppercase">
+            {t("messages.suggestedFriends", "SUGGESTED FRIENDS")}
           </h3>
 
           <div className="space-y-3 max-h-[200px] overflow-y-auto scrollbar-thin">
@@ -146,7 +148,7 @@ export default function CreateGroup({ open, setOpen }) {
 
                 <Checkbox
                   checked={members.includes(friend.user_id)}
-                  onChange={() => toggleMember(friend.user_id)}
+                  onChange={(e) => { e.stopPropagation(); toggleMember(friend.user_id); }}
                   sx={{ color: "var(--text-muted)", "&.Mui-checked": { color: "var(--color-primary)" } }}
                 />
               </div>
@@ -157,7 +159,7 @@ export default function CreateGroup({ open, setOpen }) {
         {/* Footer */}
         <div className="flex justify-end gap-3 mt-6">
           <Button variant="outlined" sx={{ color: "var(--text-muted)", borderColor: "var(--card-border)" }} onClick={() => setOpen(false)}>
-            Cancel
+            {t("common.cancel", "Cancel")}
           </Button>
 
           <Button
@@ -166,7 +168,7 @@ export default function CreateGroup({ open, setOpen }) {
             onClick={handleSubmit}
             sx={{ bgcolor: "var(--color-primary)", "&:hover": { bgcolor: "var(--color-primary-dark)" } }}
           >
-            Create Group
+            {t("messages.createGroup", "Create Group")}
           </Button>
         </div>
       </DialogContent>

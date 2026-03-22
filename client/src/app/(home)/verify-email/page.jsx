@@ -31,7 +31,7 @@ export default function VerifyEmail() {
       .then((res) =>
         gooeyToast.success("the verification code sent successfuly"),
       )
-      .catch((err) => gooeyToast.error(err.data.message));
+      .catch((err) => gooeyToast.error(err.response?.data?.message || err.message || "Sending failed"));
   }
 
   useEffect(() => {
@@ -63,11 +63,11 @@ export default function VerifyEmail() {
       gooeyToast.success('the email verify successfuly')
       router.push('/home')
     })
-    .catch((err)=>gooeyToast(err.data.message))
+    .catch((err) => gooeyToast.error(err.response?.data?.message || err.message || "Verification failed"))
   }
 
   return (
-    <div className="wrap">
+    <div className="min-h-screen bg-[var(--background)] flex items-center justify-center p-4">
       {/* Main Content */}
       <main className="w-full flex justify-center py-16 px-4">
         <Paper

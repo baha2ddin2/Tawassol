@@ -341,8 +341,8 @@ const messageReducer = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(messages.fulfilled, (state, action) => {
-        const data = action.payload;
-        state.messages = data;
+        state.messages = action.payload || [];
+        state.loading = false;
       })
       .addCase(messages.pending, (state, action) => {
         state.loading = true;
@@ -351,11 +351,29 @@ const messageReducer = createSlice({
         state.error = action.payload;
         state.loading = false;
       })
+      .addCase(contact.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(contact.fulfilled, (state, action) => {
-        state.contacts = action.payload;
+        state.contacts = action.payload || [];
+        state.loading = false;
+      })
+      .addCase(contact.rejected, (state, action) => {
+        state.contacts = [];
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(GroupMessages.pending, (state) => {
+        state.loading = true;
       })
       .addCase(GroupMessages.fulfilled, (state, action) => {
-        state.GroupMessages = action.payload;
+        state.GroupMessages = action.payload || [];
+        state.loading = false;
+      })
+      .addCase(GroupMessages.rejected, (state, action) => {
+        state.GroupMessages = [];
+        state.loading = false;
+        state.error = action.payload;
       })
       .addCase(createGroup.fulfilled, (state, action) => {
         gooeyToast.success("the group created successfuly");

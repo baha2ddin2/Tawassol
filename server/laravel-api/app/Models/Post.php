@@ -14,9 +14,18 @@ class Post extends Model
 
     protected static function boot()
     {
+        parent::boot();
         static::creating(function($model){
             if(!$model->post_id){
                 $model->post_id=(string)Str::uuid();
+            }
+        });
+        static::deleting(function($model){
+            $mediaItems = \App\Models\media::where('post_id', $model->post_id)->get();
+            foreach($mediaItems as $media) {
+                if($media->url){
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($media->url);
+                }
             }
         });
     }

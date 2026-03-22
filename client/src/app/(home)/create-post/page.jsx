@@ -14,6 +14,7 @@ export default function CreatePostPage() {
   const [content, setContent] = useState("");
   const [externalLink, setExternalLink] = useState("");
   const [images, setImages] = useState([]);
+  const [localError, setLocalError] = useState(null);
 
   const router = useRouter();
   const errors = useSelector((state) => state.post.error);
@@ -24,9 +25,10 @@ export default function CreatePostPage() {
 
   async function handleSubmit(e) {
     if (!content.trim() && images.length === 0 && !externalLink.trim()) {
-      alert("Add content, images, or an external link.");
+      setLocalError(t("createPost.emptyError", "Add content, images, or an external link."));
       return;
     }
+    setLocalError(null);
 
     const formData = new FormData();
     formData.append("content", content);
@@ -86,6 +88,10 @@ export default function CreatePostPage() {
           </div>
         )}
 
+        {localError && (
+          <p className="text-red-500 text-sm mt-1">{localError}</p>
+        )}
+
         <div className="flex gap-2">
           <Button onClick={handleSubmit} variant="contained">
             {t("createPost.publish", "Publish")}
@@ -96,6 +102,7 @@ export default function CreatePostPage() {
               setContent("");
               setExternalLink("");
               setImages([]);
+              setLocalError(null);
             }}
           >
             {t("createPost.reset", "Reset")}

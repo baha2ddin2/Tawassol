@@ -88,7 +88,7 @@ export default function GroupMessage({
         <div
           onContextMenu={handleContextMenu}
           className={`px-3 py-2 rounded-2xl text-sm shadow-sm relative transition-colors duration-300
-                  ${isEditing ? "bg-[#e2e8f0] dark:bg-[#081F5C] text-black dark:text-[#F9FCFF] border border-transparent dark:border-[#334EAC]" : isMe ? "bg-blue-600 text-white rounded-tr-none" : "bg-[var(--card-bg)] text-[var(--text-primary)] border border-[var(--card-border)] rounded-tl-none"}
+                  ${isEditing ? "bg-[#e2e8f0] dark:bg-[#334EAC] text-black dark:text-[#F9FCFF] border border-transparent dark:border-[#334EAC]" : isMe ? "bg-blue-600 text-white rounded-tr-none" : "bg-[var(--card-bg)] text-[var(--text-primary)] border border-[var(--card-border)] rounded-tl-none"}
                   ${isSameAsPrev ? (isMe ? "rounded-tr-2xl" : "rounded-tl-2xl") : ""} 
                 `}
         >
@@ -105,14 +105,14 @@ export default function GroupMessage({
                 sx={{
                   "& .MuiInputBase-root": { color: "inherit", fontSize: '14px' },
                   "& .MuiInput-underline:before": { borderBottomColor: "currentColor" },
-                  "& .MuiInput-underline:after": { borderBottomColor: "var(--color-primary)" },
+                  "& .MuiInput-underline:after": { borderBottomColor: "#709601" },
                 }}
               />
               <div className="flex justify-end gap-1 mt-1">
-                <IconButton size="small" onClick={handleCancel} sx={{ color: "var(--danger)" }}>
+                <IconButton size="small" onClick={handleCancel} className="text-gray-500 dark:text-[#D0E3FF] transition-colors">
                   <Close fontSize="small" />
                 </IconButton>
-                <IconButton size="small" onClick={onSave} sx={{ color: "#709601" }}>
+                <IconButton size="small" onClick={onSave} className="text-[#709601] transition-colors">
                   <Check fontSize="small" />
                 </IconButton>
               </div>
@@ -144,15 +144,15 @@ export default function GroupMessage({
 
           {/* Dropdown menu */}
           {showMenu && (
-            <div className={`absolute top-0 flex flex-col items-stretch ${isMe ? "right-full mr-2" : "left-full ml-2"} mt-2 w-32 bg-white dark:bg-[#081F5C] text-gray-800 dark:text-[#F9FCFF] shadow-xl border border-transparent dark:border-[#334EAC] rounded-md z-50 overflow-hidden transition-colors duration-300`}>
+            <div className={`absolute top-0 flex flex-col items-stretch ${isMe ? "right-full mr-2" : "left-full ml-2"} mt-2 w-32 bg-white dark:bg-[#334EAC] text-gray-800 dark:text-[#F9FCFF] shadow-xl border border-gray-100 dark:border-transparent rounded-md z-50 overflow-hidden transition-colors duration-300`}>
               <button
-                className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#334EAC] text-xs transition-colors"
+                className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#081F5C] text-xs transition-colors"
                 onClick={(e) => { e.stopPropagation(); handleUpdateClick(); }}
               >
                 {t("messages.edit", "Edit")}
               </button>
               <button
-                className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#334EAC] text-red-500 text-xs transition-colors"
+                className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#081F5C] text-red-500 dark:text-red-400 text-xs transition-colors"
                 onClick={(e) => { e.stopPropagation(); handelDelete(message.message_id); }}
               >
                 {t("messages.delete", "Delete")}

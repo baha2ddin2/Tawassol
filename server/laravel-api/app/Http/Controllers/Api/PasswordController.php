@@ -16,7 +16,7 @@ class PasswordController extends Controller
 { 
     public function forgotPassword(changeEmailRequest $request){
         $email = $request->email;
-        $user = User::where('email',$email);
+        $user = User::where('email',$email)->first();
 
         try{
             if(!$user){
@@ -52,7 +52,7 @@ class PasswordController extends Controller
                 'password'=>Hash::make($request->password)
             ]);
 
-            response()->json(['message'=>'password updated successfuly']);
+            return response()->json(['message'=>'password updated successfuly']);
 
         }catch(Exception $e){
             return response()->json(['message'=>'server error','error'=>$e]);

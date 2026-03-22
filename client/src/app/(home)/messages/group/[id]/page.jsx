@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Avatar, TextField, IconButton, Tooltip } from "@mui/material";
+import { Avatar, TextField, IconButton, Tooltip, Typography } from "@mui/material";
 import { Send, PhotoCamera, ArrowDownward, ArrowBack } from "@mui/icons-material";
 import socket from "@/lib/soket";
 import { useParams, useRouter } from "next/navigation";
@@ -171,7 +171,7 @@ export default function GroupChatPage() {
   };
 
   return (
-    <div className="h-[calc(100dvh-90px)] md:h-[calc(100vh-90px)] flex flex-col bg-[var(--card-bg)] shadow-sm rounded-md overflow-hidden relative transition-colors duration-300">
+    <div className="h-[calc(100dvh-90px)] md:h-[calc(100vh-90px)] max-sm:h-[calc(100vh-138px)] max-sm:fixed max-sm:w-[100vw] flex flex-col bg-[var(--card-bg)] shadow-sm rounded-md overflow-hidden relative transition-colors duration-300">
       {/* Group Header */}
       <div className="flex items-center gap-3 p-3 border-b border-[var(--card-border)] bg-[var(--card-bg)] z-10 transition-colors duration-300">
         <IconButton
@@ -211,8 +211,14 @@ export default function GroupChatPage() {
         ref={containerRef}
         className="flex-1 overflow-y-auto p-4 space-y-1 bg-[var(--background)] transition-colors duration-300"
       >
-        {messagesData.length === 0 ? (
+        {loading ? (
           <MessageSkeleton />
+        ) : messagesData.length === 0 ? (
+          <div className="flex flex-col items-center justify-center p-8 text-center text-[var(--text-muted)] h-full">
+            <Typography className="font-medium text-[var(--text-primary)]">
+              {t("messages.noMessages", "No messages yet. Start the conversation!")}
+            </Typography>
+          </div>
         ) : (
           messagesData.map((m, index) => (
             <GroupMessage

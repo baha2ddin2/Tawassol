@@ -59,7 +59,22 @@
     "currentPassword": "Mot de passe actuel",
     "newEmail": "Nouvel e-mail",
     "privacy": "Confidentialité",
-    "privateAccount": "Compte privé"
+    "privateAccount": "Compte privé",
+    "accountPrivacy": "Confidentialité du compte",
+    "privateDescription": "Seules les personnes approuvées peuvent voir votre contenu.",
+    "changeEmailTitle": "Changer l'adresse e-mail",
+    "verified": "Vérifié",
+    "unverified": "Non vérifié",
+    "verifyEmailNow": "Vérifiez votre e-mail maintenant",
+    "updateEmail": "Mettre à jour l'e-mail",
+    "updatePassword": "Mettre à jour le mot de passe",
+    "saveNewPassword": "Enregistrer le nouveau mot de passe",
+    "reportHistory": "Historique des signalements",
+    "reason": "Raison : ",
+    "submitted": "Soumis le : ",
+    "noMoreReports": "Aucun autre signalement à afficher.",
+    "noReportsYet": "Vous n'avez soumis aucun signalement pour le moment.",
+    "adminDashboard": "Tableau de bord Admin"
   },
   "messages": {
     "title": "Messages",
@@ -89,7 +104,12 @@
     "madeAdmin": "Membre promu administrateur",
     "confirmRemoveMember": "Retirer ce membre du groupe ?",
     "confirmMakeAdmin": "Promouvoir ce membre en administrateur ?",
-    "startConversation": "Commencer une conversation"
+    "startConversation": "Commencer une conversation",
+    "noContactsFound": "Aucun contact pour le moment",
+    "startTheConversation": "Commencez à vous connecter pour voir vos conversations ici.",
+    "noMessages": "Aucun message pour le moment. Lancez la conversation !",
+    "uploadGroupPhoto": "Télécharger une photo de groupe",
+    "suggestedFriends": "Amis suggérés"
   },
   "posts": {
     "createPost": "Créer un post",
@@ -102,7 +122,11 @@
     "noPostsYet": "Aucun post encore",
     "deletePost": "Supprimer le post",
     "editPost": "Modifier le post",
-    "report": "Signaler"
+    "report": "Signaler",
+    "discussion": "Discussion",
+    "commentsCount": "Commentaires",
+    "noMoreComments": "Plus aucun commentaire.",
+    "noCommentsYet": "Aucun commentaire pour le moment. Soyez le premier à partager vos pensées !"
   },
   "profile": {
     "followers": "Abonnés",
@@ -111,7 +135,11 @@
     "follow": "Suivre",
     "unfollow": "Se désabonner",
     "editProfile": "Modifier le profil",
-    "suggestions": "Suggestions"
+    "suggestions": "Suggestions",
+    "total": "Total",
+    "searchFollowers": "Rechercher des abonnés...",
+    "followingButton": "Abonné(e)",
+    "searchFollowing": "Rechercher des abonnements..."
   },
   "common": {
     "loading": "Chargement...",
@@ -125,7 +153,24 @@
     "search": "Rechercher",
     "noResults": "Aucun résultat trouvé",
     "seeAll": "Voir tout",
-    "joined": "Rejoint"
+    "joined": "Rejoint",
+    "searchPlaceholder": "Rechercher des hashtags, des posts ou des utilisateurs...",
+    "hashtags": "Hashtags",
+    "users": "Utilisateurs",
+    "seeMore": "Voir plus",
+    "following": "Abonnement",
+    "posts": "Posts",
+    "searchPosts": "Rechercher des posts...",
+    "showingResultsFor": "Affichage des résultats pour",
+    "noMoreResults": "Aucun autre résultat trouvé.",
+    "noPostsFound": "Aucun post trouvé.",
+    "tryDifferentKeyword": "Essayez de rechercher avec un mot-clé différent.",
+    "typeToSearch": "Tapez quelque chose ci-dessus pour rechercher.",
+    "searchPeople": "Rechercher des personnes...",
+    "showingPeopleFor": "Affichage des personnes pour",
+    "noMoreProfiles": "Aucun autre profil trouvé.",
+    "noPeopleFound": "Aucune personne trouvée.",
+    "typeNameToSearch": "Tapez un nom ci-dessus pour rechercher des personnes."
   },
   "validation": {
     "required": "Ce champ est requis",
@@ -139,9 +184,70 @@
     "messageEmpty": "Le message ne peut pas être vide",
     "contentRequired": "Le contenu est requis"
   },
-  "notifications": {
+  "notification": {
     "title": "Notifications",
-    "markAllRead": "Tout marquer comme lu",
+    "markAllAsRead": "Tout marquer comme lu",
+    "loadMore": "Charger plus de notifications",
+    "allCaughtUp": "Vous êtes à jour !",
+    "startedFollowing": "a commencé à vous suivre",
+    "likedPost": "a aimé votre post",
+    "commentedPost": "a commenté votre post",
+    "newPost": "a créé un nouveau post",
+    "newNotification": "Nouvelle notification",
     "noNotifications": "Aucune notification pour le moment"
+  },
+  "suggestions": {
+    "title": "Suggestions",
+    "suggested": "Suggéré pour vous",
+    "follow": "Suivre",
+    "followed": "suivi(e)"
+  },
+  "explore": {
+    "title": "Explorer Tawassol",
+    "trending": "Tendances de la semaine",
+    "noResults": "Aucun résultat trouvé",
+    "searchPlaceholder": "Rechercher des hashtags, des posts ou des utilisateurs..."
+  },
+  "dashboard": {
+    "reportsManagement": "Gestion des signalements",
+    "reviewAndAct": "Examinez et agissez sur le contenu signalé sur la plateforme.",
+    "searchPlaceholder": "Rechercher par ID ou nom d'utilisateur...",
+    "reportedTarget": "Cible signalée",
+    "reporter": "Signaleur",
+    "type": "Type",
+    "status": "Statut",
+    "date": "Date",
+    "loading": "Chargement des signalements...",
+    "noReports": "Aucun signalement trouvé.",
+    "showing": "Affichage de",
+    "to": "à",
+    "of": "sur",
+    "results": "résultats",
+    "userManagement": "Gestion des utilisateurs",
+    "user": "Utilisateur",
+    "online": "en ligne",
+    "offline": "hors ligne",
+    "delete": "Supprimer",
+    "noUsers": "Aucun utilisateur trouvé.",
+    "confirmDelete": "Confirmer la suppression",
+    "deleteUserConfirmation": "Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.",
+    "cancel": "Annuler",
+    "dataInsights": "Données & Analyses",
+    "analytics": "Analyses",
+    "users": "Tous les utilisateurs",
+    "moderation": "Modération",
+    "reports": "Signalements en attente",
+    "backToHome": "Retour à l'accueil",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "statistics": "Statistiques du tableau de bord",
+    "totalsOverview": "Aperçu des totaux",
+    "summaryChart": "Graphique récapitulatif",
+    "usersName": "Utilisateurs",
+    "postsName": "Posts",
+    "reportsName": "Signalements",
+    "thisWeek": "Cette semaine",
+    "thisMonth": "Ce mois-ci",
+    "thisYear": "Cette année"
   }
 }

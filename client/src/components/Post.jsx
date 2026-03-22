@@ -92,7 +92,7 @@ export default function PostCard({ post, handelLike }) {
             className="h-full w-full"
           >
             {mediaItems.map((item, index) => (
-              <SwiperSlide key={item.media_id || index}>
+              <SwiperSlide key={`media-${item.media_id || item.id}-${index}`}>
                 {item.type === "picture" ? (
                   <Image
                     src={`http://127.0.0.1:8000/storage/${item.url}`}

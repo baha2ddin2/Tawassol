@@ -3,9 +3,11 @@ import React, { useEffect, useRef, useCallback } from "react";
 import { Typography, Paper, Chip, CircularProgress } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import { myReport } from "@/redux/Slices/reportSlice"; 
+import { useTranslation } from "react-i18next";
 
 export default function ReportsTab() {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const observerTarget = useRef(null);
 
   const { reports, loadingReports } = useSelector((state) => state.report);
@@ -38,7 +40,7 @@ export default function ReportsTab() {
   return (
     <div className="space-y-6 animate-fade-in">
       <Typography variant="h5" className="font-black mb-4">
-        Report History
+        {t("settings.reportHistory", "Report History")}
       </Typography>
       
       <div className="space-y-4">
@@ -62,10 +64,10 @@ export default function ReportsTab() {
                     />
                   </div>
                   <Typography className="text-[#64748b] text-sm font-medium">
-                    Reason: {report.reason}
+                    {t("settings.reason", "Reason: ")} {report.reason}
                   </Typography>
                   <Typography className="text-[#94a3b8] text-xs mt-2">
-                    Submitted: {new Date(report.created_at).toLocaleDateString()}
+                    {t("settings.submitted", "Submitted: ")} {new Date(report.created_at).toLocaleDateString()}
                   </Typography>
                 </div>
                 <Chip
@@ -85,7 +87,7 @@ export default function ReportsTab() {
               )}
               {current_page >= last_page && reportsData.length > 5 && (
                 <Typography className="text-sm text-slate-400">
-                  No more reports to show.
+                  {t("settings.noMoreReports", "No more reports to show.")}
                 </Typography>
               )}
             </div>
@@ -96,7 +98,7 @@ export default function ReportsTab() {
             className="p-8 border border-dashed border-[#e7edf7] rounded-2xl text-center bg-transparent"
           >
             <Typography className="text-slate-400 font-medium">
-              You haven't submitted any reports yet.
+              {t("settings.noReportsYet", "You haven't submitted any reports yet.")}
             </Typography>
           </Paper>
         ) : null}

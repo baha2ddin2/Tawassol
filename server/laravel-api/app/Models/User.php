@@ -19,6 +19,17 @@ class User extends Authenticatable implements JWTSubject
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
+    protected static function boot()
+    {
+        parent::boot();
+        static::deleting(function($model){
+            $profile = \App\Models\Profile::where('user_id', $model->user_id)->first();
+            if($profile && $profile->avatar_url){
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($profile->avatar_url);
+            }
+        });
+    }
+
     /**
      * The attributes that are mass assignable.
      *

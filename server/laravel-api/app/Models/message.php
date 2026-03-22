@@ -13,10 +13,18 @@ class message extends Model
 
     protected static function boot()
     {
-        return parent::boot();
+        parent::boot();
         static::creating(function($model){
-            if(!$model->user_id){
-                $model->user_id=(string)Str::uuid();
+            if(!$model->message_id){
+                $model->message_id=(string)Str::uuid();
+            }
+        });
+        static::deleting(function($model){
+            $mediaItems = \App\Models\media::where('message_id', $model->message_id)->get();
+            foreach($mediaItems as $media) {
+                if($media->url){
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($media->url);
+                }
             }
         });
     }

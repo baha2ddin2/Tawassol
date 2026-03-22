@@ -13,10 +13,16 @@ class Group extends Model
 
     protected static function boot()
     {
-        return parent::boot();
+        parent::boot();
         static::creating(function($model){
-            if(!$model->user_id){
-                $model->user_id=(string)Str::uuid();
+            if(!$model->group_id){
+                $model->group_id=(string)Str::uuid();
+            }
+        });
+
+        static::deleting(function($model){
+            if($model->photo_url){
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($model->photo_url);
             }
         });
     }
@@ -26,4 +32,9 @@ class Group extends Model
         'photo_url',
         'description',
     ];
+
+    public function latestMessage()
+    {
+        return $this->hasOne(message::class, 'group_id', 'group_id')->latestOfMany();
+    }
 }

@@ -8,9 +8,11 @@ import { useRouter } from "next/navigation";
 import { changeEmail } from "@/redux/Slices/AuthSlice";
 import { validateEmail } from "@/lib/validation";
 import VerifiedIcon from "@mui/icons-material/Verified";
+import { useTranslation } from "react-i18next";
 
 export default function EmailTab() {
   const { userInfo } = useSelector((state) => state.auth);
+  const { t } = useTranslation();
   const user = userInfo?.user;
   const [email, setEmail] = useState("");
   const [errorObj, setErrorObj] = useState(null);
@@ -44,12 +46,12 @@ export default function EmailTab() {
       >
         <div className="bg-[var(--nav-pill-bg)] px-6 py-4 border-b border-[var(--card-border)] flex justify-between items-center">
           <Typography className="font-extrabold text-lg text-[var(--text-primary)]">
-            Change Email Address
+            {t("settings.changeEmailTitle", "Change Email Address")}
           </Typography>
           {user?.email_verified_at ? (
             <Chip
               icon={<VerifiedIcon />}
-              label="Verified"
+              label={t("settings.verified", "Verified")}
               color="primary"
               size="small"
               className="bg-blue-100 text-blue-700 font-bold"
@@ -57,7 +59,7 @@ export default function EmailTab() {
           ) : (
             <Chip
               icon={<ErrorOutlineIcon style={{ color: "#c2410c" }} />}
-              label="Unverified"
+              label={t("settings.unverified", "Unverified")}
               size="small"
               className="bg-orange-100 text-orange-700 font-bold"
             />
@@ -66,7 +68,7 @@ export default function EmailTab() {
         <div className="p-6 space-y-5">
           <TextField
             fullWidth
-            label="New Email Address"
+            label={t("settings.newEmail", "New Email Address")}
             onChange={(e) => setEmail(e.target.value)}
             value={email}
             variant="outlined"
@@ -82,7 +84,7 @@ export default function EmailTab() {
               className="text-orange-600 font-bold lowercase"
               onClick={() => router.push("/verify-email")}
             >
-              Verify your email now
+              {t("settings.verifyEmailNow", "Verify your email now")}
             </Button>
           )}
           <Button
@@ -91,7 +93,7 @@ export default function EmailTab() {
             className="font-bold normal-case rounded-xl py-2.5 px-6 block"
             sx={{ bgcolor: "var(--color-primary)", "&:hover": { bgcolor: "var(--color-primary-dark)" } }}
           >
-            Update Email
+            {t("settings.updateEmail", "Update Email")}
           </Button>
         </div>
       </Paper>

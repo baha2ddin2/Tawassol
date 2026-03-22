@@ -42,7 +42,7 @@ export default function FollowersPage() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <Link href={"/profile"}>
-              <IconButton className="bg-white dark:bg-[#334EAC] border border-[#e7edf7] dark:border-[#334EAC] shadow-sm text-slate-800 dark:text-[#F9FCFF] transition-colors">
+              <IconButton className="bg-white dark:bg-[#334EAC] border border-[#e7edf7] dark:border-[#334EAC] shadow-sm text-slate-800 dark:text-[#F9FCFF] hover:bg-[#E7F1FF] dark:hover:bg-[#081F5C] transition-colors">
                 <ArrowBackIcon />
               </IconButton>
             </Link>
@@ -60,7 +60,7 @@ export default function FollowersPage() {
           className="border border-[#e7edf7] dark:border-[#334EAC] rounded-[24px] overflow-hidden bg-white dark:bg-[#081F5C] shadow-sm transition-colors"
         >
           <div className="p-4 border-b border-[#f1f5f9] dark:border-[#334EAC]">
-            <div className="flex items-center gap-2 bg-[#f1f5f9] dark:bg-[#334EAC] px-4 py-2 rounded-xl transition-colors">
+            <div className="flex items-center gap-2 bg-[#f1f5f9] dark:bg-[#334EAC] px-4 py-2 rounded-xl border border-transparent dark:border-[#334EAC] transition-colors">
               <SearchIcon className="text-[#94a3b8] dark:text-[#D0E3FF]" />
               <InputBase
                 placeholder={t("profile.searchFollowers", "Search followers...")}
@@ -74,12 +74,12 @@ export default function FollowersPage() {
               followersData?.map((user) => (
                 <div
                   key={user.user_id}
-                  className="flex items-center justify-between p-4 hover:bg-[#fcfdfe] dark:hover:bg-[#334EAC] transition-colors"
+                  className="flex items-center justify-between p-4 bg-white dark:bg-[#081F5C] hover:bg-[#E7F1FF] dark:hover:bg-[#334EAC] transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <Avatar
                       src={`http://127.0.0.1:8000/storage/${user.avatar_url}`}
-                      className="w-12 h-12 border-2 border-white dark:border-[#081F5C] shadow-sm bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-bold transition-colors"
+                      className="w-12 h-12 border-2 border-white dark:border-[#334EAC] shadow-sm bg-[#E7F1FF] dark:bg-[#334EAC] text-blue-600 dark:text-[#F9FCFF] font-bold transition-colors"
                     >
                       {user.display_name[0]}
                     </Avatar>
@@ -105,7 +105,7 @@ export default function FollowersPage() {
                         onClick={()=>handelunfollow(user.user_id)}
                         variant="outlined"
                         size="small"
-                        className="border-[#e2e8f0] dark:border-[#334EAC] text-[#64748b] dark:text-[#D0E3FF] rounded-full normal-case font-bold px-4 transition-colors"
+                        className="border-[#e2e8f0] dark:border-[#334EAC] text-[#64748b] dark:text-[#D0E3FF] hover:bg-[#E7F1FF] dark:hover:bg-[#334EAC] rounded-full normal-case font-bold px-4 transition-colors"
                       >
                         {t("profile.followingButton", "Following")}
                       </Button>

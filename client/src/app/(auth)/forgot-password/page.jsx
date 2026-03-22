@@ -27,11 +27,11 @@ const ForgotPassword = () => {
         setError('')
         router.push("/email-success")
       })
-      .catch((err)=>setError(err.data.message));
+      .catch((err) => setError(err.response?.data?.message || err.message || "An error occurred"));
   };
 
   return (
-    <div className="wrap">
+    <div className="min-h-screen bg-[var(--background)] flex items-center justify-center p-4">
       <Card
         className="w-full max-w-[420px] p-10 rounded-[20px] border border-[var(--card-border)] bg-[var(--card-bg)] shadow-md border-t-[5px] border-t-[var(--color-primary)] text-center"
         elevation={0}

@@ -49,8 +49,18 @@ export default function Layout({ children }) {
 
         {/* CONTACT LIST */}
         <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-          {!contacts || contacts.length === 0 ? (
+          {loading ? (
             [...Array(6)].map((_, i) => <ContactSkeleton key={i} />)
+          ) : !contacts || contacts.length === 0 ? (
+            <div className="flex flex-col items-center justify-center p-8 text-center text-[var(--text-muted)] h-full">
+              <GroupAdd sx={{ fontSize: 48, mb: 2, opacity: 0.5 }} />
+              <Typography className="font-medium text-[var(--text-primary)]">
+                {t("messages.noContactsFound", "No contacts yet")}
+              </Typography>
+              <Typography className="text-sm mt-1">
+                {t("messages.startTheConversation", "Start connecting to see your conversations here.")}
+              </Typography>
+            </div>
           ) : (
             [...contacts]
               .sort((a, b) => {
@@ -78,9 +88,16 @@ export default function Layout({ children }) {
                       <p className="font-semibold text-[var(--text-primary)] truncate">
                         {c.type === "private" ? c.display_name : c.name}
                       </p>
-                      <p className="text-sm text-[var(--text-muted)] truncate">
-                        {c.last_message || t("messages.startConversation")}
-                      </p>
+                      <div className="flex justify-between items-center text-[var(--text-muted)]">
+                        <p className="text-sm truncate w-[140px] md:w-[100px] lg:w-[140px] mr-2">
+                          {c.last_message || t("messages.startConversation")}
+                        </p>
+                        {c.last_message_time && (
+                          <span className="text-xs whitespace-nowrap">
+                            {new Date(c.last_message_time).toLocaleDateString()}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </Link>

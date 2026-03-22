@@ -8,9 +8,11 @@ import Link from "next/link";
 import { deslikeFeedPost, likeFeedPost } from "@/redux/Slices/postSlice";
 import PostCard from "@/components/Post";
 import { useSearchParams } from "next/navigation";
+import { useTranslation } from "react-i18next";
 
 export default function SearchPage() {
   const seachParams = useSearchParams();
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const dispatch = useDispatch();
   const { searchResults } = useSelector((state) => state.search);
@@ -47,7 +49,7 @@ export default function SearchPage() {
       <div>
         <input
           type="text"
-          placeholder="Search hashtags, posts, or users..."
+          placeholder={t("common.searchPlaceholder", "Search hashtags, posts, or users...")}
           className="w-full border rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -59,7 +61,7 @@ export default function SearchPage() {
           {/* Hashtags */}
           {searchResults?.hashtags?.length > 0 && (
             <div>
-              <h2 className="font-semibold text-lg mb-2">Hashtags</h2>
+              <h2 className="font-semibold text-lg mb-2">{t("common.hashtags", "Hashtags")}</h2>
               <div className="flex gap-2 flex-wrap">
                 {searchResults.hashtags.map((h) => (
                   <Link
@@ -78,12 +80,12 @@ export default function SearchPage() {
           {searchResults?.profiles?.length > 0 && (
             <div>
               <div className="flex items-center justify-between mb-2">
-                <h2 className="font-semibold text-lg">Users</h2>
+                <h2 className="font-semibold text-lg">{t("common.users", "Users")}</h2>
                 <Link
                   href={`/search-result/profiles?q=${encodeURIComponent(query)}`}
                   className="text-sm font-medium text-blue-600 hover:underline"
                 >
-                  See more
+                  {t("common.seeMore", "See more")}
                 </Link>
               </div>
 
@@ -98,7 +100,7 @@ export default function SearchPage() {
                         <p className="font-medium">{p.display_name}</p>
                         {p?.user_id !== userId
                           ? p.has_followed && (
-                              <p className="text-xs text-gray-500">Following</p>
+                              <p className="text-xs text-gray-500">{t("common.following", "Following")}</p>
                             )
                           : null}
                       </div>
@@ -113,12 +115,12 @@ export default function SearchPage() {
           {searchResults?.posts?.length > 0 && (
             <div>
               <div className="flex items-center justify-between mb-2">
-                <h2 className="font-semibold text-lg">Posts</h2>
+                <h2 className="font-semibold text-lg">{t("common.posts", "Posts")}</h2>
                 <Link
                   href={`/search-result/posts?q=${encodeURIComponent(query)}`}
                   className="text-sm font-medium text-blue-600 hover:underline"
                 >
-                  See more
+                  {t("common.seeMore", "See more")}
                 </Link>
               </div>
 
@@ -138,7 +140,7 @@ export default function SearchPage() {
             searchResults?.profiles?.length === 0 &&
             searchResults?.posts?.length === 0 && (
               <p className="text-gray-500 text-center py-10">
-                No results found
+                {t("common.noResults", "No results found")}
               </p>
             )}
         </div>

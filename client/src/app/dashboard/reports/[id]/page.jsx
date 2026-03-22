@@ -137,11 +137,11 @@ export default function HandleReportPage() {
       : "warning";
 
   return (
-    <div className="min-h-screen bg-[#f1f5f9] p-4 md:p-8 font-sans">
+    <div className="min-h-screen bg-[#F9FCFF] dark:bg-[#081F5C] p-4 md:p-8 font-sans transition-colors duration-300">
       <div className="max-w-[900px] mx-auto">
-        <div className="flex items-center gap-2 text-[#64748b] mb-6">
+        <div className="flex items-center gap-2 text-[#64748b] dark:text-[#D0E3FF] mb-6">
           <HistoryIcon fontSize="small" />
-          <span className="text-sm font-bold hover:underline cursor-pointer">
+          <span className="text-sm font-bold hover:underline cursor-pointer transition-colors duration-300">
             Moderation Queue
           </span>
           <span className="text-xs">/</span>
@@ -152,16 +152,16 @@ export default function HandleReportPage() {
 
         <Paper
           elevation={0}
-          className="rounded-[24px] border border-[#e2e8f0] overflow-hidden shadow-sm"
+          className="rounded-[24px] border border-[#e2e8f0] dark:border-[#334EAC] overflow-hidden shadow-sm bg-transparent transition-colors duration-300"
         >
-          <div className="bg-white p-6 border-b border-[#f1f5f9] flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="bg-white dark:bg-[#081F5C] p-6 border-b border-[#f1f5f9] dark:border-[#334EAC] flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors duration-300">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-orange-100 flex items-center justify-center text-orange-600">
+              <div className="w-12 h-12 rounded-2xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-400">
                 <GavelIcon />
               </div>
 
               <div>
-                <Typography className="font-black text-xl text-[#0f172a]">
+                <Typography className="font-black text-xl text-[#0f172a] dark:text-[#F9FCFF] transition-colors duration-300">
                   Handle Report
                 </Typography>
 
@@ -169,7 +169,7 @@ export default function HandleReportPage() {
                   <Chip
                     label={safeLabel(report.report_type).toUpperCase()}
                     size="small"
-                    className="bg-slate-100 text-slate-600 font-black text-[10px]"
+                    className="bg-[#E7F1FF] dark:bg-[#334EAC] text-[#0f172a] dark:text-[#D0E3FF] font-black text-[10px] transition-colors duration-300"
                   />
                   <Chip
                     label={report?.status?.toUpperCase()}
@@ -178,7 +178,7 @@ export default function HandleReportPage() {
                     variant="outlined"
                     className="font-black text-[10px]"
                   />
-                  <Typography className="text-[#64748b] text-xs font-bold uppercase tracking-widest">
+                  <Typography className="text-[#64748b] dark:text-[#D0E3FF] text-xs font-bold uppercase tracking-widest transition-colors duration-300">
                     ID: {report.report_id}
                   </Typography>
                 </div>
@@ -196,24 +196,24 @@ export default function HandleReportPage() {
             )}
           </div>
 
-          <div className="p-6 md:p-8 bg-white space-y-8">
+          <div className="p-6 md:p-8 bg-[#F9FCFF] dark:bg-[#081F5C] space-y-8 transition-colors duration-300">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Box className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                <Typography className="text-[11px] font-black text-slate-400 uppercase">
+              <Box className="p-4 rounded-2xl bg-white dark:bg-[#334EAC] border border-[#e2e8f0] dark:border-[#334EAC] transition-colors duration-300">
+                <Typography className="text-[11px] font-black text-[#64748b] dark:text-[#D0E3FF] uppercase transition-colors duration-300">
                   Reporter
                 </Typography>
                 <Stack direction="row" spacing={1.5} alignItems="center" mt={1}>
                   <Avatar src={`http://127.0.0.1:8000/storage/${report.reporter_avatar}` || undefined}>
                     {report.reporter_name?.[0]?.toUpperCase() || "U"}
                   </Avatar>
-                  <Typography className="font-bold text-slate-900">
+                  <Typography className="font-bold text-[#0f172a] dark:text-[#F9FCFF] transition-colors duration-300">
                     {report.reporter_name || "-"}
                   </Typography>
                 </Stack>
               </Box>
 
-              <Box className="p-4 rounded-2xl bg-red-50 border border-red-100">
-                <Typography className="text-[11px] font-black text-red-400 uppercase">
+              <Box className="p-4 rounded-2xl bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-500/30 transition-colors duration-300">
+                <Typography className="text-[11px] font-black text-red-500 dark:text-red-400 uppercase transition-colors duration-300">
                   Target
                 </Typography>
                 <Stack direction="row" spacing={1.5} alignItems="center" mt={1}>
@@ -221,68 +221,68 @@ export default function HandleReportPage() {
                     {targetInfo?.name?.[0]?.toUpperCase() || "?"}
                   </Avatar>
                   <Box>
-                    <Typography className="font-bold text-red-700">
+                    <Typography className="font-bold text-red-600 dark:text-red-300 transition-colors duration-300">
                       {targetInfo?.name || "-"}
                     </Typography>
-                    <Typography className="text-xs text-red-500 font-medium">
+                    <Typography className="text-xs text-red-500 font-medium opacity-90">
                       {targetInfo?.typeLabel} ID: {targetInfo?.id}
                     </Typography>
                   </Box>
                 </Stack>
               </Box>
 
-              <Box className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                <Typography className="text-[11px] font-black text-slate-400 uppercase">
+              <Box className="p-4 rounded-2xl bg-white dark:bg-[#334EAC] border border-[#e2e8f0] dark:border-[#334EAC] transition-colors duration-300">
+                <Typography className="text-[11px] font-black text-[#64748b] dark:text-[#D0E3FF] uppercase transition-colors duration-300">
                   Created At
                 </Typography>
-                <Typography className="font-bold text-slate-900 mt-1">
+                <Typography className="font-bold text-[#0f172a] dark:text-[#F9FCFF] mt-1 transition-colors duration-300">
                   {formatDate(report.created_at)}
                 </Typography>
               </Box>
             </div>
 
-            <Divider />
+            <Divider className="dark:border-[#334EAC] transition-colors duration-300" />
 
             <div>
-              <Typography className="text-xs font-black text-[#94a3b8] uppercase mb-2">
+              <Typography className="text-xs font-black text-[#94a3b8] dark:text-[#D0E3FF] uppercase mb-2 transition-colors duration-300">
                 Report Reason
               </Typography>
               <Paper
                 variant="outlined"
-                className="p-4 bg-slate-50 border-slate-200 rounded-2xl"
+                className="p-4 bg-white dark:bg-[#334EAC] border-[#e2e8f0] dark:border-[#334EAC] rounded-2xl transition-colors duration-300"
               >
-                <Typography className="text-[#334155] leading-relaxed italic">
+                <Typography className="text-[#334155] dark:text-[#F9FCFF] leading-relaxed italic transition-colors duration-300">
                   “{report.reason || "-"}”
                 </Typography>
               </Paper>
             </div>
 
             <div>
-              <Typography className="text-xs font-black text-[#94a3b8] uppercase mb-3">
+              <Typography className="text-xs font-black text-[#94a3b8] dark:text-[#D0E3FF] uppercase mb-3 transition-colors duration-300">
                 Evidence Preview
               </Typography>
 
               <Paper
                 variant="outlined"
-                className="p-4 md:p-5 rounded-2xl border-slate-200 bg-white"
+                className="p-4 md:p-5 rounded-2xl border-[#e2e8f0] dark:border-[#334EAC] bg-white dark:bg-[#081F5C] transition-colors duration-300"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-start gap-3">
-                    <div className="p-2 bg-blue-50 text-blue-600 rounded-xl mt-0.5">
+                    <div className="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl mt-0.5 transition-colors duration-300">
                       <VisibilityOutlinedIcon />
                     </div>
 
                     <div>
-                      <Typography className="font-bold text-sm text-[#0f172a]">
+                      <Typography className="font-bold text-sm text-[#0f172a] dark:text-[#F9FCFF] transition-colors duration-300">
                         {targetInfo?.title || "Evidence"}
                       </Typography>
 
-                      <Typography className="text-sm text-slate-600 mt-1">
+                      <Typography className="text-sm text-[#64748b] dark:text-[#D0E3FF] mt-1 transition-colors duration-300">
                         {targetInfo?.content || "No content available."}
                       </Typography>
 
                       {evidenceMedia.length > 0 && (
-                        <Typography className="text-xs text-slate-400 mt-2">
+                        <Typography className="text-xs text-[#94a3b8] dark:text-[#D0E3FF] opacity-80 mt-2 transition-colors duration-300">
                           {evidenceMedia.length} media file
                           {evidenceMedia.length > 1 ? "s" : ""} attached
                         </Typography>
@@ -293,13 +293,13 @@ export default function HandleReportPage() {
                   <Chip
                     label={safeLabel(report.report_type)}
                     size="small"
-                    className="bg-slate-100 text-slate-600 font-bold"
+                    className="bg-[#E7F1FF] dark:bg-[#334EAC] text-[#64748b] dark:text-[#D0E3FF] font-bold transition-colors duration-300"
                   />
                 </div>
               </Paper>
             </div>
 
-            <Divider />
+            <Divider className="dark:border-[#334EAC] transition-colors duration-300" />
 
             {isOpen ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -351,8 +351,8 @@ export default function HandleReportPage() {
             )}
           </div>
 
-          <div className="bg-[#f8fafd] p-4 text-center">
-            <Typography className="text-[11px] font-bold text-[#94a3b8] uppercase tracking-tighter">
+          <div className="bg-[#E7F1FF] dark:bg-[#334EAC] p-4 text-center transition-colors duration-300">
+            <Typography className="text-[11px] font-bold text-[#64748b] dark:text-[#F9FCFF] uppercase tracking-tighter transition-colors duration-300">
               All moderation actions are logged for auditing purposes.
             </Typography>
           </div>

@@ -18,57 +18,44 @@ export default function Comment({ comment }) {
   const dispatch=useDispatch()
   
   return (
-    <div className="bg-white p-4 rounded-2xl border border-[#eef2f6] shadow-sm transition-all hover:border-blue-100">
+    <div className="bg-[var(--card-bg)] p-4 rounded-2xl shadow-none text-[var(--text-primary)] transition-colors duration-300">
       <div className="flex gap-3">
         <Avatar
           src={`http://127.0.0.1:8000/storage/${comment.avatar_url}`}
-          className="w-10 h-10 border border-slate-100 shadow-sm"
+          className="w-10 h-10 border border-[var(--card-border)] shadow-sm"
         />
 
-        <div className="flex-grow">
-          <div className="flex justify-between items-start">
-            <div className="flex flex-col">
-              <Typography className="font-black text-[14px] text-[#0f172a] hover:text-blue-600 cursor-pointer">
+        <div className="flex-grow flex flex-col">
+          <div className="flex justify-between items-start bg-[var(--hover-overlay)] p-3 rounded-2xl rounded-tl-none relative border border-transparent dark:border-[var(--card-border)]">
+            <div>
+              <Typography className="font-bold text-[14px] hover:text-[var(--color-primary)] cursor-pointer text-[var(--text-primary)]">
                 {comment.display_name}
               </Typography>
-              <p
-                className="text-[#94a3b8] text-[10px] uppercase font-bold  tracking-tight"
-              >
-                {time}
-              </p>
+              <Typography className="text-[13px] leading-relaxed mt-1 mb-1 whitespace-pre-wrap text-[var(--text-primary)]">
+                {comment.content}
+              </Typography>
             </div>
-            <IconButton size="small" className="text-slate-400">
-              <Dropdown isAuthor={comment.author_id ===user?.user_id} commentId={comment.comment_id} >
-                {" "}
-                <MoreHoriz fontSize="small" />
-              </Dropdown>
-            </IconButton>
+            
+            <div className="self-start flex items-center -mt-1 -mr-1">
+              <IconButton size="small" className="text-[var(--text-muted)]">
+                <Dropdown isAuthor={comment.author_id === user?.user_id} commentId={comment.comment_id}>
+                  <MoreHoriz fontSize="small" />
+                </Dropdown>
+              </IconButton>
+            </div>
           </div>
 
-          <div className="mt-2 pr-2">
-            <Typography className="text-[#334155] text-[15px] leading-relaxed">
-              {comment.content}
-            </Typography>
-          </div>
-
-          <div className="mt-3 flex items-center justify-end ">
-            <button className="flex items-center gap-1.5 group">
-              <div
-                className={`p-1.5 rounded-full transition-colors ${isLiked ? "bg-red-50" : "group-hover:bg-red-50"}`}
-              >
-                {isLiked ? (
-                  <Favorite onClick={()=>dispatch(deslikeComment(comment.comment_id))}  className="text-red-500" sx={{ fontSize: 18 }} />
-                ) : (
-                  <FavoriteBorder
-                    onClick={()=>dispatch(likeComment(comment.comment_id))}
-                    className="text-slate-400 group-hover:text-red-500"
-                    sx={{ fontSize: 18 }}
-                  />
-                )}
-              </div>
-              <span
-                className={`text-xs font-bold ${isLiked ? "text-red-500" : "text-slate-500 group-hover:text-red-500"}`}
-              ></span>
+          {/* Action Row Bottom */}
+          <div className="flex items-center gap-4 mt-2 px-2">
+            <span className="text-[var(--text-muted)] text-[12px] font-medium tracking-tight uppercase">
+              {time}
+            </span>
+            <button className="flex items-center gap-1.5 p-1 -ml-1 rounded-full transition-colors hover:bg-red-50 dark:hover:bg-red-900/30 group cursor-pointer" onClick={() => isLiked ? dispatch(deslikeComment(comment.comment_id)) : dispatch(likeComment(comment.comment_id))}>
+              {isLiked ? (
+                <Favorite className="text-red-500" sx={{ fontSize: 16 }} />
+              ) : (
+                <FavoriteBorder className="text-[var(--text-muted)] group-hover:text-red-500 transition-colors" sx={{ fontSize: 16 }} />
+              )}
             </button>
           </div>
         </div>

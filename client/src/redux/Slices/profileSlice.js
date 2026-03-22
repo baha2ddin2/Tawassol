@@ -305,6 +305,9 @@ const ProfileReducer = createSlice({
       .addCase(updateAvatar.fulfilled, (state, action) => {
         gooeyToast.success("your profile is updated");
       })
+      .addCase(updateProfile.fulfilled,(state,action)=>{
+        gooeyToast.success("your profile is updated");
+      })
       .addCase(following.fulfilled, (state, action) => {
         state.following = action.payload;
       })

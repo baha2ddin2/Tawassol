@@ -88,7 +88,7 @@ export default function Message({
       onClick={handleClickOutside}
     >
       <div
-        className={`${isEditing ? "bg-[#e2e8f0] dark:bg-[#081F5C] text-black dark:text-[#F9FCFF] border border-transparent dark:border-[#334EAC]" : isMe ? "bg-blue-500 text-white" : "bg-[var(--card-bg)] text-[var(--text-primary)] border border-[var(--card-border)] shadow-sm"} px-3 py-2 rounded-xl max-w-[85%] transition-colors duration-300`}
+        className={`${isEditing ? "bg-[#e2e8f0] dark:bg-[#334EAC] text-black dark:text-[#F9FCFF] border border-transparent dark:border-[#334EAC]" : isMe ? "bg-blue-500 text-white" : "bg-[var(--card-bg)] text-[var(--text-primary)] border border-[var(--card-border)] shadow-sm"} px-3 py-2 rounded-xl max-w-[85%] transition-colors duration-300`}
         onContextMenu={handleContextMenu}
         onTouchStart={(e) =>
           e.touches.length === 1 && setTimeout(() => handleContextMenu(e), 600)
@@ -108,14 +108,14 @@ export default function Message({
                 input: { color: "inherit" },
                 "& .MuiInputBase-root": { color: "inherit" },
                 "& .MuiInput-underline:before": { borderBottomColor: "currentColor" },
-                "& .MuiInput-underline:after": { borderBottomColor: "var(--color-primary)" },
+                "& .MuiInput-underline:after": { borderBottomColor: "#709601" },
               }}
             />
             <div className="flex justify-end gap-1">
-              <IconButton size="small" onClick={handleCancel} sx={{ color: "var(--danger)" }}>
+              <IconButton size="small" onClick={handleCancel} className="text-gray-500 dark:text-[#D0E3FF] transition-colors">
                 <Close fontSize="small" />
               </IconButton>
-              <IconButton size="small" onClick={onSave} sx={{ color: "#709601" }}>
+              <IconButton size="small" onClick={onSave} className="text-[#709601] transition-colors">
                 <Check fontSize="small" />
               </IconButton>
             </div>
@@ -154,15 +154,15 @@ export default function Message({
         </div>
 
         {showMenu && (
-          <div className="absolute top-0 right-0 mt-8 w-40 bg-white dark:bg-[#081F5C] text-blue-950 dark:text-[#F9FCFF] border border-transparent dark:border-[#334EAC] shadow-lg rounded-md z-50 overflow-hidden transition-colors duration-300">
+          <div className="absolute top-0 right-0 mt-8 w-40 bg-white dark:bg-[#334EAC] text-blue-950 dark:text-[#F9FCFF] border border-gray-100 dark:border-transparent shadow-lg rounded-md z-50 overflow-hidden transition-colors duration-300">
             <button
-              className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#334EAC] transition-colors"
+              className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#081F5C] transition-colors"
               onClick={handleUpdateClick}
             >
               {t("messages.edit", "Edit")}
             </button>
             <button
-              className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#334EAC] text-red-500 transition-colors"
+              className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#081F5C] text-red-500 dark:text-red-400 transition-colors"
               onClick={() => handelDelete(message.message_id)}
             >
               {t("messages.delete", "Delete")}

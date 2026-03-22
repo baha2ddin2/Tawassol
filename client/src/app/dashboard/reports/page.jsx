@@ -77,34 +77,34 @@ export default function AllReportsPage() {
 
           {/* Data Table */}
           <Table>
-            <TableHead className="bg-[#f8fafc] dark:bg-[#334EAC] transition-colors duration-300">
+            <TableHead className="bg-[var(--nav-pill-bg)] transition-colors duration-300">
               <TableRow>
-                <TableCell className="font-bold text-[#64748b] dark:text-[#F9FCFF] uppercase text-[11px] tracking-wider border-b-[#e2e8f0] dark:border-[#081F5C]">{t("dashboard.reportedTarget", "Reported Target")}</TableCell>
-                <TableCell className="font-bold text-[#64748b] dark:text-[#F9FCFF] uppercase text-[11px] tracking-wider border-b-[#e2e8f0] dark:border-[#081F5C]">{t("dashboard.reporter", "Reporter")}</TableCell>
-                <TableCell className="font-bold text-[#64748b] dark:text-[#F9FCFF] uppercase text-[11px] tracking-wider text-center border-b-[#e2e8f0] dark:border-[#081F5C]">{t("dashboard.type", "Type")}</TableCell>
-                <TableCell className="font-bold text-[#64748b] dark:text-[#F9FCFF] uppercase text-[11px] tracking-wider text-center border-b-[#e2e8f0] dark:border-[#081F5C]">{t("dashboard.status", "Status")}</TableCell>
-                <TableCell className="font-bold text-[#64748b] dark:text-[#F9FCFF] uppercase text-[11px] tracking-wider border-b-[#e2e8f0] dark:border-[#081F5C]">{t("dashboard.date", "Date")}</TableCell>
-                <TableCell align="right" className="border-b-[#e2e8f0] dark:border-[#081F5C]"></TableCell>
+                <TableCell className="font-bold text-[var(--text-muted)] uppercase text-[11px] tracking-wider border-b border-[var(--card-border)]">{t("dashboard.reportedTarget", "Reported Target")}</TableCell>
+                <TableCell className="font-bold text-[var(--text-muted)] uppercase text-[11px] tracking-wider border-b border-[var(--card-border)]">{t("dashboard.reporter", "Reporter")}</TableCell>
+                <TableCell className="font-bold text-[var(--text-muted)] uppercase text-[11px] tracking-wider text-center border-b border-[var(--card-border)]">{t("dashboard.type", "Type")}</TableCell>
+                <TableCell className="font-bold text-[var(--text-muted)] uppercase text-[11px] tracking-wider text-center border-b border-[var(--card-border)]">{t("dashboard.status", "Status")}</TableCell>
+                <TableCell className="font-bold text-[var(--text-muted)] uppercase text-[11px] tracking-wider border-b border-[var(--card-border)]">{t("dashboard.date", "Date")}</TableCell>
+                <TableCell align="right" className="border-b border-[var(--card-border)]"></TableCell>
               </TableRow>
             </TableHead>
-            <TableBody className="bg-white dark:bg-[#081F5C] transition-colors duration-300">
+            <TableBody className="bg-[var(--card-bg)] transition-colors duration-300">
               {loading ? (
-                <TableRow><TableCell colSpan={6} align="center" className="py-10 text-slate-500 dark:text-[#D0E3FF] border-b-[#e2e8f0] dark:border-[#334EAC]">{t("dashboard.loading", "Loading reports...")}</TableCell></TableRow>
+                <TableRow><TableCell colSpan={6} align="center" className="py-10 text-[var(--text-muted)] border-b border-[var(--card-border)]">{t("dashboard.loading", "Loading reports...")}</TableCell></TableRow>
               ) : reports?.data?.length > 0 ? (
                 reports.data.map((item) => (
                   <ReportRow key={item.report_id} item={item} />
                 ))
               ) : (
-                <TableRow><TableCell colSpan={6} align="center" className="py-10 text-slate-500 dark:text-[#D0E3FF] border-b-[#e2e8f0] dark:border-[#334EAC]">{t("dashboard.noReports", "No reports found.")}</TableCell></TableRow>
+                <TableRow><TableCell colSpan={6} align="center" className="py-10 text-[var(--text-muted)] border-b border-[var(--card-border)]">{t("dashboard.noReports", "No reports found.")}</TableCell></TableRow>
               )}
             </TableBody>
           </Table>
 
           {/* Pagination Footer */}
           {reports?.total > 0 && (
-            <Box className="px-6 py-4 bg-white dark:bg-[#081F5C] border-t border-[#e2e8f0] dark:border-[#334EAC] flex flex-col md:flex-row items-center justify-between transition-colors duration-300 gap-4">
-              <Typography className="text-xs text-[#64748b] dark:text-[#D0E3FF] font-medium">
-                {t("dashboard.showing", "Showing")} <span className="font-bold text-slate-800 dark:text-[#F9FCFF]">{reports.from || 0}</span> {t("dashboard.to", "to")} <span className="font-bold text-slate-800 dark:text-[#F9FCFF]">{reports.to || 0}</span> {t("dashboard.of", "of")} <span className="font-bold text-slate-800 dark:text-[#F9FCFF]">{reports.total || 0}</span> {t("dashboard.results", "results")}
+            <Box className="px-6 py-4 bg-[var(--card-bg)] border-t border-[var(--card-border)] flex flex-col md:flex-row items-center justify-between transition-colors duration-300 gap-4">
+              <Typography className="text-xs text-[var(--text-muted)] font-medium">
+                {t("dashboard.showing", "Showing")} <span className="font-bold text-[var(--text-primary)]">{reports.from || 0}</span> {t("dashboard.to", "to")} <span className="font-bold text-[var(--text-primary)]">{reports.to || 0}</span> {t("dashboard.of", "of")} <span className="font-bold text-[var(--text-primary)]">{reports.total || 0}</span> {t("dashboard.results", "results")}
               </Typography>
               
               <Pagination 

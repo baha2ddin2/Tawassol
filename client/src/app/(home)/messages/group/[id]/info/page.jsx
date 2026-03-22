@@ -62,10 +62,11 @@ export default function GroupDetailsPage() {
 
   const handleCloseMenu = () => {
     setMenuAnchorEl(null);
-    setSelectedMember(null);
+    // setSelectedMember(null);
   };
 
   const handleOpenConfirm = (type) => {
+    setMenuAnchorEl(null);
     if (type === "remove") {
       setConfirmDialog({ 
         open: true, type: "remove", 

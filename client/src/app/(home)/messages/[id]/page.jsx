@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Avatar, TextField, IconButton } from "@mui/material";
+import { Avatar, TextField, IconButton,Typography } from "@mui/material";
 import {
   Send,
   PhotoCamera,
@@ -36,7 +36,7 @@ export default function ChatPage() {
   const { id } = useParams();
   const router = useRouter();
   const messagesData = useSelector((state) => state.message.messages) || [];
-  const { contact } = useSelector((state) => state.message);
+  const { contact, loading } = useSelector((state) => state.message);
   const { userInfo } = useSelector((state) => state.auth);
   const userId = userInfo?.user?.user_id;
 
@@ -277,7 +277,7 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="h-[calc(100dvh-90px)] md:h-[calc(100vh-90px)] flex flex-col overflow-hidden bg-[var(--card-bg)] shadow-sm md:rounded-md border border-[var(--card-border)]">
+    <div className="h-[calc(100dvh-90px)] md:h-[calc(100vh-80px)] max-sm:h-[calc(100vh-138px)] max-sm:fixed max-sm:w-[100vw]   flex flex-col justify-center overflow-hidden bg-[var(--card-bg)] shadow-sm md:rounded-md border border-[var(--card-border)]">
       {/* Header */}
       <div className="flex items-center gap-3 p-3 border-b border-[var(--card-border)]">
         <IconButton
@@ -306,10 +306,16 @@ export default function ChatPage() {
       </div>
       <div
         ref={containerRef}
-        className="flex-1 overflow-y-auto p-4 space-y-3 bg-[var(--background)]"
+        className="flex-1 overflow-y-auto p-4 space-y-3  bg-[var(--background)]"
       >
-        {messagesData?.length === 0 ? (
+        {loading ? (
           <PrivateMessageSkeleton />
+        ) : messagesData?.length === 0 ? (
+          <div className="flex flex-col items-center justify-center p-8 text-center text-[var(--text-muted)] h-full">
+            <Typography className="font-medium text-[var(--text-primary)]">
+              {t("messages.noMessages", "No messages yet. Start the conversation!")}
+            </Typography>
+          </div>
         ) : (
           messagesData.map((m) => (
             <Message

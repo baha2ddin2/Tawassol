@@ -18,10 +18,12 @@ import {
   deslikePost,
   addComment
 } from "@/redux/Slices/postSlice";
+import { useTranslation } from "react-i18next";
 
 export default function Page() {
   const { id } = useParams();
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const [commentText, setCommentText] = useState("");
   const observerTarget = useRef(null);
@@ -92,11 +94,11 @@ export default function Page() {
         {/* Discussion Header */}
         <div className="mt-8 mb-4 flex items-center gap-4 px-2">
           <Typography className="font-black text-lg text-[var(--text-primary)]">
-            Discussion
+            {t("posts.discussion", "Discussion")}
           </Typography>
           <div className="h-[1px] flex-grow bg-[var(--card-border)]" />
           <Typography className="text-sm font-bold text-[var(--text-muted)]">
-            {total || commentsData?.length || 0} Comments
+            {total || commentsData?.length || 0} {t("posts.commentsCount", "Comments")}
           </Typography>
         </div>
 
@@ -116,7 +118,7 @@ export default function Page() {
                 )}
                 {current_page >= last_page && commentsData.length > 5 && (
                   <Typography className="text-sm text-[var(--text-muted)]">
-                    No more comments.
+                    {t("posts.noMoreComments", "No more comments.")}
                   </Typography>
                 )}
               </div>
@@ -124,17 +126,17 @@ export default function Page() {
           ) : (
             <div className="text-center py-10 bg-[var(--card-bg)] rounded-2xl border border-dashed border-[var(--card-border)]">
               <Typography className="text-[var(--text-muted)] font-medium">
-                No comments yet. Be the first to share your thoughts!
+                {t("posts.noCommentsYet", "No comments yet. Be the first to share your thoughts!")}
               </Typography>
             </div>
           )}
         </div>
 
-        <div className="fixed bottom-4 right-4 left-0 flex justify-end items-center gap-2 max-w-[650px] mx-auto px-4 z-10">
+        <div className="fixed bottom-4 max-sm:bottom-17 right-4 left-0 flex justify-end items-center gap-2 max-w-[650px] mx-auto px-4 z-10">
           <div className="bg-[var(--card-bg)] shadow-lg rounded-full p-1 flex items-center w-full border border-[var(--card-border)] transition-colors duration-300">
             <TextField
               fullWidth
-              placeholder="Write a comment..."
+              placeholder={t("posts.writeComment", "Write a comment...")}
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
               variant="standard"

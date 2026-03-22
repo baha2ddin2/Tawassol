@@ -17,7 +17,7 @@ return new class extends Migration
             $table->boolean('is_active')->default(false);
             $table->boolean('is_admin')->default(false);
             $table->string('email_validation_code')->nullable();
-            $table->date('validate_code_expired_at')->nullable();
+            $table->dateTime('validate_code_expired_at')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();

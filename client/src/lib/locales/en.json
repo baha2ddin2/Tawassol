@@ -59,7 +59,22 @@
     "currentPassword": "Current Password",
     "newEmail": "New Email",
     "privacy": "Privacy",
-    "privateAccount": "Private Account"
+    "privateAccount": "Private Account",
+    "accountPrivacy": "Account Privacy",
+    "privateDescription": "Only approved people can see your content.",
+    "changeEmailTitle": "Change Email Address",
+    "verified": "Verified",
+    "unverified": "Unverified",
+    "verifyEmailNow": "Verify your email now",
+    "updateEmail": "Update Email",
+    "updatePassword": "Update Password",
+    "saveNewPassword": "Save New Password",
+    "reportHistory": "Report History",
+    "reason": "Reason: ",
+    "submitted": "Submitted: ",
+    "noMoreReports": "No more reports to show.",
+    "noReportsYet": "You haven't submitted any reports yet.",
+    "adminDashboard": "Admin Dashboard"
   },
   "messages": {
     "title": "Messages",
@@ -89,7 +104,12 @@
     "madeAdmin": "Member promoted to admin",
     "confirmRemoveMember": "Remove this member from the group?",
     "confirmMakeAdmin": "Promote this member to admin?",
-    "startConversation": "Start a conversation"
+    "startConversation": "Start a conversation",
+    "noContactsFound": "No contacts yet",
+    "startTheConversation": "Start connecting to see your conversations here.",
+    "noMessages": "No messages yet. Start the conversation!",
+    "uploadGroupPhoto": "Upload Group Photo",
+    "suggestedFriends": "Suggested Friends"
   },
   "posts": {
     "createPost": "Create Post",
@@ -102,7 +122,11 @@
     "noPostsYet": "No posts yet",
     "deletePost": "Delete Post",
     "editPost": "Edit Post",
-    "report": "Report"
+    "report": "Report",
+    "discussion": "Discussion",
+    "commentsCount": "Comments",
+    "noMoreComments": "No more comments.",
+    "noCommentsYet": "No comments yet. Be the first to share your thoughts!"
   },
   "profile": {
     "followers": "Followers",
@@ -111,7 +135,11 @@
     "follow": "Follow",
     "unfollow": "Unfollow",
     "editProfile": "Edit Profile",
-    "suggestions": "Suggestions"
+    "suggestions": "Suggestions",
+    "total": "Total",
+    "searchFollowers": "Search followers...",
+    "followingButton": "Following",
+    "searchFollowing": "Search following..."
   },
   "common": {
     "loading": "Loading...",
@@ -125,7 +153,24 @@
     "search": "Search",
     "noResults": "No results found",
     "seeAll": "See All",
-    "joined": "Joined"
+    "joined": "Joined",
+    "searchPlaceholder": "Search hashtags, posts, or users...",
+    "hashtags": "Hashtags",
+    "users": "Users",
+    "seeMore": "See more",
+    "following": "Following",
+    "posts": "Posts",
+    "searchPosts": "Search posts...",
+    "showingResultsFor": "Showing results for",
+    "noMoreResults": "No more results found.",
+    "noPostsFound": "No posts found.",
+    "tryDifferentKeyword": "Try searching for a different keyword.",
+    "typeToSearch": "Type something above to search.",
+    "searchPeople": "Search for people...",
+    "showingPeopleFor": "Showing people for",
+    "noMoreProfiles": "No more profiles found.",
+    "noPeopleFound": "No people found.",
+    "typeNameToSearch": "Type a name above to search for people."
   },
   "validation": {
     "required": "This field is required",
@@ -139,9 +184,70 @@
     "messageEmpty": "Message cannot be empty",
     "contentRequired": "Content is required"
   },
-  "notifications": {
+  "notification": {
     "title": "Notifications",
-    "markAllRead": "Mark all as read",
+    "markAllAsRead": "Mark all as read",
+    "loadMore": "Load More Notifications",
+    "allCaughtUp": "You're all caught up!",
+    "startedFollowing": "started following you",
+    "likedPost": "liked your post",
+    "commentedPost": "commented on your post",
+    "newPost": "created a new post",
+    "newNotification": "New notification",
     "noNotifications": "No notifications yet"
+  },
+  "suggestions": {
+    "title": "Suggestions",
+    "suggested": "Suggested for you",
+    "follow": "Follow",
+    "followed": "followed"
+  },
+  "explore": {
+    "title": "Explore Tawassol",
+    "trending": "Trending this week",
+    "noResults": "No results found",
+    "searchPlaceholder": "Search hashtags, posts, or users..."
+  },
+  "dashboard": {
+    "reportsManagement": "Reports Management",
+    "reviewAndAct": "Review and act on flagged content across the platform.",
+    "searchPlaceholder": "Search by ID or Username...",
+    "reportedTarget": "Reported Target",
+    "reporter": "Reporter",
+    "type": "Type",
+    "status": "Status",
+    "date": "Date",
+    "loading": "Loading reports...",
+    "noReports": "No reports found.",
+    "showing": "Showing",
+    "to": "to",
+    "of": "of",
+    "results": "results",
+    "userManagement": "User Management",
+    "user": "User",
+    "online": "online",
+    "offline": "offline",
+    "delete": "Delete",
+    "noUsers": "No users found.",
+    "confirmDelete": "Confirm Delete",
+    "deleteUserConfirmation": "Are you sure you want to delete this user? This action cannot be undone.",
+    "cancel": "Cancel",
+    "dataInsights": "Data & Insights",
+    "analytics": "Analytics",
+    "users": "All Users",
+    "moderation": "Moderation",
+    "reports": "Pending Reports",
+    "backToHome": "Back to home",
+    "previous": "Previous",
+    "next": "Next",
+    "statistics": "Dashboard Statistics",
+    "totalsOverview": "Totals Overview",
+    "summaryChart": "Summary Chart",
+    "usersName": "Users",
+    "postsName": "Posts",
+    "reportsName": "Reports",
+    "thisWeek": "This Week",
+    "thisMonth": "This Month",
+    "thisYear": "This Year"
   }
 }

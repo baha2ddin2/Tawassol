@@ -11,11 +11,14 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import Link from "next/link";
 import { useDispatch } from "react-redux";
 import { markRead } from "@/redux/Slices/notificationSlice";
+import { useTranslation } from "react-i18next";
 dayjs.extend(relativeTime);
 
 export default function NotificationItem({ notification }) {
   const time = dayjs(notification.created_at).fromNow();
   const dispatch = useDispatch();
+
+  const { t } = useTranslation();
 
   const renderText = () => {
     switch (notification.type) {
@@ -23,7 +26,7 @@ export default function NotificationItem({ notification }) {
         return (
           <>
             <span className="font-semibold">{notification.display_name}</span>{" "}
-            started following you
+            {t("notification.startedFollowing", "started following you")}
           </>
         );
 
@@ -31,7 +34,7 @@ export default function NotificationItem({ notification }) {
         return (
           <>
             <span className="font-semibold">{notification.display_name}</span>{" "}
-            liked your post
+            {t("notification.likedPost", "liked your post")}
           </>
         );
 
@@ -39,19 +42,19 @@ export default function NotificationItem({ notification }) {
         return (
           <>
             <span className="font-semibold">{notification.display_name}</span>{" "}
-            commented on your post
+            {t("notification.commentedPost", "commented on your post")}
           </>
         );
       case "post":
         return (
           <>
             <span className="font-semibold">{notification.display_name}</span>{" "}
-            create a new post
+            {t("notification.newPost", "created a new post")}
           </>
         );
 
       default:
-        return "New notification";
+        return t("notification.newNotification", "New notification");
     }
   };
 

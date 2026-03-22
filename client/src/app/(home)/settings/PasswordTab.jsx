@@ -3,8 +3,10 @@ import { Paper, Typography, TextField, Button } from "@mui/material";
 import { gooeyToast } from "goey-toast";
 import { useState } from "react";
 import { validateChangePasswordForm } from "@/lib/validation";
+import { useTranslation } from "react-i18next";
 
 export default function PasswordTab() {
+  const { t } = useTranslation();
   const [passwords, setPasswords] = useState({
     current: "",
     new: "",
@@ -62,7 +64,7 @@ export default function PasswordTab() {
     >
       <div className="bg-[var(--nav-pill-bg)] px-6 py-4 border-b border-[var(--card-border)]">
         <Typography className="font-extrabold text-lg text-[var(--text-primary)]">
-          Update Password
+          {t("settings.updatePassword", "Update Password")}
         </Typography>
       </div>
 
@@ -70,7 +72,7 @@ export default function PasswordTab() {
         <TextField
           fullWidth
           value={passwords.current}
-          label="Current Password"
+          label={t("settings.currentPassword", "Current Password")}
           type="password"
           error={Boolean(errors.current)}
           helperText={errors.current}
@@ -82,7 +84,7 @@ export default function PasswordTab() {
         <TextField
           fullWidth
           value={passwords.new}
-          label="New Password"
+          label={t("settings.newPassword", "New Password")}
           type="password"
           error={Boolean(errors.new)}
           helperText={errors.new}
@@ -93,7 +95,7 @@ export default function PasswordTab() {
 
         <TextField
           fullWidth
-          label="Confirm New Password"
+          label={t("settings.confirmNewPassword", "Confirm New Password")}
           value={passwords.confirm}
           type="password"
           error={Boolean(errors.confirm)}
@@ -109,7 +111,7 @@ export default function PasswordTab() {
           className="font-bold normal-case rounded-xl py-2.5 px-6"
           sx={{ bgcolor: "var(--color-primary)", "&:hover": { bgcolor: "var(--color-primary-dark)" } }}
         >
-          Save New Password
+          {t("settings.saveNewPassword", "Save New Password")}
         </Button>
       </div>
     </Paper>

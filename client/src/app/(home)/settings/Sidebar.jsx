@@ -11,6 +11,8 @@ import api from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { gooeyToast } from "goey-toast";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
+import DeleteDialog from "./DeleteDialog";
 
 const SidebarButton = ({ active, onClick, icon, label, color = "text-[var(--text-muted)]" }) => (
   <button
@@ -29,11 +31,12 @@ const SidebarButton = ({ active, onClick, icon, label, color = "text-[var(--text
 export default function Sidebar({ activeTab, setActiveTab, isAdmin, onDeleteClick }) {
     const router = useRouter();
     const { t } = useTranslation();
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     
     function handleDelete(){
         api.delete('/user')
         .then((res)=>router.push('/'))
-        .catch((err)=>gooeyToast.error(err.response.data.message))
+        .catch((err)=>gooeyToast.error(err.response?.data?.message || err.message))
     }
   return (
     <aside className="w-full md:w-64 flex-shrink-0">
@@ -54,14 +57,20 @@ export default function Sidebar({ activeTab, setActiveTab, isAdmin, onDeleteClic
 
         <hr className="my-4 border-[var(--card-border)]" />
 
-        <SidebarButton onClick={handleDelete} icon={<DeleteOutlineIcon />} label={t("settings.deleteAccount")} color="text-[var(--danger)]" />
+        <SidebarButton onClick={() => setIsDeleteDialogOpen(true)} icon={<DeleteOutlineIcon />} label={t("settings.deleteAccount")} color="text-[var(--danger)]" />
 
         {isAdmin ? (
           <Link href="/dashboard/analytics" className="no-underline">
-            <SidebarButton icon={<Dashboard />} label="Admin Dashboard" />
+            <SidebarButton icon={<Dashboard />} label={t("settings.adminDashboard", "Admin Dashboard")} />
           </Link>
         ):null}
       </div>
+
+      <DeleteDialog 
+        open={isDeleteDialogOpen} 
+        onClose={() => setIsDeleteDialogOpen(false)} 
+        onConfirm={handleDelete} 
+      />
     </aside>
   );
 }

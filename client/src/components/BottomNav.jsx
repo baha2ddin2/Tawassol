@@ -8,17 +8,19 @@ import {
   MessageCircle,
   User,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const navItems = [
-  { name: "Home", href: "/home", icon: Home },
-  { name: "Explore", href: "/explore", icon: Compass },
-  { name: "Create", href: "/create-post", icon: PlusSquare },
-  { name: "Messages", href: "/messages", icon: MessageCircle },
-  { name: "Profile", href: "/profile", icon: User },
+  { name: "home", defaultText: "Home", href: "/home", icon: Home },
+  { name: "explore", defaultText: "Explore", href: "/explore", icon: Compass },
+  { name: "createPost", defaultText: "Create", href: "/create-post", icon: PlusSquare },
+  { name: "messages", defaultText: "Messages", href: "/messages", icon: MessageCircle },
+  { name: "profile", defaultText: "Profile", href: "/profile", icon: User },
 ];
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const { t } = useTranslation();
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-[var(--nav-bg)] backdrop-blur-xl border-t border-[var(--topbar-border)]"
@@ -53,7 +55,7 @@ export default function BottomNav() {
                     : "text-[var(--text-muted)]"
                 }`}
               >
-                {item.name}
+                {t(`nav.${item.name}`, item.defaultText)}
               </span>
             </Link>
           );

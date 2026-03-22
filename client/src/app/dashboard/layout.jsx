@@ -9,7 +9,7 @@ export const metadata = {
 };
 export default function Layout({ children }) {
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-[#F9FCFF] dark:bg-[#081F5C] text-black dark:text-[#F9FCFF] transition-colors duration-300">
+    <div className="flex flex-col md:flex-row min-h-screen bg-[var(--background)] text-[var(--text-primary)] transition-colors duration-300">
       <AdminSidebar />
       <div className="flex-1 w-full h-full overflow-hidden">
         {children}

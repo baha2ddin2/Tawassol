@@ -5,9 +5,11 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import api from "@/lib/api";
+import { useTranslation } from "react-i18next";
 
 export default function AccountTab() {
   const [isPrivate, setIsPrivate] = useState(false);
+  const { t } = useTranslation();
   const { userInfo } = useSelector((state) => state.auth);
   const is_private = userInfo?.user?.is_private;
   useEffect(() => {
@@ -27,7 +29,7 @@ export default function AccountTab() {
       >
         <div className="bg-[var(--nav-pill-bg)] px-6 py-4 border-b border-[var(--card-border)] transition-colors duration-300">
           <Typography className="font-extrabold text-lg">
-            Account Privacy
+            {t("settings.accountPrivacy", "Account Privacy")}
           </Typography>
         </div>
         <div className="p-6 flex items-center justify-between gap-4">
@@ -37,10 +39,10 @@ export default function AccountTab() {
             </div>
             <div>
               <Typography className="font-bold text-[var(--text-primary)]">
-                Private Account
+                {t("settings.privateAccount", "Private Account")}
               </Typography>
               <Typography className="text-sm text-[var(--text-muted)]">
-                Only approved people can see your content.
+                {t("settings.privateDescription", "Only approved people can see your content.")}
               </Typography>
             </div>
           </div>

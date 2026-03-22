@@ -35,12 +35,12 @@ export default function Page() {
   };
 
   return (
-    <div className="w-full lg:w-2/3 mx-auto p-4 transition-all duration-300">
+    <div className="w-full lg:w-2/3 mx-auto p-4 bg-[var(--background)] min-h-screen transition-all duration-300">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-bold">{t("notification.title", "Notifications")}</h2>
+        <h2 className="text-lg font-bold text-[var(--text-primary)]">{t("notification.title", "Notifications")}</h2>
         <button
           onClick={handleMarkAllRead}
-          className="text-xs text-blue-600 hover:underline font-medium"
+          className="text-xs text-[var(--color-primary)] hover:underline font-medium"
         >
           {t("notification.markAllAsRead", "Mark all as read")}
         </button>
@@ -62,7 +62,7 @@ export default function Page() {
             current_page < last_page && (
               <button
                 onClick={handleLoadMore}
-                className="px-6 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
+                className="px-6 py-2 bg-[var(--card-bg)] border border-[var(--card-border)] text-[var(--text-primary)] rounded-lg text-sm font-medium hover:bg-[var(--hover-overlay)] hover:border-[var(--color-primary)] transition-all shadow-sm"
               >
                 {t("notification.loadMore", "Load More Notifications")}
               </button>
@@ -70,7 +70,7 @@ export default function Page() {
           )}
 
           {current_page >= last_page && notifications?.length > 0 && (
-            <p className="text-sm text-gray-400 py-4">{t("notification.allCaughtUp", "You're all caught up!")}</p>
+            <p className="text-sm text-[var(--text-muted)] py-4">{t("notification.allCaughtUp", "You're all caught up!")}</p>
           )}
         </div>
       </div>

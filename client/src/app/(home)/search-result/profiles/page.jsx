@@ -13,10 +13,12 @@ import SearchIcon from "@mui/icons-material/Search";
 import Link from "next/link";
 import { searchProfiles } from "@/redux/Slices/searchSlice";
 import { useSearchParams } from "next/navigation";
+import { useTranslation } from "react-i18next";
 
 
 export default function SearchProfilesPage() {
   const seachParams = useSearchParams();
+  const { t } = useTranslation();
 
   const dispatch = useDispatch();
   const observerTarget = useRef(null);
@@ -78,7 +80,7 @@ export default function SearchProfilesPage() {
         <div className="bg-[var(--card-bg)] p-4 rounded-2xl shadow-sm border border-[var(--card-border)] sticky top-4 z-10 transition-colors duration-300">
           <TextField
             fullWidth
-            placeholder="Search for people..."
+            placeholder={t("common.searchPeople", "Search for people...")}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             variant="outlined"
@@ -94,7 +96,7 @@ export default function SearchProfilesPage() {
 
         {debouncedQuery && (
           <Typography className="text-sm font-bold text-[var(--text-muted)] px-2">
-            Showing people for "{debouncedQuery}"
+            {t("common.showingPeopleFor", "Showing people for")} "{debouncedQuery}"
           </Typography>
         )}
 
@@ -133,7 +135,7 @@ export default function SearchProfilesPage() {
                 )}
                 {current_page >= last_page && profilesData.length > 5 && (
                   <Typography className="text-sm text-[var(--text-muted)]">
-                    No more profiles found.
+                    {t("common.noMoreProfiles", "No more profiles found.")}
                   </Typography>
                 )}
               </div>
@@ -141,7 +143,7 @@ export default function SearchProfilesPage() {
           ) : !loading && debouncedQuery ? (
             <div className="text-center py-16 bg-[var(--card-bg)] rounded-2xl border border-dashed border-[var(--card-border)]">
               <Typography className="text-[var(--text-muted)] font-medium text-lg">
-                No people found.
+                {t("common.noPeopleFound", "No people found.")}
               </Typography>
             </div>
           ) : !loading && !debouncedQuery ? (
@@ -151,7 +153,7 @@ export default function SearchProfilesPage() {
                 className="mb-2"
               />
               <Typography className="text-[var(--text-muted)] font-medium">
-                Type a name above to search for people.
+                {t("common.typeNameToSearch", "Type a name above to search for people.")}
               </Typography>
             </div>
           ) : null}

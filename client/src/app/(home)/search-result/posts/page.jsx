@@ -13,9 +13,11 @@ import PostCard from "@/components/Post";
 import { likePost, deslikePost } from "@/redux/Slices/postSlice";
 import { deslikeSearchPost, likeSearchPost, searchPosts } from "@/redux/Slices/searchSlice";
 import { useSearchParams } from "next/navigation";
+import { useTranslation } from "react-i18next";
 
 export default function SearchPage() {
   const seachParams = useSearchParams();
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const observerTarget = useRef(null);
 
@@ -87,7 +89,7 @@ export default function SearchPage() {
         <div className="bg-[var(--card-bg)] p-4 rounded-2xl shadow-sm border border-[var(--card-border)] sticky top-4 z-10 transition-colors duration-300">
           <TextField
             fullWidth
-            placeholder="Search posts..."
+            placeholder={t("common.searchPosts", "Search posts...")}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             variant="outlined"
@@ -104,7 +106,7 @@ export default function SearchPage() {
         {/* Results Info */}
         {debouncedQuery && (
           <Typography className="text-sm font-bold text-[var(--text-muted)] px-2">
-            Showing results for "{debouncedQuery}"
+            {t("common.showingResultsFor", "Showing results for")} "{debouncedQuery}"
           </Typography>
         )}
 
@@ -131,7 +133,7 @@ export default function SearchPage() {
                 )}
                 {current_page >= last_page && postsData.length > 5 && (
                   <Typography className="text-sm text-[var(--text-muted)]">
-                    No more results found.
+                    {t("common.noMoreResults", "No more results found.")}
                   </Typography>
                 )}
               </div>
@@ -139,10 +141,10 @@ export default function SearchPage() {
           ) : !loading && debouncedQuery ? (
             <div className="text-center py-16 bg-[var(--card-bg)] rounded-2xl border border-dashed border-[var(--card-border)]">
               <Typography className="text-[var(--text-muted)] font-medium text-lg">
-                No posts found.
+                {t("common.noPostsFound", "No posts found.")}
               </Typography>
               <Typography className="text-[var(--text-muted)] text-sm mt-1">
-                Try searching for a different keyword.
+                {t("common.tryDifferentKeyword", "Try searching for a different keyword.")}
               </Typography>
             </div>
           ) : !loading && !debouncedQuery ? (
@@ -152,7 +154,7 @@ export default function SearchPage() {
                 className="mb-2"
               />
               <Typography className="text-[var(--text-muted)] font-medium">
-                Type something above to search.
+                {t("common.typeToSearch", "Type something above to search.")}
               </Typography>
             </div>
           ) : null}
