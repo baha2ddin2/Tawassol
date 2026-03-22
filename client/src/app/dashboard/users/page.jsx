@@ -49,30 +49,30 @@ export default function UsersPage() {
   };
 
   return (
-    <div className="p-6 md:p-8 bg-[var(--background)] min-h-screen transition-colors duration-300">
+    <div className="p-6 md:p-8 bg-[#F9FCFF] dark:bg-[#081F5C] min-h-screen transition-colors duration-300">
       <div className="max-w-[1400px] mx-auto space-y-6">
-        <Typography variant="h4" className="font-black text-[var(--text-primary)] tracking-tight mb-1">
+        <Typography variant="h4" className="font-black text-[#081F5C] dark:text-[#F9FCFF] tracking-tight mb-1">
           {t("dashboard.userManagement", "User Management")}
         </Typography>
 
-      <TableContainer component={Paper} elevation={0} className="rounded-2xl border border-[var(--card-border)] overflow-hidden shadow-sm bg-[var(--card-bg)] transition-colors duration-300 mt-6">
+      <TableContainer component={Paper} elevation={0} className="rounded-2xl border border-[#D0E3FF] dark:border-[#334EAC] overflow-hidden shadow-sm bg-white dark:bg-[#334EAC] transition-colors duration-300 mt-6">
         <Table>
-          <TableHead className="bg-[var(--nav-pill-bg)] transition-colors duration-300">
+          <TableHead className="bg-[#E7F1FF] dark:bg-[#081F5C] transition-colors duration-300">
             <TableRow>
-              <TableCell className="font-bold text-[var(--text-muted)] uppercase text-[11px] tracking-wider border-b border-[var(--card-border)]">{t("dashboard.user", "User")}</TableCell>
-              <TableCell className="font-bold text-[var(--text-muted)] uppercase text-[11px] tracking-wider border-b border-[var(--card-border)]">{t("dashboard.status", "Status")}</TableCell>
-              <TableCell align="right" className="border-b border-[var(--card-border)]"></TableCell>
+              <TableCell className="font-bold text-[#334EAC] dark:text-[#D0E3FF] uppercase text-[11px] tracking-wider border-b border-[#D0E3FF] dark:border-[#334EAC]">{t("dashboard.user", "User")}</TableCell>
+              <TableCell className="font-bold text-[#334EAC] dark:text-[#D0E3FF] uppercase text-[11px] tracking-wider border-b border-[#D0E3FF] dark:border-[#334EAC]">{t("dashboard.status", "Status")}</TableCell>
+              <TableCell align="right" className="border-b border-[#D0E3FF] dark:border-[#334EAC]"></TableCell>
             </TableRow>
           </TableHead>
-          <TableBody className="bg-[var(--card-bg)] transition-colors duration-300">
+          <TableBody className="bg-white dark:bg-[#334EAC] transition-colors duration-300">
             {users.map(user => (
-              <TableRow key={user.user_id} className="hover:bg-[var(--hover-overlay)] transition-colors duration-300 group border-b border-[var(--card-border)]">
+              <TableRow key={user.user_id} className="hover:bg-[#E7F1FF] dark:hover:bg-[#081F5C] transition-colors duration-300 group border-b border-[#D0E3FF] dark:border-[#334EAC]">
                 <TableCell className="border-none">
                   <div className="flex items-center gap-4">
                     <Avatar src={user.avatar_url ? `http://127.0.0.1:8000/storage/${user.avatar_url}` : null} />
                     <div>
-                      <Typography className="font-semibold text-[var(--text-primary)]">{user.display_name}</Typography>
-                      <Typography className="text-sm text-[var(--text-muted)]">{user.email}</Typography>
+                      <Typography className="font-semibold text-[#081F5C] dark:text-[#F9FCFF]">{user.display_name}</Typography>
+                      <Typography className="text-sm text-[#334EAC] dark:text-[#D0E3FF]">{user.email}</Typography>
                     </div>
                   </div>
                 </TableCell>
@@ -94,7 +94,7 @@ export default function UsersPage() {
               </TableRow>
             ))}
             {users.length === 0 && (
-              <TableRow><TableCell colSpan={3} align="center" className="py-10 text-[var(--text-muted)] border-none">{t("dashboard.noUsers", "No users found.")}</TableCell></TableRow>
+              <TableRow><TableCell colSpan={3} align="center" className="py-10 text-[#334EAC] dark:text-[#F9FCFF] border-none">{t("dashboard.noUsers", "No users found.")}</TableCell></TableRow>
             )}
           </TableBody>
         </Table>
@@ -120,9 +120,9 @@ export default function UsersPage() {
       </div>
 
       {/* Confirm Delete Dialog */}
-      <Dialog open={openConfirm} onClose={() => setOpenConfirm(false)} PaperProps={{ className: "bg-[var(--card-bg)] text-[var(--text-primary)]" }}>
-        <DialogTitle className="font-bold text-[var(--text-primary)]">{t("dashboard.confirmDelete", "Confirm Delete")}</DialogTitle>
-        <DialogContent className="text-[var(--text-muted)]">
+      <Dialog open={openConfirm} onClose={() => setOpenConfirm(false)} PaperProps={{ className: "bg-white dark:bg-[#081F5C] text-[#081F5C] dark:text-[#F9FCFF]" }}>
+        <DialogTitle className="font-bold text-[#081F5C] dark:text-[#F9FCFF]">{t("dashboard.confirmDelete", "Confirm Delete")}</DialogTitle>
+        <DialogContent className="text-[#334EAC] dark:text-[#D0E3FF]">
           {t("dashboard.deleteUserConfirmation", "Are you sure you want to delete this user? This action cannot be undone.")}
         </DialogContent>
         <DialogActions>

@@ -270,13 +270,17 @@ const PostReducer = createSlice({
         const userSuggestion = state.suggetionFriends.find(
           (s) => s.user_id === action.meta.arg,
         );
-        userSuggestion.has_followed = 1;
+        if(userSuggestion){
+          userSuggestion.has_followed = 1;
+        }
       })
       .addCase(unfollowSuggestion.fulfilled, (state, action) => {
         const userSuggestion = state.suggetionFriends.find(
           (s) => s.user_id === action.meta.arg,
         );
-        userSuggestion.has_followed = 0;
+        if(userSuggestion){
+          userSuggestion.has_followed = 0;
+        }
       })
       .addCase(createPost.fulfilled, (state, action) => {
         gooeyToast.success("Post created successfuly");
