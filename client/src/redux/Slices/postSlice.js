@@ -217,18 +217,23 @@ export const unfollowSuggestion = createAsyncThunk(
 const PostReducer = createSlice({
   name: "post",
   initialState: {
-    feedPosts: [],
+    feedPosts: { data: [], current_page: 1, last_page: 1 },
     loading: false,
+    loadingSuggestions: false,
     suggetionFriends: [],
     error: {},
     postById: {},
     comments: [],
-    loandingComments: false,
+    loadingComments: false,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
+      .addCase(feedPosts.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(feedPosts.fulfilled, (state, action) => {
+        state.loading = false;
         const { data, current_page, last_page } = action.payload;
         if (current_page === 1) {
           state.feedPosts = action.payload;
@@ -238,15 +243,19 @@ const PostReducer = createSlice({
           state.feedPosts.last_page = last_page;
         }
       })
-      .addCase(feedPosts.pending, (state, action) => {
-        state.loading = true;
-      })
       .addCase(feedPosts.rejected, (state, action) => {
-        state.error = action.payload;
         state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(suggetionFriends.pending, (state) => {
+        state.loadingSuggestions = true;
       })
       .addCase(suggetionFriends.fulfilled, (state, action) => {
+        state.loadingSuggestions = false;
         state.suggetionFriends = action.payload;
+      })
+      .addCase(suggetionFriends.rejected, (state) => {
+        state.loadingSuggestions = false;
       })
       .addCase(likeFeedPost.fulfilled, (state, action) => {
         const postLiked = state?.feedPosts?.data?.find(

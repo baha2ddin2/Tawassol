@@ -174,9 +174,12 @@ export const updateGroupMessage = createAsyncThunk(
   "message/updateGroupMessage",
   async ({ messageId, newContent }, thunkAPI) => {
     try {
-      const response = await messagesApi.put(`/group-messages/update/${messageId}`, {
-        content: newContent,
-      });
+      const response = await messagesApi.put(
+        `/group-messages/update/${messageId}`,
+        {
+          content: newContent,
+        },
+      );
       return response.data;
     } catch (error) {
       const errorMsg = error.response.data;
@@ -184,7 +187,6 @@ export const updateGroupMessage = createAsyncThunk(
     }
   },
 );
-
 
 export const updateMessage = createAsyncThunk(
   "message/updateMessage",
@@ -299,15 +301,21 @@ const messageReducer = createSlice({
   reducers: {
     reciveMessage: (state, action) => {
       state.messages.push(action.payload);
-      const contact = state.contacts.find((c)=>c.user_id===action.payload.recipient_id) || state.contacts.find((c)=>c.user_id===action.payload.sender_id)
-      contact.last_message = action.payload.content
-      contact.last_message_time = action.payload.created_at
+      const contact =
+        state.contacts.find((c) => c.user_id === action.payload.recipient_id) ||
+        state.contacts.find((c) => c.user_id === action.payload.sender_id);
+      if (contact) {
+        contact.last_message = action.payload.content;
+        contact.last_message_time = action.payload.created_at;
+      }
     },
     reciveGroupMessage: (state, action) => {
       state.GroupMessages.push(action.payload);
-      const contact = state.contacts.find((c)=>c.group_id===action.payload.group_id)
-      contact.last_message = action.payload.content
-      contact.last_message_time = action.payload.created_at
+      const contact = state.contacts.find(
+        (c) => c.group_id === action.payload.group_id,
+      );
+      contact.last_message = action.payload.content;
+      contact.last_message_time = action.payload.created_at;
     },
     deletedMessage: (state, action) => {
       state.messages = state.messages.filter(
@@ -408,18 +416,23 @@ const messageReducer = createSlice({
       .addCase(updateGroup.fulfilled, (state, action) => {
         state.groupInfo = action.payload.data;
       })
-      .addCase(deleteGroup.fulfilled,(state,action)=>{
-        gooeyToast.success("the group deleted successfuly")
-        state.contacts = state.contacts.filter((c)=>c.group_id!==action.meta.arg)
+      .addCase(deleteGroup.fulfilled, (state, action) => {
+        gooeyToast.success("the group deleted successfuly");
+        state.contacts = state.contacts.filter(
+          (c) => c.group_id !== action.meta.arg,
+        );
       })
-      .addCase(deleteGroup.rejected,(state,action)=>{
-        gooeyToast.error(action.payload.message)
+      .addCase(deleteGroup.rejected, (state, action) => {
+        gooeyToast.error(action.payload.message);
       })
       .addCase(removeMemberFromGroup.fulfilled, (state, action) => {
         gooeyToast.success("Member removed successfully");
-        if (state.groupInfo && state.groupInfo.group_id === action.payload.groupId) {
+        if (
+          state.groupInfo &&
+          state.groupInfo.group_id === action.payload.groupId
+        ) {
           state.groupInfo.members = state.groupInfo.members.filter(
-            (m) => m.user_id !== action.payload.userId
+            (m) => m.user_id !== action.payload.userId,
           );
         }
       })
@@ -428,9 +441,12 @@ const messageReducer = createSlice({
       })
       .addCase(makeMemberAdmin.fulfilled, (state, action) => {
         gooeyToast.success("Member promoted to admin");
-        if (state.groupInfo && state.groupInfo.group_id === action.payload.groupId) {
+        if (
+          state.groupInfo &&
+          state.groupInfo.group_id === action.payload.groupId
+        ) {
           const member = state.groupInfo.members.find(
-            (m) => m.user_id === action.payload.userId
+            (m) => m.user_id === action.payload.userId,
           );
           if (member) {
             member.role = "admin";
@@ -439,7 +455,7 @@ const messageReducer = createSlice({
       })
       .addCase(makeMemberAdmin.rejected, (state, action) => {
         gooeyToast.error(action.payload?.message || "Error promoting member");
-      })
+      });
   },
 });
 export const {
@@ -449,7 +465,6 @@ export const {
   deletedMessage,
   seenMessageAction,
   updatedGroupMessage,
-  deletedGroupMessage
-  
+  deletedGroupMessage,
 } = messageReducer.actions;
 export default messageReducer.reducer;

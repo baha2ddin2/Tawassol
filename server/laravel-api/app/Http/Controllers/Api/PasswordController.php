@@ -16,7 +16,7 @@ class PasswordController extends Controller
 { 
     public function forgotPassword(changeEmailRequest $request){
         $email = $request->email;
-        $user = User::where('email',$email)->first();
+        $user = User::where('email', '=', $email)->first();
 
         try{
             if(!$user){
@@ -28,7 +28,7 @@ class PasswordController extends Controller
             
             $secret=env('JWT_SECRET').$user->password;
             $token = Hash::make($secret);
-            $link = 'http://localhost:3000/reset-password/'. $user->user_id . '/' . $token;
+            $link = env('FRONTEND_URL', 'http://127.0.0.1:3000').'/reset-password?token=' . $token . '&email=' . urlencode($user->email);
             Mail::to($email)->send(new SendForgotPasswordEmail($link));
             return response()->json(['message'=>'the email sent successfuly']);
         }catch(Exception $e){
@@ -36,15 +36,15 @@ class PasswordController extends Controller
         }
     }
 
-    public function changePassword(changeForgotPasswordRequest $request ,string $token,string $userId){
-        $user = User::find($userId);
+    public function changePassword(changeForgotPasswordRequest $request){
+        $user = User::where('email', '=', $request->email)->first();
         if(!$user){
             return response()->json(['message'=>'user not found']);
         }
         try{
             $secret=env('JWT_SECRET').$user->password;
 
-            if(!Hash::check($secret,$token)){
+            if(!Hash::check($secret,$request->token)){
                 return response()->json(['message'=>'this link expired'],400);
             }
 

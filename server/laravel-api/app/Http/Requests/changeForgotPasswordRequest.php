@@ -24,7 +24,9 @@ class changeForgotPasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'password'=>'required|min:6|confirmed|password'
+            'token' => 'required|string',
+            'email' => 'required|email',
+            'password' => 'required|min:6|confirmed'
         ];
     }
 

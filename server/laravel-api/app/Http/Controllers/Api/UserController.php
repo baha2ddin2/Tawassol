@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ChangePasswordRequest;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cookie;
@@ -16,6 +17,10 @@ class UserController extends Controller
     public function updateEmail(Request $request)
     {
         try {
+            $email = User::where('email',$request->email);
+            if($email){
+                return response()->json(['message'=>'this email already used '],401);
+            }
             $user = Auth::user();
             $user->update([
                 'email' => $request->email,

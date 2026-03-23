@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Typography, 
@@ -17,11 +17,15 @@ import {
   LockReset, 
   CheckCircle 
 } from '@mui/icons-material';
-import { useParams, useRouter,  } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import api from '@/lib/api';
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get('token');
+  const email = searchParams.get('email');
+
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -29,41 +33,57 @@ export default function ResetPasswordPage() {
     password: '',
     password_confirmation: '',
   });
-  const [error,setError]=useState('')
-  
-  const {userId,token} = useParams()
+  const [error, setError] = useState('');
+
+  // Protect against direct access without token/email
+  useEffect(() => {
+    if (!token || !email) {
+      setError("Invalid or missing reset token.");
+    }
+  }, [token, email]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!token || !email) {
+       setError("Invalid or missing reset token.");
+       return;
+    }
     if (formData.password !== formData.password_confirmation) {
       setError("Passwords do not match!");
       return;
     }
     setLoading(true);
-    api.post(`/password/change-password/${userId}/${token}`,formData)
-    .then((res)=>{
+    setError('');
+
+    api.post(`/password/change-password`, {
+      ...formData,
+      token,
+      email
+    })
+    .then((res) => {
       setLoading(false);
       setIsSuccess(true);
       setTimeout(() => router.push('/login'), 3000);
     })
-    .catch((error)=>{
-      setError(error.data.message)
-    })
+    .catch((err) => {
+      setLoading(false);
+      setError(err?.response?.data?.message || err?.data?.message || err?.message || "An error occurred");
+    });
   };
 
   if (isSuccess) {
     return (
-      <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-6">
+      <div className="min-h-screen flex items-center justify-center p-6 bg-[var(--background)]">
         <motion.div 
           initial={{ scale: 0.9, opacity: 0 }} 
           animate={{ scale: 1, opacity: 1 }}
           className="text-center"
         >
           <CheckCircle sx={{ fontSize: 80 }} className="text-green-500 mb-4" />
-          <Typography variant="h4" className="font-black text-slate-900 dark:text-white mb-2">
+          <Typography variant="h4" className="font-black text-[var(--text-primary)] mb-2">
             Password Updated!
           </Typography>
-          <Typography className="text-slate-500">
+          <Typography className="text-[var(--text-muted)]">
             Your security is our priority. Redirecting to login...
           </Typography>
         </motion.div>
@@ -72,23 +92,23 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc]  flex items-center justify-center p-6">
+    <div className="min-h-screen bg-[var(--background)] flex items-center justify-center p-6">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md"
       >
-        <Paper className="p-10 rounded-[40px] shadow-xl dark:bg-slate-900 border-none">
+        <Paper className="p-10 rounded-[40px] shadow-xl bg-[var(--card-bg)] border-none">
           <div className="flex justify-center mb-6">
-            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl text-[#1477ff]">
+            <div className="p-4 bg-[var(--nav-pill-bg)] rounded-2xl text-[var(--color-primary)]">
               <LockReset sx={{ fontSize: 40 }} />
             </div>
           </div>
 
-          <Typography variant="h4" className="text-center font-black text-slate-900 dark:text-white mb-2">
+          <Typography variant="h4" className="text-center font-black text-[var(--text-primary)] mb-2">
             New Password
           </Typography>
-          <Typography className="text-center text-slate-500 dark:text-slate-400 mb-8 text-sm">
+          <Typography className="text-center text-[var(--text-muted)] mb-8 text-sm">
             Please enter a strong password that you haven't used before.
           </Typography>
 
@@ -102,7 +122,7 @@ export default function ResetPasswordPage() {
               value={formData.password}
               onChange={(e) => setFormData({...formData, password: e.target.value})}
               InputProps={{
-                className: "rounded-2xl",
+                className: "rounded-2xl bg-[var(--input-bg)]",
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton onClick={() => setShowPassword(!showPassword)}>
@@ -110,6 +130,14 @@ export default function ResetPasswordPage() {
                     </IconButton>
                   </InputAdornment>
                 ),
+                style: { color: "var(--text-primary)" }
+              }}
+              sx={{
+                 "& .MuiOutlinedInput-root": {
+                     "& fieldset": { borderColor: "var(--input-border)" },
+                 },
+                 "& .MuiInputLabel-root": { color: "var(--text-muted)" },
+                 "& .MuiInputBase-input": { color: "var(--text-primary)" },
               }}
             />
 
@@ -122,21 +150,31 @@ export default function ResetPasswordPage() {
               error={formData.password_confirmation !== '' && formData.password !== formData.password_confirmation}
               value={formData.password_confirmation}
               onChange={(e) => setFormData({...formData, password_confirmation: e.target.value})}
-              InputProps={{ className: "rounded-2xl" }}
+              InputProps={{ 
+                className: "rounded-2xl bg-[var(--input-bg)]",
+                style: { color: "var(--text-primary)" }
+              }}
               helperText={
                 formData.password_confirmation !== '' && 
                 formData.password !== formData.password_confirmation ? "Passwords must match" : ""
               }
+              sx={{
+                 "& .MuiOutlinedInput-root": {
+                     "& fieldset": { borderColor: "var(--input-border)" },
+                 },
+                 "& .MuiInputLabel-root": { color: "var(--text-muted)" },
+                 "& .MuiInputBase-input": { color: "var(--text-primary)" },
+              }}
             />
 
-            {error && <span className=' text-red-700' >{error}</span> }
+            {error && <span className='text-red-500 font-medium text-center text-sm'>{error}</span> }
 
             <Button
               fullWidth
               type="submit"
               variant="contained"
-              disabled={loading}
-              className="py-4 rounded-2xl bg-[#1477ff] hover:bg-blue-700 font-black normal-case text-lg shadow-lg shadow-blue-200 dark:shadow-none transition-all"
+              disabled={loading || !token || !email}
+              className="py-4 rounded-2xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] font-black normal-case text-lg text-white shadow-lg transition-all"
             >
               {loading ? <CircularProgress size={24} color="inherit" /> : 'Update Password'}
             </Button>
@@ -144,5 +182,17 @@ export default function ResetPasswordPage() {
         </Paper>
       </motion.div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
+        <CircularProgress />
+      </div>
+    }>
+      <ResetPasswordForm />
+    </Suspense>
   );
 }

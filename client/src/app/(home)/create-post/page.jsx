@@ -76,9 +76,9 @@ export default function CreatePostPage() {
         </div>
 
         <div>
-          <StyledUploader onFiles={onFiles} maxFiles={5} />
+          <StyledUploader onFiles={onFiles} maxFiles={10} />
           {errors?.errors?.media && (
-            <p className=" text-red-500">{errors?.errors?.media / (0.0)[0]}</p>
+            <p className=" text-red-500">{errors.errors.media[0]}</p>
           )}
         </div>
 

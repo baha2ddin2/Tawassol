@@ -1,7 +1,6 @@
 "use client";
-
 import { contact } from "@/redux/Slices/messageSlice";
-import { Avatar, Button } from "@mui/material";
+import { Avatar, Button,Typography } from "@mui/material";
 import { GroupAdd } from "@mui/icons-material";
 import Link from "next/link";
 import { useEffect, useState } from "react";

@@ -9,6 +9,8 @@ import {
   IosShare as ShareIcon,
   Message,
 } from "@mui/icons-material";
+import LockIcon from "@mui/icons-material/Lock";
+import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useRef, useCallback } from "react";
 import {
@@ -28,6 +30,7 @@ export default function ProfilePage() {
   const { id } = useParams();
   const dispatch = useDispatch();
   const observerTarget = useRef(null);
+  const { t } = useTranslation();
 
   const user = useSelector((data) => data.auth.userInfo.user);
   const infos = useSelector((state) => state.profile.profileId);
@@ -139,72 +142,86 @@ export default function ProfilePage() {
               </div>
             </section>
           ) : null}
-          {infos ? (
-            <section className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
-              <div className="bg-[var(--nav-pill-bg)] border border-[var(--card-border)] py-4 rounded text-center shadow-sm">
-                <div className="text-xl font-black text-[var(--text-primary)]">
-                  {infos.posts_count}
-                </div>
-                <div className="text-[11px] font-extrabold text-[var(--color-primary)] uppercase tracking-tight">
-                  posts
-                </div>
-              </div>
-              <Link href={`/profile/${id}/following`}>
-                <div className="bg-[var(--nav-pill-bg)] border border-[var(--card-border)] py-4 rounded text-center shadow-sm">
-                  <div className="text-xl font-black text-[var(--text-primary)]">
-                    {infos.following_count}
-                  </div>
-                  <div className="text-[11px] font-extrabold text-[var(--color-primary)] uppercase tracking-tight">
-                    following
-                  </div>
-                </div>
-              </Link>
-              <Link href={`/profile/${id}/followers`}>
-                <div className="bg-[var(--nav-pill-bg)] border border-[var(--card-border)] py-4 rounded text-center shadow-sm">
-                  <div className="text-xl font-black text-[var(--text-primary)]">
-                    {infos.followers_count}
-                  </div>
-                  <div className="text-[11px] font-extrabold text-[var(--color-primary)] uppercase tracking-tight">
-                    followers
-                  </div>
-                </div>
-              </Link>
-            </section>
-          ) : null}
 
-          {/* Feed */}
-          <section className="mt-4 flex flex-col items-center gap-4">
-            {postsData?.length > 0 ? (
-              <>
-                {postsData.map((post, key) => (
-                  <PostCard handelLike={handelLike} key={key} post={post} />
-                ))}
-
-                {/* TRIGGER ELEMENT */}
-                <div ref={observerTarget} className="py-6 flex justify-center w-full">
-                  {current_page < last_page && (
-                    <CircularProgress size={24} sx={{ color: "#1477ff" }} />
-                  )}
-                  {current_page >= last_page && postsData.length > 0 && (
-                    <p className="text-sm text-[var(--text-muted)]">
-                      You've reached the end of the profile.
-                    </p>
-                  )}
+          {infos?.is_private && !infos?.is_following && infos?.user_id !== user?.user_id ? (
+              <div className="flex flex-col items-center justify-center py-20 bg-[var(--color-surface-light)] dark:bg-[var(--color-primary-dark)] rounded-xl mt-6 border-none transition-colors duration-300">
+                <div className="w-20 h-20 rounded-full bg-[var(--color-surface)] dark:bg-[var(--color-primary)] flex items-center justify-center mb-4 shadow-sm border border-[var(--color-surface-lightest)]/10">
+                   <LockIcon sx={{ fontSize: 40 }} className="text-[var(--color-primary)] dark:text-[var(--color-surface-lightest)] opacity-80" />
                 </div>
-              </>
-            ) : !loading ? (
-              <div className="text-center py-10">
-                <p className="text-[var(--text-muted)] font-medium">No posts found.</p>
+                <h2 className="text-2xl font-black text-[var(--color-primary-dark)] dark:text-[var(--color-surface-lightest)] mb-2 tracking-tight">{t("This account is private.")}</h2>
+                <p className="text-[var(--color-primary)] dark:text-[var(--color-surface)] font-medium text-sm">{t("Follow to see what they post.")}</p>
               </div>
-            ) : null}
+          ) : (
+            <>
+              {infos ? (
+                <section className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
+                  <div className="bg-[var(--nav-pill-bg)] border border-[var(--card-border)] py-4 rounded text-center shadow-sm">
+                    <div className="text-xl font-black text-[var(--text-primary)]">
+                      {infos.posts_count}
+                    </div>
+                    <div className="text-[11px] font-extrabold text-[var(--color-primary)] uppercase tracking-tight">
+                      posts
+                    </div>
+                  </div>
+                  <Link href={`/profile/${id}/following`}>
+                    <div className="bg-[var(--nav-pill-bg)] border border-[var(--card-border)] py-4 rounded text-center shadow-sm">
+                      <div className="text-xl font-black text-[var(--text-primary)]">
+                        {infos.following_count}
+                      </div>
+                      <div className="text-[11px] font-extrabold text-[var(--color-primary)] uppercase tracking-tight">
+                        following
+                      </div>
+                    </div>
+                  </Link>
+                  <Link href={`/profile/${id}/followers`}>
+                    <div className="bg-[var(--nav-pill-bg)] border border-[var(--card-border)] py-4 rounded text-center shadow-sm">
+                      <div className="text-xl font-black text-[var(--text-primary)]">
+                        {infos.followers_count}
+                      </div>
+                      <div className="text-[11px] font-extrabold text-[var(--color-primary)] uppercase tracking-tight">
+                        followers
+                      </div>
+                    </div>
+                  </Link>
+                </section>
+              ) : null}
 
-            {/* Initial loading state spinner */}
-            {loading && !postsData && (
-              <div className="flex justify-center py-10">
-                <CircularProgress size={30} sx={{ color: "#1477ff" }} />
-              </div>
-            )}
-          </section>
+              {/* Feed */}
+              <section className="mt-4 flex flex-col items-center gap-4">
+                {postsData?.length > 0 ? (
+                  <>
+                    {postsData.map((post, key) => (
+                      <PostCard handelLike={handelLike} key={key} post={post} />
+                    ))}
+
+                    {/* TRIGGER ELEMENT */}
+                    <div ref={observerTarget} className="py-6 flex justify-center w-full">
+                      {current_page < last_page && (
+                        <CircularProgress size={24} sx={{ color: "#1477ff" }} />
+                      )}
+                      {current_page >= last_page && postsData.length > 0 && (
+                        <p className="text-sm text-[var(--text-muted)]">
+                          You've reached the end of the profile.
+                        </p>
+                      )}
+                    </div>
+                  </>
+                ) : !loading ? (
+                  <div className="text-center py-10">
+                    <p className="text-[var(--text-muted)] font-medium">No posts found.</p>
+                  </div>
+                ) : null}
+
+                {/* Initial loading state spinner */}
+                {loading && !postsData && (
+                  <div className="flex justify-center py-10">
+                    <CircularProgress size={30} sx={{ color: "#1477ff" }} />
+                  </div>
+                )}
+              </section>
+            </>
+          )}
+
         </div>
       </div>
     </main>

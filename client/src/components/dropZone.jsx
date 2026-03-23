@@ -12,6 +12,7 @@ export default function StyledUploader({
   maxSize = 50 * 1024 * 1024,
 }) {
   const [files, setFiles] = useState([]);
+  const [limitError, setLimitError] = useState(false);
 
   const onDrop = useCallback(
     (acceptedFiles, fileRejections) => {
@@ -23,7 +24,13 @@ export default function StyledUploader({
         };
       });
 
-      const next = [...files, ...accepted].slice(0, maxFiles);
+      const allFiles = [...files, ...accepted];
+      if (allFiles.length > maxFiles) {
+        setLimitError(true);
+      } else {
+        setLimitError(false);
+      }
+      const next = allFiles.slice(0, maxFiles);
       setFiles(next);
       onFiles(next.map((x) => x.file));
     },
@@ -67,19 +74,42 @@ export default function StyledUploader({
           <p className="mb-1 text-sm">
             <span className="font-semibold text-blue-600">Click to upload</span> or drag & drop
           </p>
-          <p className="text-xs text-gray-400">PNG, JPG (MAX. 5MB each) — up to {maxFiles} files</p>
+          <p className="text-xs text-gray-400">Images & Videos (MAX. 50MB each) — up to {maxFiles} files</p>
         </div>
       </div>
+
+      {/* limit error */}
+      {limitError && (
+        <div className="w-full text-center mt-2 text-sm text-red-500 font-medium">
+          Maximum of {maxFiles} files allowed.
+        </div>
+      )}
 
       {/* previews */}
       <div className="mt-3 w-full grid grid-cols-3 gap-2">
         {files.map((f, i) => (
           <div key={i} className="relative rounded-md overflow-hidden border">
-            <img
-              src={f.preview}
-              alt={`preview-${i}`}
-              className="w-full h-24 object-cover block"
-            />
+            {f.file.type.startsWith("video/") ? (
+              <video
+                src={f.preview}
+                className="w-full h-24 object-cover block"
+                autoPlay
+                muted
+                playsInline
+                onTimeUpdate={(e) => {
+                  if (e.target.currentTime >= 5) {
+                    e.target.currentTime = 0;
+                    e.target.play();
+                  }
+                }}
+              />
+            ) : (
+              <img
+                src={f.preview}
+                alt={`preview-${i}`}
+                className="w-full h-24 object-cover block"
+              />
+            )}
             {f.sizeError && (
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-xs p-1">
                 Too large

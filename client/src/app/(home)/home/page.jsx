@@ -21,6 +21,8 @@ export default function HomePage() {
     current_page,
     last_page,
   } = useSelector((state) => state.post.feedPosts);
+  const loading = useSelector((state) => state.post.loading);
+  const loadingSuggestions = useSelector((state) => state.post.loadingSuggestions);
   const suggestions = useSelector((state) => state.post.suggetionFriends);
 
   const observerTarget = useRef(null);
@@ -74,37 +76,37 @@ export default function HomePage() {
         
         {/* MOBILE SUGGESTIONS (TOP) */}
         <div className="block lg:hidden w-full max-w-[600px] mx-auto mb-6">
-            {postsData?.length > 0 ? (
-               <RightSidebar suggestions={suggestions} handelFollow={handelFollow} />
-            ) : (
+            {loadingSuggestions ? (
                <SuggestionSkeleton />
+            ) : (
+               <RightSidebar suggestions={suggestions} handelFollow={handelFollow} />
             )}
         </div>
 
         <main className="w-full max-w-[600px] mx-auto lg:mx-0 space-y-6">
           <div className="flex flex-col w-full">
-            {postsData?.length > 0 ? (
+            {loading && postsData?.length === 0 ? (
+              <SkeletonChildren />
+            ) : (
               <>
-                {postsData.map((post, key) => (
+                {postsData?.map((post, key) => (
                   <PostCard handelLike={handelLike} key={key} post={post} />
                 ))}
-                
+
                 <div ref={observerTarget} className="h-10 flex justify-center items-center">
-                  {current_page < last_page && <LoadingSpinner/> }
+                  {current_page < last_page && <LoadingSpinner />}
                 </div>
               </>
-            ) : (
-              <SkeletonChildren />
             )}
           </div>
         </main>
 
         {/* DESKTOP SUGGESTIONS (RIGHT SIDEBAR) */}
         <div className="hidden lg:block">
-            {postsData?.length > 0 ? (
-               <RightSidebar suggestions={suggestions} handelFollow={handelFollow} />
-            ) : (
+            {loadingSuggestions ? (
                <SuggestionSkeleton />
+            ) : (
+               <RightSidebar suggestions={suggestions} handelFollow={handelFollow} />
             )}
         </div>
       </div>

@@ -28,7 +28,7 @@ export default function FollowingPage() {
   const user_id =user?.user_id
   useEffect(() => {
     dispatch(followingByUser(id));
-  }, [dispatch,id]);
+  }, []);
 
   function handelFollow(userId){
     dispatch(followSuggetion(userId))

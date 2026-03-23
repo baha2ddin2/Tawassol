@@ -26,7 +26,7 @@ class createPostRequest extends FormRequest
         return [
             'content' => 'nullable|string|max:1000',
             'media' => 'nullable|array|max:10',
-            'media.*' => 'file|mimes:jpg,jpeg,png,webp,mp4,mov|max:20480',
+            'media.*' => 'file|mimes:jpg,jpeg,png,webp,mp4,mov,gif|max:20480',
             'external_link' => 'nullable|url|string'
         ];
     }

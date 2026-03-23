@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   Button,
   TextField,
@@ -23,16 +23,24 @@ export default function VerifyEmail() {
   const inputRefs = useRef([]);
   const { userInfo } = useSelector((state) => state.auth);
   const user = userInfo?.user;
-  const router =useRouter()
+  const router = useRouter();
+  const codeSentRef = useRef(false);
 
-  function sentVerificationCode() {
+  const sentVerificationCode = useCallback((force = false) => {
+    if (codeSentRef.current && !force) return; // Prevent multiple sends unless forced
+    codeSentRef.current = true;
     api
       .post("/email/send-code")
-      .then((res) =>
-        gooeyToast.success("the verification code sent successfuly"),
-      )
-      .catch((err) => gooeyToast.error(err.response?.data?.message || err.message || "Sending failed"));
-  }
+      .then((res) => {
+        gooeyToast.success("the verification code sent successfuly");
+      })
+      .catch((err) => {
+        codeSentRef.current = false; // Allow retry on error
+        gooeyToast.error(
+          err.response?.data?.message || err.message || "Sending failed",
+        );
+      });
+  }, []);
 
   useEffect(() => {
     sentVerificationCode();
@@ -55,15 +63,20 @@ export default function VerifyEmail() {
     }
   };
 
-  function verifyEmail(){
-    api.post('/email/verify-email',{
-      code : otp.join('')
-    })
-    .then((res)=>{
-      gooeyToast.success('the email verify successfuly')
-      router.push('/home')
-    })
-    .catch((err) => gooeyToast.error(err.response?.data?.message || err.message || "Verification failed"))
+  function verifyEmail() {
+    api
+      .post("/email/verify-email", {
+        code: otp.join(""),
+      })
+      .then((res) => {
+        gooeyToast.success("the email verify successfuly");
+        router.push("/home");
+      })
+      .catch((err) =>
+        gooeyToast.error(
+          err.response?.data?.message || err.message || "Verification failed",
+        ),
+      );
   }
 
   return (
@@ -76,7 +89,10 @@ export default function VerifyEmail() {
         >
           <div className="bg-[var(--nav-pill-bg)] py-12 flex justify-center">
             <div className="w-16 h-16 rounded-full bg-[var(--card-bg)] border border-[var(--card-border)] flex items-center justify-center shadow-sm">
-              <MailOutlineIcon sx={{ color: "var(--color-primary)" }} fontSize="large" />
+              <MailOutlineIcon
+                sx={{ color: "var(--color-primary)" }}
+                fontSize="large"
+              />
             </div>
           </div>
           <div className="p-8 md:p-12 text-center">
@@ -128,7 +144,7 @@ export default function VerifyEmail() {
             <div className="mt-6 flex items-center justify-center gap-1 text-sm text-[var(--text-muted)]">
               Didn't receive the email?
               <button
-                onClick={sentVerificationCode}
+                onClick={() => sentVerificationCode(true)}
                 className="text-[var(--color-primary)] font-extrabold hover:underline flex items-center gap-1"
               >
                 Resend Code

@@ -28,7 +28,7 @@ Route::controller(AuthController::class)->group(function () {
 
 Route::controller(PasswordController::class)->group(function () {
     Route::post('/password/forgot-password', 'forgotPassword');
-    Route::post('/password/change-password/{userId}/{token}', 'changePassword');
+    Route::post('/password/change-password', 'changePassword');
 });
 
 Route::middleware('jwt.cookie')->group(function () {

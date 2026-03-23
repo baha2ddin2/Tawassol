@@ -148,7 +148,8 @@ export default function CreateGroup({ open, setOpen }) {
 
                 <Checkbox
                   checked={members.includes(friend.user_id)}
-                  onChange={(e) => { e.stopPropagation(); toggleMember(friend.user_id); }}
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={() => toggleMember(friend.user_id)}
                   sx={{ color: "var(--text-muted)", "&.Mui-checked": { color: "var(--color-primary)" } }}
                 />
               </div>

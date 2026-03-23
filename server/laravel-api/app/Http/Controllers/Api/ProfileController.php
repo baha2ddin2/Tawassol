@@ -51,40 +51,38 @@ class ProfileController extends Controller
         return response()->json($profile);
     }
 
-    public function ShowProfile(string $id)
+       public function ShowProfile(string $id)
     {
-
         $authUserId = Auth::id();
 
         $profile = DB::table('users')
             ->join('profiles', 'users.user_id', '=', 'profiles.user_id')
-            ->leftJoin('follows as f1', 'users.user_id', '=', 'f1.followed_id')
-            ->leftJoin('follows as f2', 'users.user_id', '=', 'f2.follower_id')
-            ->leftJoin('posts as p', 'p.author_id', '=', 'users.user_id')
             ->where('users.user_id', $id)
             ->select(
                 'profiles.avatar_url as avatar_url',
                 'profiles.display_name as display_name',
                 'profiles.bio as bio',
-                DB::raw('COUNT(DISTINCT f1.follow_id) as followers_count'),
-                DB::raw('COUNT(DISTINCT f2.follow_id) as following_count'),
-                DB::raw('COUNT(DISTINCT p.post_id) as posts_count'),
-                DB::raw('(SELECT COUNT(*) FROM follows WHERE follower_id = ? AND followed_id = users.user_id) as is_following')
+                'users.user_id',
+                'profiles.is_private'
             )
-            ->addBinding($authUserId, 'select')
-            ->groupBy(
-                'profiles.avatar_url',
-                'profiles.display_name',
-                'profiles.bio',
-                'users.user_id'
-            )
+            // Use subselects to count efficiently without needing GROUP BY or DISTINCT
+            ->selectRaw('(SELECT COUNT(*) FROM follows WHERE followed_id = users.user_id) as followers_count')
+            ->selectRaw('(SELECT COUNT(*) FROM follows WHERE follower_id = users.user_id) as following_count')
+            ->selectRaw('(SELECT COUNT(*) FROM posts WHERE author_id = users.user_id) as posts_count')
+            // Pass the binding directly into selectRaw
+            ->selectRaw('EXISTS(SELECT 1 FROM follows WHERE follower_id = ? AND followed_id = users.user_id) as is_following', [$authUserId])
             ->first();
 
         if (!$profile) {
             return response()->json(['message' => 'profile not found'], 404);
         }
+
+        // is_following returns as 1 or 0 from MySQL, cast it to boolean for the JSON response
+        $profile->is_following = (bool) $profile->is_following; 
+
         return response()->json($profile);
     }
+
 
 
     public function updateProfile(UpdateProfileRequest $request)
