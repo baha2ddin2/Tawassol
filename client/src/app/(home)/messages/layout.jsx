@@ -13,7 +13,7 @@ import { useTranslation } from "react-i18next";
 export default function Layout({ children }) {
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
-  const { contacts, loading } = useSelector((state) => state.message);
+  const { contacts, contactsLoading } = useSelector((state) => state.message);
   const { t } = useTranslation();
   const pathname = usePathname();
   const isChatActive = pathname !== "/messages";
@@ -48,7 +48,7 @@ export default function Layout({ children }) {
 
         {/* CONTACT LIST */}
         <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-          {loading ? (
+          {contactsLoading ? (
             [...Array(6)].map((_, i) => <ContactSkeleton key={i} />)
           ) : !contacts || contacts.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-8 text-center text-[var(--text-muted)] h-full">

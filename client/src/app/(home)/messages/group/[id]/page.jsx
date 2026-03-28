@@ -31,7 +31,7 @@ export default function GroupChatPage() {
   const fileInputRef = useRef(null);
   const messagesData =
     useSelector((state) => state.message.GroupMessages) || [];
-  const { contacts, loading } = useSelector((state) => state.message);
+  const { contacts, conversationLoading } = useSelector((state) => state.message);
   const { userInfo } = useSelector((state) => state.auth);
   const userId = userInfo?.user?.user_id;
   const { t } = useTranslation();
@@ -211,7 +211,7 @@ export default function GroupChatPage() {
         ref={containerRef}
         className="flex-1 overflow-y-auto p-4 space-y-1 bg-[var(--background)] transition-colors duration-300"
       >
-        {loading ? (
+        {conversationLoading ? (
           <MessageSkeleton />
         ) : messagesData.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-8 text-center text-[var(--text-muted)] h-full">

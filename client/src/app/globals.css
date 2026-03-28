@@ -272,3 +272,46 @@ label {
     padding: 0 20px;
   }
 }
+
+/* ── Post Swiper Navigation ── */
+.post-swiper .swiper-button-next,
+.post-swiper .swiper-button-prev {
+  width: 32px;
+  height: 32px;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  border-radius: 50%;
+  color: #fff;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.post-swiper .swiper-button-next:hover,
+.post-swiper .swiper-button-prev:hover {
+  background: rgba(0, 0, 0, 0.7);
+  transform: scale(1.1);
+}
+
+.post-swiper .swiper-button-next::after,
+.post-swiper .swiper-button-prev::after {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.post-swiper .swiper-pagination-bullet {
+  background: rgba(255, 255, 255, 0.6);
+  opacity: 1;
+}
+
+.post-swiper .swiper-pagination-bullet-active {
+  background: #fff;
+}
+
+/* ── Typing cursor blink ── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+.animate-blink {
+  animation: blink 0.9s step-start infinite;
+}

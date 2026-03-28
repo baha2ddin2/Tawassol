@@ -16,7 +16,7 @@ export default function UpdateGroupPage() {
   const dispatch = useDispatch();
   const fileInputRef = useRef(null);
 
-  const { groupInfo, loading } = useSelector((state) => state.message);
+  const { groupInfo, conversationLoading } = useSelector((state) => state.message);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -130,11 +130,11 @@ export default function UpdateGroupPage() {
                 type="submit"
                 fullWidth
                 variant="contained"
-                disabled={loading}
-                startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <Save />}
+                disabled={conversationLoading}
+                startIcon={conversationLoading ? <CircularProgress size={20} color="inherit" /> : <Save />}
                 className="py-3 rounded-xl bg-[#1477ff] hover:bg-blue-700 shadow-lg shadow-blue-200 dark:shadow-none font-bold normal-case"
               >
-                {loading ? 'saving' : 'saveChanges'}
+                {conversationLoading ? 'saving' : 'saveChanges'}
               </Button>
             </Box>
           </form>

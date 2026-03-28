@@ -36,7 +36,7 @@ export default function ChatPage() {
   const { id } = useParams();
   const router = useRouter();
   const messagesData = useSelector((state) => state.message.messages) || [];
-  const { contact, loading } = useSelector((state) => state.message);
+  const { contact, conversationLoading } = useSelector((state) => state.message);
   const { userInfo } = useSelector((state) => state.auth);
   const userId = userInfo?.user?.user_id;
 
@@ -308,7 +308,7 @@ export default function ChatPage() {
         ref={containerRef}
         className="flex-1 overflow-y-auto p-4 space-y-3  bg-[var(--background)]"
       >
-        {loading ? (
+        {conversationLoading ? (
           <PrivateMessageSkeleton />
         ) : messagesData?.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-8 text-center text-[var(--text-muted)] h-full">

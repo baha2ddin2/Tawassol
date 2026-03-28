@@ -116,9 +116,6 @@ export default function FollowersPage() {
                           {t("profile.followingButton", "Following")}
                         </Button>
                       ))}
-                    <IconButton size="small" className="text-[var(--text-muted)]">
-                      <MoreHorizIcon />
-                    </IconButton>
                   </div>
                 </div>
               ))}

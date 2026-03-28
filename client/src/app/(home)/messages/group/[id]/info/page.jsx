@@ -39,7 +39,7 @@ export default function GroupDetailsPage() {
   const [selectedMember, setSelectedMember] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState({ open: false, type: "", title: "", content: "" });
   
-  const { groupInfo, loading } = useSelector((state) => state.message);
+  const { groupInfo, conversationLoading } = useSelector((state) => state.message);
   const { user } = useSelector((data) => data.auth.userInfo);
   const { t } = useTranslation();
 
@@ -105,7 +105,7 @@ export default function GroupDetailsPage() {
   const handleRemoveMember = () => handleOpenConfirm("remove");
   const handleMakeAdmin = () => handleOpenConfirm("make_admin");
 
-  if (loading || !groupInfo) {
+  if (conversationLoading || !groupInfo) {
     return (
       <div className="flex items-center justify-center h-full bg-[var(--background)] transition-colors duration-300">
         <CircularProgress sx={{ color: "var(--color-primary)" }} />

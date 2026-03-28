@@ -296,7 +296,8 @@ const messageReducer = createSlice({
     GroupMessages: [],
     availableMembersOptions: [],
     groupInfo: {},
-    loading: true,
+    contactsLoading: true,
+    conversationLoading: true,
   },
   reducers: {
     reciveMessage: (state, action) => {
@@ -350,37 +351,37 @@ const messageReducer = createSlice({
     builder
       .addCase(messages.fulfilled, (state, action) => {
         state.messages = action.payload || [];
-        state.loading = false;
+        state.conversationLoading = false;
       })
       .addCase(messages.pending, (state, action) => {
-        state.loading = true;
+        state.conversationLoading = true;
       })
       .addCase(messages.rejected, (state, action) => {
         state.error = action.payload;
-        state.loading = false;
+        state.conversationLoading = false;
       })
       .addCase(contact.pending, (state) => {
-        state.loading = true;
+        state.contactsLoading = true;
       })
       .addCase(contact.fulfilled, (state, action) => {
         state.contacts = action.payload || [];
-        state.loading = false;
+        state.contactsLoading = false;
       })
       .addCase(contact.rejected, (state, action) => {
         state.contacts = [];
-        state.loading = false;
+        state.contactsLoading = false;
         state.error = action.payload;
       })
       .addCase(GroupMessages.pending, (state) => {
-        state.loading = true;
+        state.conversationLoading = true;
       })
       .addCase(GroupMessages.fulfilled, (state, action) => {
         state.GroupMessages = action.payload || [];
-        state.loading = false;
+        state.conversationLoading = false;
       })
       .addCase(GroupMessages.rejected, (state, action) => {
         state.GroupMessages = [];
-        state.loading = false;
+        state.conversationLoading = false;
         state.error = action.payload;
       })
       .addCase(createGroup.fulfilled, (state, action) => {
@@ -390,14 +391,14 @@ const messageReducer = createSlice({
         state.availableMembersOptions = action.payload;
       })
       .addCase(getGroupDetails.pending, (state, action) => {
-        state.loading = true;
+        state.conversationLoading = true;
       })
       .addCase(getGroupDetails.rejected, (state, action) => {
-        state.loading = false;
+        state.conversationLoading = false;
       })
       .addCase(getGroupDetails.fulfilled, (state, action) => {
         state.groupInfo = action.payload;
-        state.loading = false;
+        state.conversationLoading = false;
       })
       .addCase(deleteMessage.fulfilled, (state, action) => {
         state.messages = state.messages.filter(

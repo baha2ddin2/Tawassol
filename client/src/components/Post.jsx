@@ -23,6 +23,7 @@ import { motion } from "framer-motion";
 
 import "swiper/css";
 import "swiper/css/pagination";
+import "swiper/css/navigation";
 import dayjs from "dayjs";
 import HashtagText from "./HashtagText";
 import Link from "next/link";
@@ -85,20 +86,22 @@ export default function PostCard({ post, handelLike }) {
       </div>
 
       {mediaItems.length > 0 && (
-        <div className="relative flex-1 w-full bg-[var(--nav-pill-bg)] border-y border-[var(--card-border)] overflow-hidden">
+        <div className="relative flex-1 w-full bg-black/90 border-y border-[var(--card-border)] overflow-hidden">
           <Swiper
             modules={[Pagination, Navigation]}
             pagination={{ clickable: true, dynamicBullets: true }}
-            className="h-full w-full"
+            navigation
+            className="h-full w-full post-swiper"
           >
             {mediaItems.map((item, index) => (
-              <SwiperSlide key={`media-${item.media_id || item.id}-${index}`}>
+              <SwiperSlide key={`media-${item.media_id || item.id}-${index}`} className="flex items-center justify-center">
                 {item.type === "picture" ? (
                   <Image
                     src={`http://127.0.0.1:8000/storage/${item.url}`}
                     fill
-                    className="object-cover"
+                    className="object-contain"
                     alt="post-media"
+                    sizes="(max-width: 768px) 100vw, 600px"
                   />
                 ) : (
                   <Video src={`http://127.0.0.1:8000/storage/${item.url}`} />
